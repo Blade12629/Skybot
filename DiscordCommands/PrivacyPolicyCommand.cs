@@ -38,7 +38,14 @@ namespace DiscordCommands
         private string GetPrivacyPolicy()
         {
             return "Privacy Policy\n```\n" +
-                   "Not implemented yet, contact ??????#0284 for more infos\n" +
+                   "The following data is collected:\n" +
+                   "Your Discord user data (username, ID, mention, roles)\n" +
+                   "Your osu! data (username, ID, Scores)\n" +
+                   "osu! multiplayer chat logs\n" +
+                   "This data is used to verify users, analyze tournament matches, deliver tourney stats and improve the general discord user feeling\n" +
+                   "\n\n" +
+                   "If you have any questions or want your data deleted contact me on discord: ??????#0284\n" +
+                   "I will try to answer withing 48 hours\n" +
                    "```";
         }
     }
