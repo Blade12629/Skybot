@@ -253,6 +253,8 @@ namespace SkyBot.Discord.CommandSystem
                     }
                 }
             }
+            else if (access < (short)AccessLevel.Dev)
+                access = 0;
 
             return (AccessLevel)access;
         }
