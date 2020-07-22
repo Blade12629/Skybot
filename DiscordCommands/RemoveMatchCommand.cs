@@ -25,8 +25,6 @@ namespace DiscordCommands
             if (args.Parameters.Count == 0 || !long.TryParse(args.Parameters[0], out long matchId))
                 return;
 
-            //TODO: restrict to guild matches
-
             SkyBot.Analyzer.Analyzer.RemoveMatch(matchId, args.Guild);
 
             args.Channel.SendMessageAsync("Removed match " + matchId);
