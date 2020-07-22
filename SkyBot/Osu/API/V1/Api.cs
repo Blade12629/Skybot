@@ -89,7 +89,7 @@ namespace SkyBot.Osu.API.V1
         /// <summary>
         /// Gets a beatmap from the api
         /// </summary>
-        public static async Task<JsonGetBeatmap> Get_BeatMap(int bBeatmap_id = 0, GameModeEnum mMode = GameModeEnum.standard, int aConvertedMaps = 1, int limitSearchLimit = 30)
+        public static async Task<JsonGetBeatmap> GetBeatMap(int bBeatmap_id = 0, GameModeEnum mMode = GameModeEnum.standard, int aConvertedMaps = 1, int limitSearchLimit = 30)
         {
             return (await GetJson<JsonGetBeatmap[]>(string.Format("{0}get_beatmaps?k={1}&b={2}&m={3}&a={4}&limit={5}", API_URL, API_Key, bBeatmap_id, (int)mMode, aConvertedMaps, limitSearchLimit)))?[0] ?? null;
         }

@@ -22,6 +22,13 @@ namespace SkyBot.Analyzer
         /// <summary>
         /// Creates a statistic for a osu mp match
         /// </summary>
+        /// <param name="history">History file</param>
+        /// <param name="guild">Discord guild</param>
+        /// <param name="matchId">Match Id</param>
+        /// <param name="warmupCount">Warmup Map Total Count</param>
+        /// <param name="stage">Stage</param>
+        /// <param name="submitStats">Submit stats to DB</param>
+        /// <param name="beatmapsToIgnore">Ignore specific beatmaps</param>
         public static AnalyzerResult CreateStatistic(HistoryJson.History history, DiscordGuild guild, int matchId, int warmupCount, string stage, bool submitStats, params long[] beatmapsToIgnore)
         {
             string matchName = history.Events.FirstOrDefault(ob => ob.Detail.Type == "other").Detail.MatchName;
@@ -97,6 +104,9 @@ namespace SkyBot.Analyzer
             return result;
         }
 
+        /// <summary>
+        /// Gets a <see cref="HistoryJson.History"/> from the <paramref name="matchUrl"/>
+        /// </summary>
         public static HistoryJson.History GetHistory(string matchUrl)
         {
             List<HistoryJson.History> histories = new List<HistoryJson.History>()
@@ -133,11 +143,15 @@ namespace SkyBot.Analyzer
 
             return history;
         }
-
-        public static void RemoveMatch(long matchId)
+        
+        /// <summary>
+        /// Removes a match from the DB
+        /// </summary>
+        public static void RemoveMatch(long matchId, DiscordGuild guild)
         {
             using DBContext c = new DBContext();
-            SeasonResult sr = c.SeasonResult.FirstOrDefault(sr => sr.MatchId == matchId);
+            SeasonResult sr = c.SeasonResult.FirstOrDefault(sr => sr.MatchId == matchId &&
+                                                                  sr.DiscordGuildId == (long)guild.Id);
 
             if (sr == null)
                 return;

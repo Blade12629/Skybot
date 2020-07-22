@@ -11,7 +11,13 @@ namespace SkyBot
     {
         public static string DiscordToken { get; set; }
 
+        /// <summary>
+        /// Set to true to use MariaDB otherwise use default MySQL
+        /// </summary>
         public static bool UseMySQLMariaDB { get; set; }
+        /// <summary>
+        /// MySQL connection string, should contain "TreatTinyAsBoolean=true;"
+        /// </summary>
         public static string MySQLConnectionString { get; set; }
 
         public static string IrcHost { get; set; }
@@ -24,6 +30,10 @@ namespace SkyBot
         public static int OsuApiRateLimitResetDelayMS { get; set; }
         public static int OsuApiRateLimitMax { get; set; }
 
+        /// <summary>
+        /// Loads the config from \typeName.cfg
+        /// </summary>
+        /// <returns>File read</returns>
         public static bool Read()
         {
             string file = typeof(SkyBotConfig).Name + ".cfg";
@@ -55,6 +65,9 @@ namespace SkyBot
             return true;
         }
 
+        /// <summary>
+        /// Writes the config to \typeName.cfg
+        /// </summary>
         public static void Write()
         {
             Dictionary<string, PropertyInfo> props = typeof(SkyBotConfig).GetProperties(BindingFlags.Static | BindingFlags.Public).ToDictionary(k => k.Name);

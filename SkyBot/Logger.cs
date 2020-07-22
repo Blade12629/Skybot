@@ -13,6 +13,12 @@ namespace SkyBot
 
         private static object _loggerLock = new object();
 
+        /// <summary>
+        /// Log a message
+        /// </summary>
+        /// <param name="message">Message to log</param>
+        /// <param name="level">Log Level</param>
+        /// <param name="member">Leave empty</param>
         public static void Log(object message, LogLevel level = LogLevel.Debug, [CallerMemberName] string member = null)
         {
             DateTime date = DateTime.UtcNow;

@@ -73,6 +73,11 @@ namespace SkyBot.Osu.IRC
             }
         }
 
+        /// <summary>
+        /// Sets the current <see cref="Nick"/> and <see cref="_pass"/>
+        /// </summary>
+        /// <param name="nick">Nickname</param>
+        /// <param name="pass">Password</param>
         public void SetAuthentication(string nick, string pass)
         {
             if (string.IsNullOrEmpty(nick))
@@ -84,6 +89,11 @@ namespace SkyBot.Osu.IRC
             _pass = pass;
         }
 
+        /// <summary>
+        /// Sends a login request
+        /// </summary>
+        /// <param name="nick">Empty: take <see cref="Nick"/></param>
+        /// <param name="pass">Empty: take <see cref="_pass"/></param>
         public void Login(string nick = null, string pass = null)
         {
             if (!string.IsNullOrEmpty(nick) && !string.IsNullOrEmpty(pass))
@@ -93,16 +103,30 @@ namespace SkyBot.Osu.IRC
             SendCommand("NICK", Nick);
         }
 
+        /// <summary>
+        /// Sends a command
+        /// </summary>
+        /// <param name="command">Command</param>
+        /// <param name="parameters">Command Parameters</param>
         public void SendCommand(string command, params string[] parameters)
         {
             _client.IrcCommand(new IrcString(command), parameters?.Select(p => new IrcString(p)).ToArray() ?? null);
         }
 
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="destination">Destination (Channel/User)</param>
+        /// <param name="message">Message</param>
         public void SendMessage(string destination, string message)
         {
             _qrl.Increment<bool>(new Action(() => _client.Message(new IrcString(destination), new IrcString(message))));
         }
 
+        /// <summary>
+        /// Connects and automatically logs in
+        /// </summary>
+        /// <returns></returns>
         public async Task ConnectAndLoginAsync()
         {
             await ConnectAsync();

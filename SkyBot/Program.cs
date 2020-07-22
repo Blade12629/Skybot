@@ -10,7 +10,13 @@ namespace SkyBot
     {
         public static DiscordHandler DiscordHandler { get; private set; }
         public static Random Random { get; } = new Random();
+        /// <summary>
+        /// Osu irc 
+        /// </summary>
         public static Osu.IRC.OsuIrcClient IRC { get; private set; }
+        /// <summary>
+        /// Mention of the discord bot user
+        /// </summary>
         public static string BotMention => DiscordHandler.Client.CurrentUser.Mention;
         public static MaintenanceScanner MaintenanceScanner { get; private set; }
 
@@ -43,6 +49,9 @@ namespace SkyBot
             await Task.Delay(-1);
         }
 
+        /// <summary>
+        /// Loads the <see cref="SkyBotConfig"/>
+        /// </summary>
         private static async Task LoadSettings()
         {
             Logger.Log("Loading settings", LogLevel.Info);
@@ -63,6 +72,9 @@ namespace SkyBot
             Logger.Log("Loaded settings", LogLevel.Info);
         }
 
+        /// <summary>
+        /// Loads <see cref="Osu.IRC.OsuIrcClient"/>
+        /// </summary>
         private static async Task LoadIrc()
         {
             Logger.Log("Loading IRC", LogLevel.Info);
@@ -84,6 +96,9 @@ namespace SkyBot
             Logger.Log("Loaded IRC", LogLevel.Info);
         }
 
+        /// <summary>
+        /// Loads <see cref="Discord.DiscordHandler"/> and <see cref="Discord.CommandSystem.CommandHandler"/>
+        /// </summary>
         private static async Task LoadDiscord()
         {
             Logger.Log("Loading Discord", LogLevel.Info);
@@ -95,6 +110,9 @@ namespace SkyBot
             Logger.Log("Loaded Discord", LogLevel.Info);
         }
 
+        /// <summary>
+        /// Loads the <see cref="MaintenanceScanner"/>
+        /// </summary>
         private static void LoadMaintenanceScanner()
         {
             MaintenanceScanner = new MaintenanceScanner(TimeSpan.FromSeconds(10));
@@ -103,11 +121,20 @@ namespace SkyBot
             MaintenanceScanner.Start();
         }
 
+        /// <summary>
+        /// Checks if our maintenance status has changed
+        /// </summary>
+        /// <param name="e">Status, StatusMessage</param>
         private static void OnMaintenanceChanged(object sender, (bool, string) e)
         {
             DiscordHandler.Client.UpdateStatusAsync(new DSharpPlus.Entities.DiscordGame(e.Item2), e.Item1 ? DSharpPlus.Entities.UserStatus.DoNotDisturb : DSharpPlus.Entities.UserStatus.Online);
         }
 
+        /// <summary>
+        /// Generates a MD5 hash string
+        /// </summary>
+        /// <param name="input">String to compute md5 from</param>
+        /// <returns>MD5 hash</returns>
         public static string GenerateMd5(string input)
         {
             using (System.Security.Cryptography.MD5 md = System.Security.Cryptography.MD5.Create())

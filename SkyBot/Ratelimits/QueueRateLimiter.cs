@@ -57,6 +57,14 @@ namespace SkyBot.Ratelimits
             }
         }
 
+        /// <summary>
+        /// Increment ratelimit and enqueue action if we are at the limit or invoke action
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queueAction">Action to invoke</param>
+        /// <param name="confirmAction">Action to confirm token once invoked(Required for async callback)</param>
+        /// <param name="token">Token with confirm status (Required for async callback)</param>
+        /// <returns>False - Enqueued token, True - Invoked action</returns>
         public bool Increment<T>(Action queueAction, Action<object> confirmAction = null, T token = default)
         {
             if (Increment())

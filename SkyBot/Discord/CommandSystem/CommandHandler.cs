@@ -37,6 +37,11 @@ namespace SkyBot.Discord.CommandSystem
             Dispose();
         }
 
+        /// <summary>
+        /// Loads commands from an assembly without locking the assembly
+        /// </summary>
+        /// <param name="commandAssemblyFile">Filepath</param>
+        /// <returns>Commands loaded</returns>
         public bool LoadCommands(string commandAssemblyFile)
         {
             _commandAssemblyLoadContext = new CommandAssemblyLoadContext();

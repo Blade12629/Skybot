@@ -9,6 +9,13 @@ namespace SkyBot.Analyzer
 
     public static class Cache
     {
+        /// <summary>
+        /// Clears the cache of a player
+        /// </summary>
+        /// <param name="osuUserId">Osu User Id</param>
+        /// <param name="c">DB Context</param>
+        /// <param name="guildId">Discord Guild Id</param>
+        /// <returns>Empty Cache</returns>
         public static SeasonPlayerCardCache ClearPlayerCache(long osuUserId, DBContext c, long guildId)
         {
             SeasonPlayerCardCache cardCache = c.SeasonPlayerCardCache.FirstOrDefault(cc => cc.OsuUserId == osuUserId &&
@@ -54,6 +61,13 @@ namespace SkyBot.Analyzer
             return cardCache;
         }
 
+        /// <summary>
+        /// Refreshes or adds a cache for a player
+        /// </summary>
+        /// <param name="osuUserId">Osu User Id</param>
+        /// <param name="c">DB Context</param>
+        /// <param name="guildId">Discord Guild Id</param>
+        /// <param name="getOverallRatingAction">Function to calculate the overall rating</param>
         public static void ForceRefreshPlayerCache(long osuUserId, DBContext c, long guildId, Func<SeasonPlayer, DBContext, double> getOverallRatingAction)
         {
             SeasonPlayerCardCache cardCache = ClearPlayerCache(osuUserId, c, guildId);
@@ -93,6 +107,13 @@ namespace SkyBot.Analyzer
             c.SaveChanges();
         }
 
+        /// <summary>
+        /// Clears the cache of a team
+        /// </summary>
+        /// <param name="teamName">Team Name</param>
+        /// <param name="c">DB Context</param>
+        /// <param name="guildId">Discord Guild Id</param>
+        /// <returns>Empty Cache</returns>
         public static SeasonTeamCardCache ClearTeamCache(string teamName, DBContext c, long guildId)
         {
             SeasonTeamCardCache stcc = c.SeasonTeamCardCache.FirstOrDefault(stcc => stcc.TeamName.Equals(teamName, StringComparison.CurrentCultureIgnoreCase) &&
@@ -139,6 +160,12 @@ namespace SkyBot.Analyzer
             return stcc;
         }
 
+        /// <summary>
+        /// Refreshes or adds a cache for a player
+        /// </summary>
+        /// <param name="teamName">Team Name</param>
+        /// <param name="c">DB Context</param>
+        /// <param name="guildId">Discord Guild Id</param>
         public static void ForceRefreshTeamCache(string teamName, DBContext c, long guildId)
         {
             SeasonTeamCardCache stcc = ClearTeamCache(teamName, c, guildId);
