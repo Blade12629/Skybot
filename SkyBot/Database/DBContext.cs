@@ -37,10 +37,12 @@ public class DBContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DBConnection", EnvironmentVariableTarget.Process), builder =>
+            optionsBuilder.UseMySql(SkyBot.SkyBotConfig.MySQLConnectionString, builder =>
             {
                 builder.EnableRetryOnFailure(25, TimeSpan.FromSeconds(2), null);
-                builder.ServerVersion(new Version(10, 1, 41), Pomelo.EntityFrameworkCore.MySql.Infrastructure.ServerType.MariaDb);
+
+                if (SkyBot.SkyBotConfig.UseMySQLMariaDB)
+                    builder.ServerVersion(new Version(10, 1, 41), Pomelo.EntityFrameworkCore.MySql.Infrastructure.ServerType.MariaDb);
             }).EnableSensitiveDataLogging();
 
             base.OnConfiguring(optionsBuilder);

@@ -11,3 +11,11 @@ Currently Features:
 - Analyzer
 - Statistics for user and teams
 - Verification
+
+
+---
+Requirements:
+- .Net Core 3.1
+- Discord Bot Account
+- Osu Account
+- MariaDB Database

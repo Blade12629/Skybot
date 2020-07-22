@@ -11,6 +11,9 @@ namespace SkyBot
     {
         public static string DiscordToken { get; set; }
 
+        public static bool UseMySQLMariaDB { get; set; }
+        public static string MySQLConnectionString { get; set; }
+
         public static string IrcHost { get; set; }
         public static int IrcPort { get; set; }
         public static string IrcUser { get; set; }
