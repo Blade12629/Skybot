@@ -1,6 +1,0 @@
-22.07.2020 00:01:18 *Info* MainTask: Starting Skybot
-22.07.2020 00:01:18 *Error* LoadSettings: Config not found, created default one, press any key to exit
-22.07.2020 00:01:18 *Info* LoadSettings: Loading settings
-22.07.2020 00:02:07 *Info* MainTask: Starting Skybot
-22.07.2020 00:02:07 *Info* LoadSettings: Loading settings
-22.07.2020 00:02:07 *Error* LoadSettings: Config not found, created default one, press any key to exit
