@@ -1,0 +1,2 @@
+# Skybot
+osu! tourney bot
