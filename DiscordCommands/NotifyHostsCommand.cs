@@ -6,19 +6,19 @@ using System.Text;
 
 namespace DiscordCommands
 {
-    public class NotifyOwnersCommand : ICommand
+    public class NotifyHostsCommand : ICommand
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => "notifyowners";
+        public string Command => "notifyhosts";
 
         public AccessLevel AccessLevel => AccessLevel.Host;
 
         public CommandType CommandType => CommandType.None;
 
-        public string Description => "Notifies every guild owner where this bot is in";
+        public string Description => "Notifies every host";
 
-        public string Usage => "!notifyowners <message>";
+        public string Usage => "!notifyhosts <message>";
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
