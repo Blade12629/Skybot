@@ -31,8 +31,24 @@ namespace SkyBot
                 Logger.Log("Starting Skybot", LogLevel.Info);
 
                 await LoadSettings();
+
+                if (args != null && args.Length > 0)
+                {
+                    using (DBContext c = new DBContext())
+                    {
+                        switch (args[0].ToLower())
+                        {
+                            case "createdefaultdb":
+                                c.CreateDefaultTables();
+                                c.SaveChanges();
+                                break;
+                        }
+
+                    }
+                }
+
                 await LoadDiscord();
-                await LoadIrc();
+                //await LoadIrc();
 
                 Logger.Log("Skybot started", LogLevel.Info);
             }

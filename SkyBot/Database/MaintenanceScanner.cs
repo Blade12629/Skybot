@@ -26,6 +26,9 @@ namespace SkyBot.Database
             {
                 ByteTable bt = set.FirstOrDefault(bt => bt.Identifier.Equals(_TABLE_KEY));
 
+                if (bt == null)
+                    return;
+
                 bool newStatus;
                 string newMessage;
                 if (bt == null)

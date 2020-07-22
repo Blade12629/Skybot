@@ -21,10 +21,12 @@ namespace SkyBot.Discord.CommandSystem
         {
             try
             {
-                if (!File.Exists(file))
+                FileInfo fi = new FileInfo(file);
+
+                if (!fi.Exists)
                     return false;
 
-                Assembly = LoadFromAssemblyPath(file);
+                Assembly = LoadFromAssemblyPath(fi.FullName);
 
                 if (Assembly == null)
                     return false;

@@ -52,7 +52,7 @@ namespace SkyBot.Discord.CommandSystem
 
             foreach(Type t in _commandAssemblyLoadContext.Assembly.GetTypes())
             {
-                if (!t.IsAssignableFrom(typeof(ICommand)) && !t.IsSubclassOf(typeof(ICommand)))
+                if (t.GetInterface(nameof(ICommand)) == null)
                     continue;
 
                 RegisterCommand(t);
@@ -190,6 +190,9 @@ namespace SkyBot.Discord.CommandSystem
                 if (access < cmd.AccessLevel)
                     return;
 
+                if (parameters.Count > 0)
+                    parameters.RemoveAt(0);
+
                 CommandEventArg arg = new CommandEventArg(e.Guild, e.Channel, e.Author, (e.Guild == null ? null : e.Guild.GetMemberAsync(e.Author.Id).Result),
                                                           e.Message, access, parameters);
 
@@ -222,7 +225,7 @@ namespace SkyBot.Discord.CommandSystem
 
             Permission perm = c.Permission.FirstOrDefault(p => p.DiscordUserId == (long)discordUserId);
 
-            short access = perm.AccessLevel;
+            short access = perm?.AccessLevel ?? 0;
 
             if (discordGuildId != 0)
             {

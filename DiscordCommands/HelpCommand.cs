@@ -36,11 +36,14 @@ namespace DiscordCommands
                 if (char.IsDigit(args.Parameters[0][0]))
                 {
                     if (int.TryParse(args.Parameters[0], out int page_))
+                    {
+                        args.Parameters.RemoveAt(0);
                         page = page_;
-
-                    ShowHelp(handler, args);
-                    return;
+                    }
                 }
+
+                if (args.Parameters.Count > 0 && ShowHelp(handler, args))
+                    return;
             }
 
             ListCommands(handler, args, page);
@@ -83,17 +86,20 @@ namespace DiscordCommands
                 descriptionBuilder.AppendLine(commands[i].Description);
                 accessBuilder.AppendLine(commands[i].AccessLevel.ToString());
 
-                if (commands[i].Description.Length > 102)
+                if (commands[i].Description.Length > 114)
                 {
-                    cmdBuilder.AppendLine();
-                    cmdBuilder.AppendLine();
-                    accessBuilder.AppendLine();
-                    accessBuilder.AppendLine();
+                    for (int x = 0; x < 2; x++)
+                    {
+                        cmdBuilder.AppendLine();
+                        accessBuilder.AppendLine();
+                        descriptionBuilder.AppendLine();
+                    }
                 }
-                else if (commands[i].Description.Length > 51)
+                else if (commands[i].Description.Length > 57)
                 {
                     cmdBuilder.AppendLine();
                     accessBuilder.AppendLine();
+                    descriptionBuilder.AppendLine();
                 }
             }
 
@@ -105,17 +111,17 @@ namespace DiscordCommands
         }
 
 
-        public static void ShowHelp(CommandHandler handler, CommandEventArg args)
+        public static bool ShowHelp(CommandHandler handler, CommandEventArg args)
         {
             string command = args.Parameters[0].Trim('!');
 
             if (handler.Commands.TryGetValue(command, out ICommand cmd))
             {
                 ShowHelp(args.Channel, cmd);
-                return;
+                return true;
             }
 
-            args.Channel.SendMessageAsync($"Command {command} not found").Wait();
+            return false;
         }
 
         public static void ShowHelp(DiscordChannel channel, ICommand command, string notice = null)

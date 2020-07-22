@@ -33,7 +33,6 @@ namespace SkyBot.Discord
             Client.MessageCreated += async e => await OnClientMessageCreated(e);
 
             CommandHandler = new CommandHandler(this, commandPrefix);
-            CommandHandler.LoadCommands("DiscordCommands.dll");
         }
 
         ~DiscordHandler()
@@ -45,6 +44,7 @@ namespace SkyBot.Discord
         {
             Logger.Log("Starting discord client");
 
+            CommandHandler.LoadCommands("DiscordCommands.dll");
             await Client.ConnectAsync();
         }
 
@@ -68,7 +68,7 @@ namespace SkyBot.Discord
         private async Task OnClientMessageCreated(MessageCreateEventArgs e)
         {
             //Ignore bot messages
-            if (e.Author.Id == Client.CurrentUser.Id)
+            if (e.Author.Id == Client.CurrentUser.Id || string.IsNullOrEmpty(e.Message?.Content ?? ""))
                 return;
 
             if (e.Guild != null)
@@ -76,7 +76,7 @@ namespace SkyBot.Discord
                 using DBContext c = new DBContext();
                 DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
 
-                if (dgc.AnalyzeChannelId != 0 && dgc.AnalyzeChannelId == (long)e.Channel.Id)
+                if (dgc != null && dgc.AnalyzeChannelId != 0 && dgc.AnalyzeChannelId == (long)e.Channel.Id)
                 {
                     await Task.Run(() => InvokeAnalyzer(e, dgc, c));
                     return;

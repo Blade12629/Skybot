@@ -29,6 +29,7 @@ namespace SkyBot
 
         public static int OsuApiRateLimitResetDelayMS { get; set; }
         public static int OsuApiRateLimitMax { get; set; }
+        public static string OsuApiKey { get; set; }
 
         /// <summary>
         /// Loads the config from \typeName.cfg
