@@ -25,6 +25,7 @@ namespace DiscordCommands
             args.Channel.SendMessageAsync($"{args.User.Mention} your access level is {Program.DiscordHandler.CommandHandler.GetAccessLevel(args.User, args.Guild)}");
             //TODO: allow setting access level for guild as admin/host and allow setting for any guild if dev
             //TODO: add command to bind discord role to permission
+            //TODO: add command to create embeds with token parser or json
 
         }
     }

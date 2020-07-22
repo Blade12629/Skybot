@@ -58,11 +58,11 @@ namespace SkyBot
 
             if (ver == null)
             {
-                Program.IRC.SendMessage(osuUserName, "Invalid verification code");
+                Program.IRC.SendMessage(osuUserName, "Invalid verification code or verification not found");
                 return;
             }
 
-            var userJson = SkyBot.Osu.API.V1.Api.GetUser(osuUserName, type: "name").Result;
+            var userJson = Osu.API.V1.Api.GetUser(osuUserName, type: "name").Result;
 
             if (userJson == null)
             {
