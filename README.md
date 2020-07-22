@@ -3,3 +3,11 @@ osu! tourney bot
 
 
 Current push (03:25-03:30) is untested
+
+
+---
+Currently Features:
+
+- Analyzer
+- Statistics for user and teams
+- Verification
