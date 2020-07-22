@@ -24,6 +24,7 @@ public class DBContext : DbContext
     public virtual DbSet<SeasonPlayerCardCache> SeasonPlayerCardCache { get; set; }
     public virtual DbSet<SeasonTeamCardCache> SeasonTeamCardCache { get; set; }
     public virtual DbSet<WarmupBeatmap> WarmupBeatmaps { get; set; }
+    public virtual DbSet<Reminder> Reminder { get; set; }
 
     public DBContext()
     {
@@ -51,6 +52,31 @@ public class DBContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Reminder>(entity =>
+        {
+            entity.ToTable("reminder");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordChannelId)
+                .HasColumnName("discord_channel_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Message)
+                .HasColumnName("message")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.EndDate)
+                .HasColumnName("end_date")
+                .HasColumnType("datetime");
+        });
+        
         modelBuilder.Entity<SeasonTeamCardCache>(entity =>
         {
             entity.ToTable("season_team_card_cache");

@@ -111,13 +111,13 @@ namespace DiscordCommands
         }
 
 
-        public static bool ShowHelp(CommandHandler handler, CommandEventArg args)
+        public static bool ShowHelp(CommandHandler handler, CommandEventArg args, string notice = null)
         {
             string command = args.Parameters[0].Trim('!');
 
             if (handler.Commands.TryGetValue(command, out ICommand cmd))
             {
-                ShowHelp(args.Channel, cmd);
+                ShowHelp(args.Channel, cmd, notice);
                 return true;
             }
 
