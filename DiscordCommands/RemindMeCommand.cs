@@ -80,7 +80,7 @@ namespace DiscordCommands
                 return;
             }
 
-            switch (args.Parameters[0].ToLower())
+            switch (args.Parameters[0].ToLower(System.Globalization.CultureInfo.CurrentCulture))
             {
                 case "list":
                     args.Parameters.RemoveAt(0);
@@ -157,8 +157,8 @@ namespace DiscordCommands
                 else
                     mb.AppendLine(reminders[i].Message);
 
-                idb.AppendLine(reminders[i].Id.ToString());
-                edb.AppendLine(reminders[i].EndDate.ToString());
+                idb.AppendLine(reminders[i].Id.ToString(System.Globalization.CultureInfo.CurrentCulture));
+                edb.AppendLine(reminders[i].EndDate.ToString(System.Globalization.CultureInfo.CurrentCulture));
             }
 
             builder.AddField("ID", idb.ToString(), true);

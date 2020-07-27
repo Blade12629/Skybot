@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace SkyBot.Osu.IRC
 {
-    public class OsuIrcClient
+    public sealed class OsuIrcClient : IDisposable
     {
         public string Host { get; private set; }
         public int Port { get; private set; }
         public string Nick { get; private set; }
+        public bool IsDisposed { get; private set; }
+        public char CommandPrefix { get; set; }
 
-        public char CommandPrefix;
         public event EventHandler<ChatMessageEventArgs> OnUserCommand;
         public event EventHandler<ChatMessageEventArgs> OnPrivateMessage;
         public event EventHandler<ChatMessageEventArgs> OnSystemMessage;
@@ -60,7 +61,7 @@ namespace SkyBot.Osu.IRC
 
                 if (nick[0] == '#')
                     Task.Run(() => OnChannelMessage?.Invoke(this, e));
-                else if (nick.Equals("BanchoBot"))
+                else if (nick.Equals(Resources.OsuIrcBotName, StringComparison.CurrentCultureIgnoreCase))
                     Task.Run(() => OnBanchoMessage?.Invoke(this, e));
                 else
                 {
@@ -81,9 +82,9 @@ namespace SkyBot.Osu.IRC
         public void SetAuthentication(string nick, string pass)
         {
             if (string.IsNullOrEmpty(nick))
-                throw new ArgumentNullException("Nickname cannot be null or empty", nameof(nick));
+                throw new ArgumentNullException(nameof(nick), string.Format(System.Globalization.CultureInfo.CurrentCulture, Resources.CannotBeNullEmptyException, Resources.Nickname));
             else if (string.IsNullOrEmpty(pass))
-                throw new ArgumentNullException("Password cannot be null or empty", nameof(pass));
+                throw new ArgumentNullException(nameof(pass), string.Format(System.Globalization.CultureInfo.CurrentCulture, Resources.CannotBeNullEmptyException, Resources.Password));
 
             Nick = nick;
             _pass = pass;
@@ -129,10 +130,10 @@ namespace SkyBot.Osu.IRC
         /// <returns></returns>
         public async Task ConnectAndLoginAsync()
         {
-            await ConnectAsync();
+            await ConnectAsync().ConfigureAwait(false);
 
             while (!_client.IsConnected)
-                await Task.Delay(5);
+                await Task.Delay(5).ConfigureAwait(false);
 
             Login();
         }
@@ -144,7 +145,7 @@ namespace SkyBot.Osu.IRC
         
         public async Task ConnectAsync()
         {
-            await Task.Run(() => Connect());
+            await Task.Run(() => Connect()).ConfigureAwait(false);
         }
 
         public void Disconnect()
@@ -154,7 +155,7 @@ namespace SkyBot.Osu.IRC
 
         public async Task DisconnectAsync()
         {
-            await Task.Run(() => Disconnect());
+            await Task.Run(() => Disconnect()).ConfigureAwait(false);
         }
 
         public void Reconnect()
@@ -164,8 +165,19 @@ namespace SkyBot.Osu.IRC
 
         public async Task ReconnectAsync()
         {
-            await DisconnectAsync();
-            await ConnectAndLoginAsync();
+            await DisconnectAsync().ConfigureAwait(false);
+            await ConnectAndLoginAsync().ConfigureAwait(false);
+        }
+
+        public void Dispose()
+        {
+            if (IsDisposed)
+                return;
+
+            _client.Close();
+            _qrl.Dispose();
+
+            IsDisposed = true;
         }
     }
 }

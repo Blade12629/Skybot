@@ -17,11 +17,20 @@ namespace SkyBot
         /// <returns>Dictionary with all possible parsed values</returns>
         public static Dictionary<string, string> Parse(string input, string keyStart, string valueStart, string valueEnd, out Exception exception)
         {
+            if (string.IsNullOrEmpty(input))
+                throw new ArgumentNullException(nameof(input));
+            else if (string.IsNullOrEmpty(keyStart))
+                throw new ArgumentNullException(nameof(keyStart));
+            else if (string.IsNullOrEmpty(valueStart))
+                throw new ArgumentNullException(nameof(valueStart));
+            else if (string.IsNullOrEmpty(valueEnd))
+                throw new ArgumentNullException(nameof(valueEnd));
+
             Dictionary<string, string> result = new Dictionary<string, string>();
 
             if (string.IsNullOrEmpty(input))
             {
-                exception = new ArgumentNullException("Input cannot be null or empty", nameof(input));
+                exception = new ArgumentNullException(nameof(input), string.Format(System.Globalization.CultureInfo.CurrentCulture, Resources.CannotBeNullEmptyException, "Input"));
                 return result;
             }
 
@@ -37,7 +46,7 @@ namespace SkyBot
                 //Get Key
                 current = current.Remove(0, start + keyStart.Length);
                 
-                int end = current.IndexOf(' ');
+                int end = current.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
                 string key = current.Substring(0, end);
                 current = current.Remove(0, end + 1);
 

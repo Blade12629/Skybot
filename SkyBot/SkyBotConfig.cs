@@ -49,7 +49,7 @@ namespace SkyBot
                 while(!sreader.EndOfStream)
                 {
                     string line = sreader.ReadLine();
-                    int propIndexEnd = line.IndexOf('=');
+                    int propIndexEnd = line.IndexOf('=', StringComparison.CurrentCultureIgnoreCase);
 
                     string propName = line.Substring(0, propIndexEnd);
 
@@ -59,7 +59,7 @@ namespace SkyBot
                     line = line.Remove(0, propIndexEnd + 1);
                     PropertyInfo prop = props[propName];
 
-                    prop.SetValue(null, Convert.ChangeType(line, prop.PropertyType));
+                    prop.SetValue(null, Convert.ChangeType(line, prop.PropertyType, System.Globalization.CultureInfo.CurrentCulture));
                 }
             }
 

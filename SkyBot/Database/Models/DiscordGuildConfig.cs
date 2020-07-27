@@ -40,8 +40,11 @@ namespace SkyBot.Database.Models
         {
             try
             {
+                if (string.IsNullOrEmpty(value) || string.IsNullOrEmpty(key))
+                    return false;
+
                 PropertyInfo prop = typeof(DiscordGuildConfig).GetProperty(key, BindingFlags.Public);
-                prop.SetValue(this, Convert.ChangeType(key, prop.PropertyType));
+                prop.SetValue(this, Convert.ChangeType(key, prop.PropertyType, System.Globalization.CultureInfo.CurrentCulture));
             }
             catch (Exception)
             {
@@ -65,7 +68,7 @@ namespace SkyBot.Database.Models
             }
         }
 
-        public List<string> GetKeys()
+        public static List<string> GetKeys()
         {
             return typeof(DiscordGuildConfig).GetProperties().Select(s => s.Name).ToList();
         }

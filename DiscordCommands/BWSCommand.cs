@@ -18,7 +18,7 @@ namespace DiscordCommands
 
         public AccessLevel AccessLevel => AccessLevel.User;
 
-        public CommandType CommandType => throw new NotImplementedException();
+        public CommandType CommandType => CommandType.None;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {

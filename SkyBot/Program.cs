@@ -1,12 +1,14 @@
 ﻿using SkyBot.Database;
 using SkyBot.Discord;
 using System;
+using System.Globalization;
+using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SkyBot
 {
-    public class Program
+    public static class Program
     {
         public static DiscordHandler DiscordHandler { get; private set; }
         public static Random Random { get; } = new Random();
@@ -30,13 +32,13 @@ namespace SkyBot
             {
                 Logger.Log("Starting Skybot", LogLevel.Info);
 
-                await LoadSettings();
+                LoadSettings();
 
                 if (args != null && args.Length > 0)
                 {
                     using (DBContext c = new DBContext())
                     {
-                        switch (args[0].ToLower())
+                        switch (args[0].ToLower(CultureInfo.CurrentCulture))
                         {
                             case "createdefaultdb":
                                 c.CreateDefaultTables();
@@ -47,28 +49,30 @@ namespace SkyBot
                     }
                 }
 
-                await LoadDiscord();
+                await LoadDiscord().ConfigureAwait(false);
                 //await LoadIrc();
 
                 Logger.Log("Skybot started", LogLevel.Info);
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
             {
                 Logger.Log(ex.ToString() + "\n\nPress 'x' to exit or any other key to continue");
 
                 char pressed = Console.ReadKey().KeyChar;
 
-                if (char.ToLower(pressed).Equals('x'))
+                if (char.ToLower(pressed, System.Globalization.CultureInfo.CurrentCulture).Equals('x'))
                     Environment.Exit(1);
             }
 
-            await Task.Delay(-1);
+            await Task.Delay(-1).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Loads the <see cref="SkyBotConfig"/>
         /// </summary>
-        private static async Task LoadSettings()
+        private static void LoadSettings()
         {
             Logger.Log("Loading settings", LogLevel.Info);
 
@@ -107,7 +111,7 @@ namespace SkyBot
             };
             IRC.OnWelcomeMessageReceived += (s, e) => Logger.Log($"Welcome message received", member: "IRC");
 
-            await IRC.ConnectAndLoginAsync();
+            await IRC.ConnectAndLoginAsync().ConfigureAwait(false);
 
             Logger.Log("Loaded IRC", LogLevel.Info);
         }
@@ -121,7 +125,7 @@ namespace SkyBot
 
             DiscordHandler = new DiscordHandler(SkyBotConfig.DiscordToken);
             DiscordHandler.Client.Ready += s => Task.Run(() => LoadMaintenanceScanner());
-            await DiscordHandler.StartAsync();
+            await DiscordHandler.StartAsync().ConfigureAwait(false);
 
             Logger.Log("Loaded Discord", LogLevel.Info);
         }
@@ -145,25 +149,5 @@ namespace SkyBot
         {
             DiscordHandler.Client.UpdateStatusAsync(new DSharpPlus.Entities.DiscordGame(e.Item2), e.Item1 ? DSharpPlus.Entities.UserStatus.DoNotDisturb : DSharpPlus.Entities.UserStatus.Online);
         }
-
-        /// <summary>
-        /// Generates a MD5 hash string
-        /// </summary>
-        /// <param name="input">String to compute md5 from</param>
-        /// <returns>MD5 hash</returns>
-        public static string GenerateMd5(string input)
-        {
-            using (System.Security.Cryptography.MD5 md = System.Security.Cryptography.MD5.Create())
-            {
-                byte[] data = md.ComputeHash(Encoding.UTF8.GetBytes(input));
-
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < data.Length; i++)
-                    builder.Append(data[i].ToString("x2"));
-
-                return builder.ToString();
-            }
-        }
-
     }
 }

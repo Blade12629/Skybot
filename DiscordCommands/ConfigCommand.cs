@@ -31,7 +31,7 @@ namespace DiscordCommands
             }
             else if (args.Parameters.Count > 1)
             {
-                switch(args.Parameters[1].ToLower())
+                switch(args.Parameters[1].ToLower(System.Globalization.CultureInfo.CurrentCulture))
                 {
                     case "guildid":
                     case "id":
@@ -41,7 +41,7 @@ namespace DiscordCommands
             }
 
             using DBContext c = new DBContext();
-            switch(args.Parameters[0].ToLower())
+            switch(args.Parameters[0].ToLower(System.Globalization.CultureInfo.CurrentCulture))
             {
                 case "set":
                     args.Parameters.RemoveAt(0);
@@ -74,7 +74,7 @@ namespace DiscordCommands
 
             StringBuilder response = new StringBuilder();
 
-            foreach (var key in dgc.GetKeys())
+            foreach (var key in DiscordGuildConfig.GetKeys())
                 response.AppendLine(key);
 
             args.Channel.SendMessageAsync(response.ToString());

@@ -43,9 +43,9 @@ namespace DiscordCommands
 
             if (dgc.VerifiedNameAutoSet)
             {
-                string username = SkyBot.Osu.API.V1.Api.GetUserName((int)u.OsuUserId).Result;
+                string username = SkyBot.Osu.API.V1.OsuApi.GetUserName((int)u.OsuUserId).Result;
 
-                if (args.Member.Nickname.Equals(username))
+                if (args.Member.Nickname.Equals(username, StringComparison.CurrentCultureIgnoreCase))
                     args.Member.ModifyAsync(username).Wait();
             }
 

@@ -69,7 +69,7 @@ namespace SkyBot.Ratelimits
         {
             if (Increment())
             {
-                queueAction.Invoke();
+                queueAction?.Invoke();
                 return true;
             }
 

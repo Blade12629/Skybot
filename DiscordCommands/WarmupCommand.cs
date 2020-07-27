@@ -33,7 +33,7 @@ namespace DiscordCommands
             using DBContext c = new DBContext();
 
             Action<long> ac;
-            switch(args.Parameters[0].ToLower())
+            switch(args.Parameters[0].ToLower(System.Globalization.CultureInfo.CurrentCulture))
             {
                 default:
                 case "add":

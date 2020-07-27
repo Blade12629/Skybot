@@ -11,6 +11,9 @@ namespace SkyBot
     {
         public static void StartVerification(DiscordUser user)
         {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             using DBContext c = new DBContext();
             var dmChannel = Program.DiscordHandler.Client.CreateDmAsync(user).Result;
 
@@ -31,7 +34,7 @@ namespace SkyBot
             }
 
             string code = GenerateVerificationCode();
-            while (c.Verification.FirstOrDefault(v => v.VerificationCode.Equals(code)) != null)
+            while (c.Verification.FirstOrDefault(v => v.VerificationCode.Equals(code, StringComparison.CurrentCulture)) != null)
                 code = GenerateVerificationCode();
 
             ver = new Verification((long)user.Id, code);
@@ -54,19 +57,19 @@ namespace SkyBot
         {
             using DBContext c = new DBContext();
             
-            Verification ver = c.Verification.FirstOrDefault(v => v.VerificationCode.Equals(code));
+            Verification ver = c.Verification.FirstOrDefault(v => v.VerificationCode.Equals(code, StringComparison.CurrentCulture));
 
             if (ver == null)
             {
-                Program.IRC.SendMessage(osuUserName, "Invalid verification code or verification not found");
+                Program.IRC.SendMessage(osuUserName, Resources.VerCodeInvalidNotFound);
                 return;
             }
 
-            var userJson = Osu.API.V1.Api.GetUser(osuUserName, type: "name").Result;
+            var userJson = Osu.API.V1.OsuApi.GetUser(osuUserName, type: "name").Result;
 
             if (userJson == null)
             {
-                Program.IRC.SendMessage(osuUserName, "Failed to fetch user from api, please retry in a moment, if this keeps happening contact ??????#0284 (discord)");
+                Program.IRC.SendMessage(osuUserName, Resources.FailedFetchOsuApi);
                 return;
             }
 
@@ -81,7 +84,7 @@ namespace SkyBot
 
         private static void SendConfirmation(string osuUserName, ulong discordUserId)
         {
-            Program.IRC.SendMessage(osuUserName, "Successfully verified");
+            Program.IRC.SendMessage(osuUserName, Resources.VerSuccess);
 
             var user = Program.DiscordHandler.Client.GetUserAsync(discordUserId).Result;
 
@@ -93,7 +96,7 @@ namespace SkyBot
             if (dmChannel == null)
                 return;
 
-            dmChannel.SendMessageAsync("Successfully verified").Wait();
+            dmChannel.SendMessageAsync(Resources.VerSuccess).Wait();
         }
     }
 }

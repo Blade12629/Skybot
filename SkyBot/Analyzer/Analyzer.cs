@@ -8,10 +8,11 @@ using OsuHistoryEndPoint;
 using SkyBot.Analyzer.Results;
 using SkyBot.Database.Models.Statistics;
 using System.Reflection;
+using System.Globalization;
 
 namespace SkyBot.Analyzer
 {
-    public static class Analyzer
+    public static class OsuAnalyzer
     {
         private const float _accMulti = 0.8f;
         private const float _scoreMulti = 0.9f;
@@ -31,6 +32,11 @@ namespace SkyBot.Analyzer
         /// <param name="beatmapsToIgnore">Ignore specific beatmaps</param>
         public static AnalyzerResult CreateStatistic(HistoryJson.History history, DiscordGuild guild, int matchId, int warmupCount, string stage, bool submitStats, params long[] beatmapsToIgnore)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+            else if (guild == null)
+                throw new ArgumentNullException(nameof(guild));
+
             string matchName = history.Events.FirstOrDefault(ob => ob.Detail.Type == "other").Detail.MatchName;
 
             List<HistoryJson.Game> games = GetData.GetMatches(history).ToList();
@@ -95,10 +101,10 @@ namespace SkyBot.Analyzer
                 using DBContext c = new DBContext();
 
                 for (int i = 0; i < result.Ranks.Length; i++)
-                    Cache.ForceRefreshPlayerCache(result.Ranks[i].Player.UserId, c, (long)guild.Id, GetOverallRating);
+                    StatisticCache.ForceRefreshPlayerCache(result.Ranks[i].Player.UserId, c, (long)guild.Id, GetOverallRating);
 
-                Cache.ForceRefreshTeamCache(result.WinningTeam, c, (long)guild.Id);
-                Cache.ForceRefreshTeamCache(result.LosingTeam, c, (long)guild.Id);
+                StatisticCache.ForceRefreshTeamCache(result.WinningTeam, c, (long)guild.Id);
+                StatisticCache.ForceRefreshTeamCache(result.LosingTeam, c, (long)guild.Id);
             }
 
             return result;
@@ -109,6 +115,9 @@ namespace SkyBot.Analyzer
         /// </summary>
         public static HistoryJson.History GetHistory(string matchUrl)
         {
+            if (string.IsNullOrEmpty(matchUrl))
+                throw new ArgumentNullException(nameof(matchUrl));
+
             List<HistoryJson.History> histories = new List<HistoryJson.History>()
             {
                 ParseMatch(matchUrl).Item1
@@ -166,11 +175,14 @@ namespace SkyBot.Analyzer
         /// </summary>
         public static (HistoryJson.History, int) ParseMatch(string matchIdString, params string[] parameters)
         {
+            if (string.IsNullOrEmpty(matchIdString))
+                throw new ArgumentNullException(nameof(matchIdString));
+
             const string historyUrl = "https://osu.ppy.sh/community/matches/";
             const string historyUrlVariant = "https://osu.ppy.sh/mp/";
 
-            if (matchIdString.Contains(historyUrlVariant))
-                matchIdString = matchIdString.Replace(historyUrlVariant, historyUrl);
+            if (matchIdString.Contains(historyUrlVariant, StringComparison.CurrentCultureIgnoreCase))
+                matchIdString = matchIdString.Replace(historyUrlVariant, historyUrl, StringComparison.CurrentCultureIgnoreCase);
 
             int matchId = -1;
             string[] multiLinkSplit = matchIdString.Split(new[] { "\r\n", "\r", "\n", Environment.NewLine }, StringSplitOptions.None);
@@ -179,7 +191,7 @@ namespace SkyBot.Analyzer
             {
                 if (string.IsNullOrEmpty(s))
                     continue;
-                if (s.Contains(historyUrl))
+                if (s.Contains(historyUrl, StringComparison.CurrentCultureIgnoreCase))
                 {
                     string[] split = s.Split('/');
 
@@ -193,7 +205,7 @@ namespace SkyBot.Analyzer
                         break;
 
                     string numbers = null;
-                    int indexOf = s.IndexOf(historyUrl) + historyUrl.Length;
+                    int indexOf = s.IndexOf(historyUrl, StringComparison.CurrentCultureIgnoreCase) + historyUrl.Length;
 
                     string sub = s.Substring(indexOf, s.Length - indexOf);
 
@@ -202,7 +214,7 @@ namespace SkyBot.Analyzer
                         if (c.Equals(' '))
                             break;
 
-                        if (int.TryParse(c.ToString(), out int result))
+                        if (int.TryParse(c.ToString(CultureInfo.CurrentCulture), out int result))
                             numbers += result;
                     }
 
@@ -231,7 +243,10 @@ namespace SkyBot.Analyzer
 
         public static DiscordEmbed CreateStatisticEmbed(AnalyzerResult ar, DiscordColor embedColor)
         {
-            string description = string.Format("Team {0} won! ({1}:{2})", ar.WinningTeam, ar.WinningTeamWins, ar.LosingTeamWins);
+            if (ar == null)
+                throw new ArgumentNullException(nameof(ar));
+
+            string description = string.Format(CultureInfo.CurrentCulture, Resources.TeamWonWithPoins, ar.WinningTeam, ar.WinningTeamWins, ar.LosingTeamWins);
 
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder()
             {
@@ -244,28 +259,28 @@ namespace SkyBot.Analyzer
                 Color = embedColor,
             };
 
-            var playersBlue = ar.HighestScoresRanking.Where(r => r.Player.Scores.ElementAt(r.Player.Scores.Length - 1).match.team.Trim(' ').Equals("blue", StringComparison.CurrentCultureIgnoreCase)).OrderByDescending(f => f.Player.MVPScore).ToList();
-            var playersRed = ar.HighestScoresRanking.Where(r => r.Player.Scores.ElementAt(r.Player.Scores.Length - 1).match.team.Trim(' ').Equals("red", StringComparison.CurrentCultureIgnoreCase)).OrderByDescending(f => f.Player.MVPScore).ToList();
+            var playersBlue = ar.HighestScoresRanking.Where(r => r.Player.Scores.ElementAt(r.Player.Scores.Length - 1).match.team.Trim(' ').Equals(Resources.BlueLower, StringComparison.CurrentCultureIgnoreCase)).OrderByDescending(f => f.Player.MVPScore).ToList();
+            var playersRed = ar.HighestScoresRanking.Where(r => r.Player.Scores.ElementAt(r.Player.Scores.Length - 1).match.team.Trim(' ').Equals(Resources.RedLower, StringComparison.CurrentCultureIgnoreCase)).OrderByDescending(f => f.Player.MVPScore).ToList();
 
             var playerBlue = playersBlue.ElementAt(0).Player;
             var playerRed = playersRed.ElementAt(0).Player;
             //generated performance score = gps
-            discordEmbedBuilder.AddField("Most Valuable Player", $"Team Blue: {playerBlue.UserName} ({playerBlue.MVPScore} GPS){Environment.NewLine}Team Red: {playerRed.UserName} ({playerRed.MVPScore} GPS)");
+            discordEmbedBuilder.AddField(Resources.MVP, $"{Resources.TeamBlue}: {playerBlue.UserName} ({playerBlue.MVPScore} GPS){Environment.NewLine}{Resources.TeamRed}: {playerRed.UserName} ({playerRed.MVPScore} GPS)");
 
-            discordEmbedBuilder.AddField("Highest Score", string.Format("{0} on the map {1} - {2} [{3}] ({4}*) with {5:n0} Points and {6}% Accuracy!",
+            discordEmbedBuilder.AddField(Resources.HighestScore, string.Format(CultureInfo.CurrentCulture, "{0} on the map {1} - {2} [{3}] ({4}*) with {5:n0} Points and {6}% Accuracy!",
                 ar.HighestScoreUser.UserName, ar.HighestScoreBeatmap.beatmapset.artist,
                 ar.HighestScoreBeatmap.beatmapset.title, ar.HighestScoreBeatmap.version,
                 ar.HighestScoreBeatmap.difficulty_rating,
-                string.Format("{0:n0}", ar.HighestScoreUser.HighestScore.score),
+                string.Format(CultureInfo.CurrentCulture, "{0:n0}", ar.HighestScoreUser.HighestScore.score),
                 Math.Round(ar.HighestScoreUser.HighestScore.accuracy.Value * 100.0f, 2, MidpointRounding.AwayFromZero)));
 
-            discordEmbedBuilder.AddField("Highest Accuracy", string.Format("{0} on the map {1} - {2} [{3}] ({4}*) with {5:n0} Points and {6}% Accuracy!",
+            discordEmbedBuilder.AddField(Resources.HighestAccuracy, string.Format(CultureInfo.CurrentCulture, "{0} on the map {1} - {2} [{3}] ({4}*) with {5:n0} Points and {6}% Accuracy!",
                 ar.HighestAccuracyUser.UserName,
                 ar.HighestAccuracyBeatmap.beatmapset.artist,
                 ar.HighestAccuracyBeatmap.beatmapset.title,
                 ar.HighestAccuracyBeatmap.version,
                 ar.HighestAccuracyBeatmap.difficulty_rating,
-                string.Format("{0:n0}", ar.HighestAccuracyScore.score),
+                string.Format(CultureInfo.CurrentCulture, "{0:n0}", ar.HighestAccuracyScore.score),
                 Math.Round(ar.HighestAccuracyScore.accuracy.Value * 100.0f, 2, MidpointRounding.AwayFromZero)));
 
             for (int i = 1; i < 4; i++)
@@ -298,6 +313,13 @@ namespace SkyBot.Analyzer
 
         public static void SubmitStats(AnalyzerResult ar, DiscordGuild guild, List<HistoryJson.Game> games)
         {
+            if (ar == null)
+                throw new ArgumentNullException(nameof(ar));
+            else if (guild == null)
+                throw new ArgumentNullException(nameof(guild));
+            else if (games == null)
+                throw new ArgumentNullException(nameof(games));
+
             using DBContext c = new DBContext();
 
             SeasonResult sr = c.SeasonResult.FirstOrDefault(sr => sr.MatchId == ar.MatchId);
@@ -432,11 +454,14 @@ namespace SkyBot.Analyzer
 
         public static void UpdateCaches(DiscordGuild guild)
         {
+            if (guild == null)
+                throw new ArgumentNullException(nameof(guild));
+
             using DBContext c = new DBContext();
             List<SeasonPlayer> sp = c.SeasonPlayer.Where(sp => sp.DiscordGuildId == (long)guild.Id).ToList();
 
             for (int i = 0; i < sp.Count; i++)
-                Cache.ForceRefreshPlayerCache(sp[i].OsuUserId, c, (long)guild.Id, GetOverallRating);
+                StatisticCache.ForceRefreshPlayerCache(sp[i].OsuUserId, c, (long)guild.Id, GetOverallRating);
         }
 
         private static void SetProperty(object instance, string propertyName, object newValue, StringComparison nameComparer = StringComparison.CurrentCultureIgnoreCase)
@@ -458,7 +483,7 @@ namespace SkyBot.Analyzer
             catch (Exception ex)
             {
                 Logger.Log(ex.ToString(), LogLevel.Error);
-                throw ex;
+                throw;
             }
         }
 
@@ -469,16 +494,16 @@ namespace SkyBot.Analyzer
         {
             string[] MatchNameSplit = matchName.Split(' ');
             string teamRed = MatchNameSplit[1].TrimStart('(');
-            int teamVsIndex = MatchNameSplit.ToList().FindIndex(str => str.ToLower().Equals("vs"));
+            int teamVsIndex = MatchNameSplit.ToList().FindIndex(str => str.ToLower(CultureInfo.CurrentCulture).Equals("vs", StringComparison.CurrentCulture));
 
             for (int i = 2; i < teamVsIndex; i++)
-                teamRed += string.Format(" {0}", MatchNameSplit[i]);
+                teamRed += string.Format(CultureInfo.CurrentCulture, " {0}", MatchNameSplit[i]);
 
             string teamBlue = MatchNameSplit[teamVsIndex + 1].TrimStart('(');
             teamRed = teamRed.TrimEnd(')');
 
-            for (int i = teamVsIndex + 2; i < MatchNameSplit.Count(); i++)
-                teamBlue += string.Format(" {0}", MatchNameSplit[i]);
+            for (int i = teamVsIndex + 2; i < MatchNameSplit.Length; i++)
+                teamBlue += string.Format(CultureInfo.CurrentCulture, " {0}", MatchNameSplit[i]);
 
             teamBlue = teamBlue.TrimEnd(')');
 

@@ -7,7 +7,7 @@ using System.Text;
 namespace SkyBot.Analyzer
 {
 
-    public static class Cache
+    public static class StatisticCache
     {
         /// <summary>
         /// Clears the cache of a player
@@ -18,6 +18,9 @@ namespace SkyBot.Analyzer
         /// <returns>Empty Cache</returns>
         public static SeasonPlayerCardCache ClearPlayerCache(long osuUserId, DBContext c, long guildId)
         {
+            if (c == null)
+                throw new ArgumentNullException(nameof(c));
+
             SeasonPlayerCardCache cardCache = c.SeasonPlayerCardCache.FirstOrDefault(cc => cc.OsuUserId == osuUserId &&
                                                                                            cc.DiscordGuildId == guildId);
 
@@ -70,6 +73,11 @@ namespace SkyBot.Analyzer
         /// <param name="getOverallRatingAction">Function to calculate the overall rating</param>
         public static void ForceRefreshPlayerCache(long osuUserId, DBContext c, long guildId, Func<SeasonPlayer, DBContext, double> getOverallRatingAction)
         {
+            if (c == null)
+                throw new ArgumentNullException(nameof(c));
+            else if (getOverallRatingAction == null)
+                throw new ArgumentNullException(nameof(getOverallRatingAction));
+
             SeasonPlayerCardCache cardCache = ClearPlayerCache(osuUserId, c, guildId);
 
             SeasonPlayer player = c.SeasonPlayer.FirstOrDefault(p => p.OsuUserId == osuUserId && p.DiscordGuildId == guildId);
@@ -116,6 +124,9 @@ namespace SkyBot.Analyzer
         /// <returns>Empty Cache</returns>
         public static SeasonTeamCardCache ClearTeamCache(string teamName, DBContext c, long guildId)
         {
+            if (c == null)
+                throw new ArgumentNullException(nameof(c));
+            
             SeasonTeamCardCache stcc = c.SeasonTeamCardCache.FirstOrDefault(stcc => stcc.TeamName.Equals(teamName, StringComparison.CurrentCultureIgnoreCase) &&
                                                                                     stcc.DiscordGuildId == guildId);
 
@@ -168,6 +179,9 @@ namespace SkyBot.Analyzer
         /// <param name="guildId">Discord Guild Id</param>
         public static void ForceRefreshTeamCache(string teamName, DBContext c, long guildId)
         {
+            if (c == null)
+                throw new ArgumentNullException(nameof(c));
+
             SeasonTeamCardCache stcc = ClearTeamCache(teamName, c, guildId);
 
             List<SeasonResult> results = c.SeasonResult.Where(r => r.DiscordGuildId == guildId &&

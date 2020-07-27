@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace SkyBot.Discord
 {
-    public class DiscordHandler : IDisposable
+    public sealed class DiscordHandler : IDisposable
     {
         public DiscordClient Client { get; private set; }
         public CommandHandler CommandHandler { get; private set; }
@@ -20,7 +20,7 @@ namespace SkyBot.Discord
         public DiscordHandler(string token, char commandPrefix = '!')
         {
             if (string.IsNullOrEmpty(token) || token.Length < 10)
-                throw new ArgumentException("Token cannot be null, empty or less than 10 long", nameof(token));
+                throw new ArgumentException(Resources.DiscordTokenEmptyNullShort, nameof(token));
 
             Client = new DiscordClient(new DiscordConfiguration()
             {
@@ -29,8 +29,8 @@ namespace SkyBot.Discord
                 AutoReconnect = true
             });
 
-            Client.Ready += async e => await OnClientReady(e);
-            Client.MessageCreated += async e => await OnClientMessageCreated(e);
+            Client.Ready += e => Task.Run(() => OnClientReady());
+            Client.MessageCreated += e => Task.Run(async () => await OnClientMessageCreated(e).ConfigureAwait(false));
 
             CommandHandler = new CommandHandler(this, commandPrefix);
         }
@@ -45,7 +45,7 @@ namespace SkyBot.Discord
             Logger.Log("Starting discord client");
 
             CommandHandler.LoadCommands("DiscordCommands.dll");
-            await Client.ConnectAsync();
+            await Client.ConnectAsync().ConfigureAwait(false);
         }
 
         public void Start()
@@ -57,7 +57,7 @@ namespace SkyBot.Discord
         {
             IsReady = false;
 
-            await Client.DisconnectAsync();
+            await Client.DisconnectAsync().ConfigureAwait(false);
         }
 
         public void Stop()
@@ -78,32 +78,32 @@ namespace SkyBot.Discord
 
                 if (dgc != null && dgc.AnalyzeChannelId != 0 && dgc.AnalyzeChannelId == (long)e.Channel.Id)
                 {
-                    await Task.Run(() => InvokeAnalyzer(e, dgc, c));
+                    await Task.Run(() => InvokeAnalyzer(e, dgc, c)).ConfigureAwait(false);
                     return;
                 }
             }
 
-            await Task.Run(() => CommandHandler.Invoke(e));
+            await Task.Run(() => CommandHandler.Invoke(e)).ConfigureAwait(false);
         }
 
-        private void InvokeAnalyzer(MessageCreateEventArgs e, DiscordGuildConfig dgc, DBContext c)
+        private static void InvokeAnalyzer(MessageCreateEventArgs e, DiscordGuildConfig dgc, DBContext c)
         {
             string[] lines = e.Message.Content.Split(Environment.NewLine);
 
             string stage = lines[0].Split('-')[1].Trim(' ');
             string mpLink = lines[1].Split('<')[1].Trim('>');
 
-            var history = Analyzer.Analyzer.GetHistory(mpLink);
+            var history = Analyzer.OsuAnalyzer.GetHistory(mpLink);
 
             var warmupMaps = c.WarmupBeatmaps.Where(wb => wb.DiscordGuildId == dgc.GuildId);
 
-            var result = Analyzer.Analyzer.CreateStatistic(history, e.Guild, 0, warmupCount: dgc.AnalyzeWarmupMatches, stage, true, beatmapsToIgnore: warmupMaps.Select(wm => wm.BeatmapId).ToArray());
-            var embed = Analyzer.Analyzer.CreateStatisticEmbed(result, new DSharpPlus.Entities.DiscordColor(1, 0, 1));
+            var result = Analyzer.OsuAnalyzer.CreateStatistic(history, e.Guild, 0, warmupCount: dgc.AnalyzeWarmupMatches, stage, true, beatmapsToIgnore: warmupMaps.Select(wm => wm.BeatmapId).ToArray());
+            var embed = Analyzer.OsuAnalyzer.CreateStatisticEmbed(result, new DSharpPlus.Entities.DiscordColor(1, 0, 1));
 
             e.Channel.SendMessageAsync(embed: embed);
         }
 
-        private async Task OnClientReady(ReadyEventArgs e)
+        private void OnClientReady()
         {
             IsReady = true;
             Logger.Log("Discord Client ready");
@@ -116,27 +116,11 @@ namespace SkyBot.Discord
 
             IsReady = false;
 
-            try
-            {
-                Client?.DisconnectAsync().Wait();
-                Client?.Dispose();
-            }
-            catch (Exception)
-            {
-
-            }
-
+            Client?.DisconnectAsync().Wait();
+            Client?.Dispose();
             Client = null;
 
-            try
-            {
-                CommandHandler?.Dispose();
-            }
-            catch (Exception)
-            {
-                
-            }
-
+            CommandHandler?.Dispose();
             CommandHandler = null;
 
             GC.Collect();

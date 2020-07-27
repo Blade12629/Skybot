@@ -14,7 +14,7 @@ namespace SkyBot.Discord.CommandSystem
     /// <summary>
     /// Command handler for handling discord commands
     /// </summary>
-    public class CommandHandler : IDisposable
+    public sealed class CommandHandler : IDisposable
     {
         public DiscordHandler DiscordHandler { get; private set; }
         public bool IsDisposed { get; private set; }
@@ -94,7 +94,7 @@ namespace SkyBot.Discord.CommandSystem
         {
             ICommand cmd = Activator.CreateInstance(commandType) as ICommand;
 
-            if (cmd == null || !_commandTypes.TryAdd(cmd.Command.ToLower(), cmd))
+            if (cmd == null || !_commandTypes.TryAdd(cmd.Command.ToLower(System.Globalization.CultureInfo.CurrentCulture), cmd))
                 return false;
 
             Logger.Log($"Registered command {cmd.Command}");
@@ -108,7 +108,10 @@ namespace SkyBot.Discord.CommandSystem
         /// <param name="command">command name</param>
         public void DeRegisterCommand(string command)
         {
-            command = command.TrimStart(CommandPrefix).ToLower();
+            if (string.IsNullOrEmpty(command))
+                throw new ArgumentNullException(nameof(command));
+
+            command = command.TrimStart(CommandPrefix).ToLower(System.Globalization.CultureInfo.CurrentCulture);
 
             _commandTypes.TryRemove(command, out ICommand _);
 
@@ -138,7 +141,7 @@ namespace SkyBot.Discord.CommandSystem
         {
             try
             {
-                if (!e.Message.Content[0].Equals(CommandPrefix))
+                if (e == null || !e.Message.Content[0].Equals(CommandPrefix))
                     return;
 
                 List<string> parameters = e.Message.Content.Split(' ').Skip(0).ToList();
@@ -154,7 +157,7 @@ namespace SkyBot.Discord.CommandSystem
 
                 command = command.TrimStart(CommandPrefix);
 
-                if (!_commandTypes.TryGetValue(command.ToLower(), out ICommand cmd))
+                if (!_commandTypes.TryGetValue(command.ToLower(System.Globalization.CultureInfo.CurrentCulture), out ICommand cmd))
                     return;
                 else if (cmd.IsDisabled)
                 {
@@ -202,7 +205,9 @@ namespace SkyBot.Discord.CommandSystem
                     {
                         cmd.Invoke(this, arg);
                     }
+#pragma warning disable CA1031 // Do not catch general exception types
                     catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
                     {
                         Logger.Log($"Something went wrong while invoking command {cmd.Command}: {ex.ToString()}");
                         OnException?.Invoke(e.Channel, cmd, "Something went wrong executing this command");
@@ -210,7 +215,9 @@ namespace SkyBot.Discord.CommandSystem
                 }));
 
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
             {
                 Logger.Log(ex, LogLevel.Error); 
             }
@@ -219,7 +226,7 @@ namespace SkyBot.Discord.CommandSystem
         /// <summary>
         /// Gets the access level of the user, either directly or via roles
         /// </summary>
-        public AccessLevel GetAccessLevel(ulong discordUserId, ulong discordGuildId = 0)
+        public AccessLevel GetAccessLevel(ulong discordUserId, ulong discordGuildId)
         {
             using DBContext c = new DBContext();
 
@@ -260,19 +267,53 @@ namespace SkyBot.Discord.CommandSystem
         }
 
         /// <summary>
-        /// Gets the access level of the user, either directly or via roles
+        /// Sets the accesslevel of a user
         /// </summary>
-        public AccessLevel GetAccessLevel(DiscordUser user, DiscordGuild guild = null)
+        /// <param name="newAccess">New <see cref="AccessLevel"/></param>
+        public static void SetAccessLevel(ulong discordUserId, ulong discordGuildId, AccessLevel newAccess)
         {
-            return GetAccessLevel(user.Id, guild?.Id ?? 0);
+            using DBContext c = new DBContext();
+            Permission perm = c.Permission.FirstOrDefault(p => p.DiscordUserId == (long)discordUserId);
+
+            if (perm == null)
+            {
+                perm = new Permission((long)discordUserId, (long)discordGuildId, newAccess);
+                c.Permission.Add(perm);
+            }
+            else
+            {
+                perm.AccessLevel = (short)newAccess;
+                c.Permission.Update(perm);
+            }
+
+            c.SaveChanges();
+        }
+
+        /// <summary>
+        /// Sets the accesslevel of a user
+        /// </summary>
+        /// <param name="newAccess">New <see cref="AccessLevel"/></param>
+        public static void SetAccessLevel(DiscordUser user, DiscordGuild guild, AccessLevel newAccess)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+            else if (guild == null)
+                throw new ArgumentNullException(nameof(guild));
+
+            SetAccessLevel(user.Id, guild.Id, newAccess);
         }
 
         /// <summary>
         /// Gets the access level of the user, either directly or via roles
         /// </summary>
-        public AccessLevel GetAccessLevel(DiscordMember member)
+        public AccessLevel GetAccessLevel(DiscordUser user, DiscordGuild guild)
         {
-            return GetAccessLevel(member.Id, member.Guild.Id);
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+            else if (guild == null)
+                throw new ArgumentNullException(nameof(guild));
+
+            return GetAccessLevel(user.Id, guild?.Id ?? 0);
         }
     }
 }

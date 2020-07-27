@@ -21,7 +21,7 @@ namespace SkyBot.Discord.CommandSystem
         public DiscordMember Member { get; set; }
         public DiscordMessage Message { get; set; }
         public AccessLevel AccessLevel { get; set; }
-        public List<string> Parameters { get; set; }
+        public List<string> Parameters { get; }
 
         public CommandEventArg(DiscordGuild guild, DiscordChannel channel, DiscordUser user,
                                DiscordMember member, DiscordMessage message,

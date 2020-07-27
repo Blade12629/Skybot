@@ -24,7 +24,7 @@ namespace SkyBot.Database
         {
             lock(SyncRoot)
             {
-                ByteTable bt = set.FirstOrDefault(bt => bt.Identifier.Equals(_TABLE_KEY));
+                ByteTable bt = set.FirstOrDefault(bt => bt.Identifier.Equals(_TABLE_KEY, StringComparison.CurrentCulture));
 
                 if (bt == null)
                     return;
@@ -42,7 +42,7 @@ namespace SkyBot.Database
                     newMessage = Encoding.UTF8.GetString(bt.Data, 1, bt.Data.Length - 1);
                 }
 
-                if (IsMaintenance == newStatus && MaintenanceMessage.Equals(newMessage))
+                if (IsMaintenance == newStatus && MaintenanceMessage.Equals(newMessage, StringComparison.CurrentCulture))
                     return;
 
                 IsMaintenance = newStatus;
@@ -57,7 +57,7 @@ namespace SkyBot.Database
             lock(SyncRoot)
             {
                 using DBContext c = new DBContext();
-                ByteTable bt = c.ByteTable.FirstOrDefault(bt => bt.Identifier.Equals(_TABLE_KEY));
+                ByteTable bt = c.ByteTable.FirstOrDefault(bt => bt.Identifier.Equals(_TABLE_KEY, StringComparison.CurrentCulture));
 
                 List<byte> data = new List<byte>()
                 {

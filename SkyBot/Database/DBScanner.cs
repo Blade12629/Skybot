@@ -10,6 +10,7 @@ namespace SkyBot.Database
     public abstract class DBScanner<SET> where SET : class
     {
         public object SyncRoot { get; }
+        public bool IsDisposed { get; private set; }
 
         private TimeSpan _delay;
         private Timer _timer;

@@ -56,7 +56,7 @@ namespace SkyBot.Analyzer
             float AvgAcc = 0;
 
             Scores.ToList().ForEach(score => AvgAcc += score.accuracy.Value);
-            AvgAcc /= Scores.Count();
+            AvgAcc /= Scores.Length;
             
             AvgAcc *= 100.0f;
 

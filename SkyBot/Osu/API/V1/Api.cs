@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SkyBot.Osu.API.V1
 {
-    public class Api
+    public static class OsuApi
     {
         private static string API_Key { get { return Environment.GetEnvironmentVariable("OsuApiKey", EnvironmentVariableTarget.Process); } }
         private static string API_URL = "https://osu.ppy.sh/api/";
@@ -23,7 +23,7 @@ namespace SkyBot.Osu.API.V1
             if (matchId <= 0) 
                 return null;
 
-            return await GetJson<JsonGetMatch>(string.Format("{0}get_match?k={1}&mp={2}", API_URL, API_Key, matchId));
+            return await GetJson<JsonGetMatch>(string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0}get_match?k={1}&mp={2}", API_URL, API_Key, matchId)).ConfigureAwait(false);
         }
 
         private static async Task<T> GetJson<T>(string url)
@@ -52,10 +52,10 @@ namespace SkyBot.Osu.API.V1
                     jdt);
 
                 while (!jdt.Status)
-                    await Task.Delay(5);
+                    await Task.Delay(5).ConfigureAwait(false);
 
                 return jdt.Value;
-            });
+            }).ConfigureAwait(false);
 
             return default;
         }
@@ -74,28 +74,33 @@ namespace SkyBot.Osu.API.V1
         /// <param name="type">name == string || id == int</param>
         /// <param name="event_days">1 - 31</param>
         /// <returns>user json</returns>
-        public static async Task<JsonGetUser> GetUser(object user, int mode = 0, string type = "id", int event_days = 1)
+        public static async Task<JsonGetUser> GetUser(object user, int mode = 0, string type = "id", int eventDays = 1)
         {
-            if (type.Equals("id") && !(user is int))
+            if (user == null)
+                throw new ArgumentException(Resources.CannotBeNullEmptyException, nameof(user));
+            if (string.IsNullOrEmpty(type))
+                throw new ArgumentException(Resources.CannotBeNullEmptyException, nameof(type));
+
+            if (type.Equals("id", StringComparison.CurrentCultureIgnoreCase) && !(user is int))
                 throw new ArgumentException("string type is 'id'" + Environment.NewLine +
                                             " - object user should be int but is instead: " + nameof(user));
-            else if (type.Equals("name") && !(user is string))
+            else if (type.Equals("name", StringComparison.CurrentCultureIgnoreCase) && !(user is string))
                 throw new ArgumentException("string type is 'name'" + Environment.NewLine +
                                             " - object user should be string but is instead: " + nameof(user));
 
-            return (await GetJson<JsonGetUser[]>(string.Format("{0}get_user?k={1}&u={2}&m={3}&t={4}&event_days={5}", API_URL, API_Key, user.ToString(), mode.ToString(), type, event_days)))?[0] ?? null;
+            return (await GetJson<JsonGetUser[]>(string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0}get_user?k={1}&u={2}&m={3}&t={4}&event_days={5}", API_URL, API_Key, user.ToString(), mode.ToString(System.Globalization.CultureInfo.CurrentCulture), type, eventDays)).ConfigureAwait(false))?[0] ?? null;
         }
 
         /// <summary>
         /// Gets a beatmap from the api
         /// </summary>
-        public static async Task<JsonGetBeatmap> GetBeatMap(int bBeatmap_id = 0, GameModeEnum mMode = GameModeEnum.standard, int aConvertedMaps = 1, int limitSearchLimit = 30)
+        public static async Task<JsonGetBeatmap> GetBeatMap(int beatmapId = 0, GameModeEnum mode = GameModeEnum.standard, int convertedMaps = 1, int limitSearchLimit = 30)
         {
-            return (await GetJson<JsonGetBeatmap[]>(string.Format("{0}get_beatmaps?k={1}&b={2}&m={3}&a={4}&limit={5}", API_URL, API_Key, bBeatmap_id, (int)mMode, aConvertedMaps, limitSearchLimit)))?[0] ?? null;
+            return (await GetJson<JsonGetBeatmap[]>(string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0}get_beatmaps?k={1}&b={2}&m={3}&a={4}&limit={5}", API_URL, API_Key, beatmapId, (int)mode, convertedMaps, limitSearchLimit)).ConfigureAwait(false))?[0] ?? null;
         }
 
         public static async Task<string> GetUserName(int user)
-            => (await GetUser(user))?.UserName ?? "";
+            => (await GetUser(user).ConfigureAwait(false))?.UserName ?? "";
 
         /// <summary>
         /// writes a json to <see cref="T"/>

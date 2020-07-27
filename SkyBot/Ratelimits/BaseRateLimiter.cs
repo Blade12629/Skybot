@@ -42,8 +42,9 @@ namespace SkyBot.Ratelimits
             }
         }
 
-        protected int _current;
-        protected int _max;
+        protected int _current { get; set; }
+        protected int _max { get; set; }
+
         private Timer _rateTimer;
 
         /// <summary>
@@ -62,7 +63,7 @@ namespace SkyBot.Ratelimits
                 _max = max;
 
                 if (resetTime == TimeSpan.Zero)
-                    throw new ArgumentException("Time cannot be zero", nameof(resetTime));
+                    throw new ArgumentException(Resources.TimeZeroException, nameof(resetTime));
 
                 _rateTimer = new Timer()
                 {
@@ -113,15 +114,8 @@ namespace SkyBot.Ratelimits
                 if (IsDisposed)
                     return;
 
-                try
-                {
-                    _rateTimer?.Stop();
-                    _rateTimer?.Dispose();
-                }
-                catch (Exception)
-                {
-
-                }
+                _rateTimer?.Stop();
+                _rateTimer?.Dispose();
 
                 _max = 0;
                 _current = 0;

@@ -12,20 +12,23 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => "help";
+        public string Command => ResourcesCommands.HelpCommand;
 
         public AccessLevel AccessLevel => AccessLevel.User;
         public CommandType CommandType => CommandType.None;
 
-        public string Description => "Displays a command list or infos about a specific command";
+        public string Description => ResourcesCommands.HelpDescription;
 
-        public string Usage => "!help [page]\n!help <command>";
+        public string Usage => ResourcesCommands.HelpUsage;
 
 
         public HelpCommand()
         {
             Program.DiscordHandler.CommandHandler.OnException += ShowHelp;
-            Logger.Log("Registered help for exceptions");
+            
+#pragma warning disable CA1305 // Specify IFormatProvider
+            Logger.Log(string.Format(System.Globalization.CultureInfo.CurrentCulture, ResourcesCommands.RegisteredCommand, nameof(HelpCommand)));
+#pragma warning restore CA1305 // Specify IFormatProvider
         }
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
@@ -53,8 +56,6 @@ namespace DiscordCommands
         {
             const int elementsPerPage = 10;
 
-            //AccessLevel access = CommandHandler.GetAccessLevel(args.User.Id);
-
             List<ICommand> commands = handler.Commands.Values.ToList();
             page--;
 
@@ -63,8 +64,8 @@ namespace DiscordCommands
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
-                Title = "Command List",
-                Description = $"Page: {page + 1}/{totalPages}",
+                Title = ResourcesCommands.CommandList,
+                Description = $"{ResourcesCommands.Page}: {page + 1}/{totalPages}",
                 Timestamp = DateTime.UtcNow
             };
 
@@ -103,9 +104,9 @@ namespace DiscordCommands
                 }
             }
 
-            builder.AddField("Command", cmdBuilder.ToString(), true);
-            builder.AddField("Access", accessBuilder.ToString(), true);
-            builder.AddField("Description", descriptionBuilder.ToString(), true);
+            builder.AddField(ResourcesCommands.Command, cmdBuilder.ToString(), true);
+            builder.AddField(ResourcesCommands.Access, accessBuilder.ToString(), true);
+            builder.AddField(ResourcesCommands.Description, descriptionBuilder.ToString(), true);
 
             args.Channel.SendMessageAsync(embed: builder.Build()).Wait();
         }
@@ -128,22 +129,22 @@ namespace DiscordCommands
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
-                Title = $"CommandInfo: {command.Command}",
+                Title = $"{ResourcesCommands.CommandInfo}: {command.Command}",
                 Timestamp = DateTime.UtcNow,
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
-                    Text = "< > = required\n[ ] = optional\n!! !!  = atleast one marked parameter required"
+                    Text = ResourcesCommands.HelpFooter
                 }
             };
 
-            builder = builder.AddField("Access Level", command.AccessLevel.ToString())
-                             .AddField("Description", command.Description)
-                             .AddField("Usage", command.Usage)
-                             .AddField("Command Type", command.CommandType.ToString())
-                             .AddField("IsDisabled", command.IsDisabled ? "True" : "False");
+            builder = builder.AddField(ResourcesCommands.AccessLevel, command.AccessLevel.ToString())
+                             .AddField(ResourcesCommands.Description, command.Description)
+                             .AddField(ResourcesCommands.Usage, command.Usage)
+                             .AddField(ResourcesCommands.CommandType, command.CommandType.ToString())
+                             .AddField(ResourcesCommands.IsDisabled, command.IsDisabled ? ResourcesCommands.True : ResourcesCommands.False);
 
             if (!string.IsNullOrEmpty(notice))
-                builder = builder.AddField("**Notice**", notice);
+                builder = builder.AddField($"**{ResourcesCommands.Notice}**", notice);
 
             channel.SendMessageAsync(embed: builder.Build()).Wait();
         }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SkyBot
 {
-    public enum AccessLevel : short
+    public enum AccessLevel : int
     {
         User,
         VIP,
