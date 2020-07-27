@@ -22,3 +22,14 @@ Requirements:
 - Discord Bot Account
 - Osu Account
 - MariaDB/MySQL Database
+
+---
+Special Thanks (without these groups/people this would probably never happen/ed):
+- GottaAimFast
+- osu! Mercenary Shop
+
+and especially to Haruki
+
+---
+Contact:
+- Discord: ??????#0284
