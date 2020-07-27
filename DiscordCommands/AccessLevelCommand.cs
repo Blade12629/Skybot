@@ -16,7 +16,7 @@ namespace DiscordCommands
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => "Shows your accesslevel";
+        public string Description => "Shows or sets your accesslevel";
 
         public string Usage => "!accesslevel\n" +
                                "!accesslevel <userId>\n" +
