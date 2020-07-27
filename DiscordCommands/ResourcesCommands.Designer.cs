@@ -61,20 +61,86 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Access.
+        ///   Looks up a localized string similar to accesslevel.
         /// </summary>
-        internal static string Access {
+        internal static string AccessLevelCommand {
             get {
-                return ResourceManager.GetString("Access", resourceCulture);
+                return ResourceManager.GetString("AccessLevelCommand", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Access Level.
+        ///   Looks up a localized string similar to Shows or sets your accesslevel.
         /// </summary>
-        internal static string AccessLevel {
+        internal static string AccessLevelDescription {
             get {
-                return ResourceManager.GetString("AccessLevel", resourceCulture);
+                return ResourceManager.GetString("AccessLevelDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You need to be atleast Dev to set someone to host!.
+        /// </summary>
+        internal static string AccessLevelDevOnlyAddHost {
+            get {
+                return ResourceManager.GetString("AccessLevelDevOnlyAddHost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only the host can add more admins!.
+        /// </summary>
+        internal static string AccessLevelHostOnlyAddAdmins {
+            get {
+                return ResourceManager.GetString("AccessLevelHostOnlyAddAdmins", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dev permission can only be set via db.
+        /// </summary>
+        internal static string AccessLevelSetDevPermission {
+            get {
+                return ResourceManager.GetString("AccessLevelSetDevPermission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set {0} from {1} to {2}.
+        /// </summary>
+        internal static string AccessLevelSetPermission {
+            get {
+                return ResourceManager.GetString("AccessLevelSetPermission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !accesslevel
+        ///!accesslevel &lt;userId&gt;\n
+        ///Admin:\n
+        ///!accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;.
+        /// </summary>
+        internal static string AccessLevelUsage {
+            get {
+                return ResourceManager.GetString("AccessLevelUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} your access level is {1}.
+        /// </summary>
+        internal static string AccessLevelUser {
+            get {
+                return ResourceManager.GetString("AccessLevelUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Access level of user {0} is {1}.
+        /// </summary>
+        internal static string AccessLevelUserOther {
+            get {
+                return ResourceManager.GetString("AccessLevelUserOther", resourceCulture);
             }
         }
         
@@ -120,24 +186,6 @@ namespace DiscordCommands {
         internal static string Description {
             get {
                 return ResourceManager.GetString("Description", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to False.
-        /// </summary>
-        internal static string False {
-            get {
-                return ResourceManager.GetString("False", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to false.
-        /// </summary>
-        internal static string FalseLower {
-            get {
-                return ResourceManager.GetString("FalseLower", resourceCulture);
             }
         }
         
@@ -210,24 +258,6 @@ namespace DiscordCommands {
         internal static string RegisteredCommand {
             get {
                 return ResourceManager.GetString("RegisteredCommand", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to True.
-        /// </summary>
-        internal static string True {
-            get {
-                return ResourceManager.GetString("True", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to true.
-        /// </summary>
-        internal static string TrueLower {
-            get {
-                return ResourceManager.GetString("TrueLower", resourceCulture);
             }
         }
         

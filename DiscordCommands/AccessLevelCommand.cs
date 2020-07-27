@@ -2,6 +2,7 @@
 using SkyBot.Discord.CommandSystem;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace DiscordCommands
@@ -10,30 +11,27 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => "accesslevel";
+        public string Command => ResourcesCommands.AccessLevelCommand;
 
         public AccessLevel AccessLevel => AccessLevel.User;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => "Shows or sets your accesslevel";
+        public string Description => ResourcesCommands.AccessLevelDescription;
 
-        public string Usage => "!accesslevel\n" +
-                               "!accesslevel <userId>\n" +
-                               "Admin:\n" +
-                               "!accesslevel <userId> <new level (User, VIP, Moderator, Admin, Host, Dev)>";
+        public string Usage => ResourcesCommands.AccessLevelUsage;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
             if (args.Parameters.Count == 0)
             {
-                args.Channel.SendMessageAsync($"{args.User.Mention} your access level is {Program.DiscordHandler.CommandHandler.GetAccessLevel(args.User, args.Guild)}");
+                args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelUser, args.User.Mention, Program.DiscordHandler.CommandHandler.GetAccessLevel(args.User, args.Guild)));
                 return;
             }
 
             if (!ulong.TryParse(args.Parameters[0], out ulong uid))
             {
-                HelpCommand.ShowHelp(args.Channel, this, "Failed to parse user id " + args.Parameters[0]);
+                HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, Resources.FailedParseException, args.Parameters[0]));
                 return;
             }
 
@@ -42,7 +40,7 @@ namespace DiscordCommands
 
             if (args.Parameters.Count == 1)
             {
-                args.Channel.SendMessageAsync($"{duser.Username}s access level is {access}");
+                args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelUserOther, duser.Username, access));
                 return;
             }
             else if (args.AccessLevel < AccessLevel.Admin)
@@ -57,24 +55,24 @@ namespace DiscordCommands
                 newAccess = (AccessLevel)al;
             else if (Enum.TryParse<AccessLevel>(args.Parameters[0], out newAccess))
             {
-
+                
             }
             else
             {
-                HelpCommand.ShowHelp(args.Channel, this, "Failed to parse access level");
+                HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, Resources.FailedParseException, Resources.AccessLevel));
                 return;
             }
 
             switch(newAccess)
             {
                 case AccessLevel.Dev:
-                    args.Channel.SendMessageAsync("Dev permission can only be set via db");
+                    args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelSetDevPermission);
                     return;
 
                 case AccessLevel.Host:
                     if (args.AccessLevel < AccessLevel.Dev)
                     {
-                        args.Channel.SendMessageAsync("You need to be atleast Dev to set someone to host!");
+                        args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelDevOnlyAddHost);
                         return;
                     }
                     break;
@@ -82,7 +80,7 @@ namespace DiscordCommands
                 case AccessLevel.Admin:
                     if (args.AccessLevel < AccessLevel.Host)
                     {
-                        args.Channel.SendMessageAsync("Only the host can add more admins!");
+                        args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelHostOnlyAddAdmins);
                         return;
                     }
                     break;
@@ -93,7 +91,7 @@ namespace DiscordCommands
 
             CommandHandler.SetAccessLevel(uid, args.Guild.Id, newAccess);
 
-            args.Channel.SendMessageAsync($"Set {uid} from {access} to {newAccess}");
+            args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelSetPermission, uid, access, newAccess));
 
             //TODO: add command to bind discord role to permission
             //TODO: add command to create embeds with token parser or json

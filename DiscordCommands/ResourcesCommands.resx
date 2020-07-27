@@ -117,11 +117,35 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Access" xml:space="preserve">
-    <value>Access</value>
+  <data name="AccessLevelCommand" xml:space="preserve">
+    <value>accesslevel</value>
   </data>
-  <data name="AccessLevel" xml:space="preserve">
-    <value>Access Level</value>
+  <data name="AccessLevelDescription" xml:space="preserve">
+    <value>Shows or sets your accesslevel</value>
+  </data>
+  <data name="AccessLevelDevOnlyAddHost" xml:space="preserve">
+    <value>You need to be atleast Dev to set someone to host!</value>
+  </data>
+  <data name="AccessLevelHostOnlyAddAdmins" xml:space="preserve">
+    <value>Only the host can add more admins!</value>
+  </data>
+  <data name="AccessLevelSetDevPermission" xml:space="preserve">
+    <value>Dev permission can only be set via db</value>
+  </data>
+  <data name="AccessLevelSetPermission" xml:space="preserve">
+    <value>Set {0} from {1} to {2}</value>
+  </data>
+  <data name="AccessLevelUsage" xml:space="preserve">
+    <value>!accesslevel
+!accesslevel &lt;userId&gt;\n
+Admin:\n
+!accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;</value>
+  </data>
+  <data name="AccessLevelUser" xml:space="preserve">
+    <value>{0} your access level is {1}</value>
+  </data>
+  <data name="AccessLevelUserOther" xml:space="preserve">
+    <value>Access level of user {0} is {1}</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>Command</value>
@@ -137,12 +161,6 @@
   </data>
   <data name="Description" xml:space="preserve">
     <value>Description</value>
-  </data>
-  <data name="False" xml:space="preserve">
-    <value>False</value>
-  </data>
-  <data name="FalseLower" xml:space="preserve">
-    <value>false</value>
   </data>
   <data name="HelpCommand" xml:space="preserve">
     <value>help</value>
@@ -167,12 +185,6 @@
   </data>
   <data name="RegisteredCommand" xml:space="preserve">
     <value>Registered {0} for discord command exceptions</value>
-  </data>
-  <data name="True" xml:space="preserve">
-    <value>True</value>
-  </data>
-  <data name="TrueLower" xml:space="preserve">
-    <value>true</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>Usage</value>

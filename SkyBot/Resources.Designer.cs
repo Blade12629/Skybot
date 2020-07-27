@@ -22,7 +22,7 @@ namespace SkyBot {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace SkyBot {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SkyBot.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace SkyBot {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,9 +61,27 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Access.
+        /// </summary>
+        public static string Access {
+            get {
+                return ResourceManager.GetString("Access", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Access Level.
+        /// </summary>
+        public static string AccessLevel {
+            get {
+                return ResourceManager.GetString("AccessLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to blue.
         /// </summary>
-        internal static string BlueLower {
+        public static string BlueLower {
             get {
                 return ResourceManager.GetString("BlueLower", resourceCulture);
             }
@@ -72,7 +90,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to {0} cannnot be null or empty.
         /// </summary>
-        internal static string CannotBeNullEmptyException {
+        public static string CannotBeNullEmptyException {
             get {
                 return ResourceManager.GetString("CannotBeNullEmptyException", resourceCulture);
             }
@@ -81,7 +99,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Cannot be null or empty.
         /// </summary>
-        internal static string CannotBeNullOrEmptyException {
+        public static string CannotBeNullOrEmptyException {
             get {
                 return ResourceManager.GetString("CannotBeNullOrEmptyException", resourceCulture);
             }
@@ -90,7 +108,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Discord Bot Token cannot be null, empty or less than 10 long.
         /// </summary>
-        internal static string DiscordTokenEmptyNullShort {
+        public static string DiscordTokenEmptyNullShort {
             get {
                 return ResourceManager.GetString("DiscordTokenEmptyNullShort", resourceCulture);
             }
@@ -99,16 +117,43 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Failed to fetch from osu! api, please retry in a moment, if this keeps happening contact ??????#0284 (discord).
         /// </summary>
-        internal static string FailedFetchOsuApi {
+        public static string FailedFetchOsuApi {
             get {
                 return ResourceManager.GetString("FailedFetchOsuApi", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to parse {0}.
+        /// </summary>
+        public static string FailedParseException {
+            get {
+                return ResourceManager.GetString("FailedParseException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to False.
+        /// </summary>
+        public static string False {
+            get {
+                return ResourceManager.GetString("False", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to false.
+        /// </summary>
+        public static string FalseLower {
+            get {
+                return ResourceManager.GetString("FalseLower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Highest Accuracy.
         /// </summary>
-        internal static string HighestAccuracy {
+        public static string HighestAccuracy {
             get {
                 return ResourceManager.GetString("HighestAccuracy", resourceCulture);
             }
@@ -117,7 +162,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Highest Score.
         /// </summary>
-        internal static string HighestScore {
+        public static string HighestScore {
             get {
                 return ResourceManager.GetString("HighestScore", resourceCulture);
             }
@@ -126,7 +171,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Most Valuable Player.
         /// </summary>
-        internal static string MVP {
+        public static string MVP {
             get {
                 return ResourceManager.GetString("MVP", resourceCulture);
             }
@@ -135,7 +180,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Nickname.
         /// </summary>
-        internal static string Nickname {
+        public static string Nickname {
             get {
                 return ResourceManager.GetString("Nickname", resourceCulture);
             }
@@ -144,7 +189,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to BanchoBot.
         /// </summary>
-        internal static string OsuIrcBotName {
+        public static string OsuIrcBotName {
             get {
                 return ResourceManager.GetString("OsuIrcBotName", resourceCulture);
             }
@@ -153,7 +198,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
-        internal static string Password {
+        public static string Password {
             get {
                 return ResourceManager.GetString("Password", resourceCulture);
             }
@@ -162,7 +207,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to red.
         /// </summary>
-        internal static string RedLower {
+        public static string RedLower {
             get {
                 return ResourceManager.GetString("RedLower", resourceCulture);
             }
@@ -171,7 +216,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Team Blue.
         /// </summary>
-        internal static string TeamBlue {
+        public static string TeamBlue {
             get {
                 return ResourceManager.GetString("TeamBlue", resourceCulture);
             }
@@ -180,7 +225,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Team Red.
         /// </summary>
-        internal static string TeamRed {
+        public static string TeamRed {
             get {
                 return ResourceManager.GetString("TeamRed", resourceCulture);
             }
@@ -189,7 +234,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Team {0} won! ({1}:{2}).
         /// </summary>
-        internal static string TeamWonWithPoins {
+        public static string TeamWonWithPoins {
             get {
                 return ResourceManager.GetString("TeamWonWithPoins", resourceCulture);
             }
@@ -198,16 +243,34 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Time cannot be zero.
         /// </summary>
-        internal static string TimeZeroException {
+        public static string TimeZeroException {
             get {
                 return ResourceManager.GetString("TimeZeroException", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to True.
+        /// </summary>
+        public static string True {
+            get {
+                return ResourceManager.GetString("True", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to true.
+        /// </summary>
+        public static string TrueLower {
+            get {
+                return ResourceManager.GetString("TrueLower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid verification code or verification not found.
         /// </summary>
-        internal static string VerCodeInvalidNotFound {
+        public static string VerCodeInvalidNotFound {
             get {
                 return ResourceManager.GetString("VerCodeInvalidNotFound", resourceCulture);
             }
@@ -216,7 +279,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Successfully verified.
         /// </summary>
-        internal static string VerSuccess {
+        public static string VerSuccess {
             get {
                 return ResourceManager.GetString("VerSuccess", resourceCulture);
             }

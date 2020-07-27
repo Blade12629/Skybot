@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Access" xml:space="preserve">
+    <value>Access</value>
+  </data>
+  <data name="AccessLevel" xml:space="preserve">
+    <value>Access Level</value>
+  </data>
   <data name="BlueLower" xml:space="preserve">
     <value>blue</value>
   </data>
@@ -131,6 +137,15 @@
   </data>
   <data name="FailedFetchOsuApi" xml:space="preserve">
     <value>Failed to fetch from osu! api, please retry in a moment, if this keeps happening contact ??????#0284 (discord)</value>
+  </data>
+  <data name="FailedParseException" xml:space="preserve">
+    <value>Failed to parse {0}</value>
+  </data>
+  <data name="False" xml:space="preserve">
+    <value>False</value>
+  </data>
+  <data name="FalseLower" xml:space="preserve">
+    <value>false</value>
   </data>
   <data name="HighestAccuracy" xml:space="preserve">
     <value>Highest Accuracy</value>
@@ -164,6 +179,12 @@
   </data>
   <data name="TimeZeroException" xml:space="preserve">
     <value>Time cannot be zero</value>
+  </data>
+  <data name="True" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="TrueLower" xml:space="preserve">
+    <value>true</value>
   </data>
   <data name="VerCodeInvalidNotFound" xml:space="preserve">
     <value>Invalid verification code or verification not found</value>
