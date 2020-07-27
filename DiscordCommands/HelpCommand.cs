@@ -105,7 +105,7 @@ namespace DiscordCommands
             }
 
             builder.AddField(ResourcesCommands.Command, cmdBuilder.ToString(), true);
-            builder.AddField(ResourcesCommands.Access, accessBuilder.ToString(), true);
+            builder.AddField(Resources.Access, accessBuilder.ToString(), true);
             builder.AddField(ResourcesCommands.Description, descriptionBuilder.ToString(), true);
 
             args.Channel.SendMessageAsync(embed: builder.Build()).Wait();
@@ -137,11 +137,11 @@ namespace DiscordCommands
                 }
             };
 
-            builder = builder.AddField(ResourcesCommands.AccessLevel, command.AccessLevel.ToString())
+            builder = builder.AddField(Resources.AccessLevel, command.AccessLevel.ToString())
                              .AddField(ResourcesCommands.Description, command.Description)
                              .AddField(ResourcesCommands.Usage, command.Usage)
                              .AddField(ResourcesCommands.CommandType, command.CommandType.ToString())
-                             .AddField(ResourcesCommands.IsDisabled, command.IsDisabled ? ResourcesCommands.True : ResourcesCommands.False);
+                             .AddField(ResourcesCommands.IsDisabled, command.IsDisabled ? Resources.True : Resources.False);
 
             if (!string.IsNullOrEmpty(notice))
                 builder = builder.AddField($"**{ResourcesCommands.Notice}**", notice);
