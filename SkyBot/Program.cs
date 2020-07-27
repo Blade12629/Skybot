@@ -50,19 +50,18 @@ namespace SkyBot
                 }
 
                 await LoadDiscord().ConfigureAwait(false);
+                //TODO: test irc
                 //await LoadIrc();
 
                 Logger.Log("Skybot started", LogLevel.Info);
             }
-#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
-#pragma warning restore CA1031 // Do not catch general exception types
             {
                 Logger.Log(ex.ToString() + "\n\nPress 'x' to exit or any other key to continue");
 
                 char pressed = Console.ReadKey().KeyChar;
 
-                if (char.ToLower(pressed, System.Globalization.CultureInfo.CurrentCulture).Equals('x'))
+                if (char.ToLower(pressed, CultureInfo.CurrentCulture).Equals('x'))
                     Environment.Exit(1);
             }
 

@@ -195,6 +195,21 @@ Admin:\n
   <data name="IsDisabled" xml:space="preserve">
     <value>Is Disabled</value>
   </data>
+  <data name="MaintenanceCommand" xml:space="preserve">
+    <value>maintenance</value>
+  </data>
+  <data name="MaintenanceCommandDescription" xml:space="preserve">
+    <value>Sets the maintenance message/status</value>
+  </data>
+  <data name="MaintenanceCommandFailedParseStatus" xml:space="preserve">
+    <value>Failed to parse status</value>
+  </data>
+  <data name="MaintenanceCommandSetStatus" xml:space="preserve">
+    <value>Set status to: {0} and message to: {1}</value>
+  </data>
+  <data name="MaintenanceCommandUsage" xml:space="preserve">
+    <value>!maintenance &lt;status&gt; &lt;message&gt;</value>
+  </data>
   <data name="Notice" xml:space="preserve">
     <value>Notice</value>
   </data>

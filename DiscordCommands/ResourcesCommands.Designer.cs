@@ -289,6 +289,51 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to maintenance.
+        /// </summary>
+        internal static string MaintenanceCommand {
+            get {
+                return ResourceManager.GetString("MaintenanceCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sets the maintenance message/status.
+        /// </summary>
+        internal static string MaintenanceCommandDescription {
+            get {
+                return ResourceManager.GetString("MaintenanceCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse status.
+        /// </summary>
+        internal static string MaintenanceCommandFailedParseStatus {
+            get {
+                return ResourceManager.GetString("MaintenanceCommandFailedParseStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set status to: {0} and message to: {1}.
+        /// </summary>
+        internal static string MaintenanceCommandSetStatus {
+            get {
+                return ResourceManager.GetString("MaintenanceCommandSetStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !maintenance &lt;status&gt; &lt;message&gt;.
+        /// </summary>
+        internal static string MaintenanceCommandUsage {
+            get {
+                return ResourceManager.GetString("MaintenanceCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Notice.
         /// </summary>
         internal static string Notice {
