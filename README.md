@@ -14,6 +14,8 @@ Currently Features:
 - Verification
 - API (WIP)
 
+- And much more to come!
+
 ---
 Requirements:
 - .Net Core 3.1
