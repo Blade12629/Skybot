@@ -2,7 +2,8 @@
 osu! tourney bot
 
 
-Current push (03:25-03:30) is untested
+The current version is untested, please do NOT use it in production if you are trying to set it up.
+Once the bot is ready it will be hosted by me and made available to the whole tournament scene
 
 
 ---
