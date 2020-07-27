@@ -147,6 +147,24 @@ Admin:\n
   <data name="AccessLevelUserOther" xml:space="preserve">
     <value>Access level of user {0} is {1}</value>
   </data>
+  <data name="BWSCommand" xml:space="preserve">
+    <value>bws</value>
+  </data>
+  <data name="BWSCommandDescription" xml:space="preserve">
+    <value>Calculates the bws rank</value>
+  </data>
+  <data name="BWSCommandFailedParseBadgeCount" xml:space="preserve">
+    <value>Could not parse the badge count {0}</value>
+  </data>
+  <data name="BWSCommandFailedParseRank" xml:space="preserve">
+    <value>Could not parse the rank {0}</value>
+  </data>
+  <data name="BWSCommandResult" xml:space="preserve">
+    <value>{0} BWS: {1}</value>
+  </data>
+  <data name="BWSCommandUsage" xml:space="preserve">
+    <value>!bws &lt;rank&gt; &lt;badgeCount&gt;</value>
+  </data>
   <data name="Command" xml:space="preserve">
     <value>Command</value>
   </data>

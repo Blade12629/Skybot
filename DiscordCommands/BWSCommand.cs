@@ -2,17 +2,18 @@
 using SkyBot.Discord.CommandSystem;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace DiscordCommands
 {
     public class BWSCommand : ICommand
     {
-        public string Command => "bws";
+        public string Command => ResourcesCommands.BWSCommand;
 
-        public string Description => "Calculates the bws rank";
+        public string Description => ResourcesCommands.BWSCommandDescription;
 
-        public string Usage => "!bws <rank> <badgeCount>";
+        public string Usage => ResourcesCommands.BWSCommandUsage;
 
         public bool IsDisabled { get; set; }
 
@@ -30,17 +31,17 @@ namespace DiscordCommands
 
             if (!int.TryParse(args.Parameters[0], out int rank))
             {
-                HelpCommand.ShowHelp(args.Channel, this, $"Could not parse the rank {args.Parameters[0]}");
+                HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandFailedParseRank, args.Parameters[0]));
                 return;
             }
 
             if (!int.TryParse(args.Parameters[1], out int badge))
             {
-                HelpCommand.ShowHelp(args.Channel, this, $"Could not parse the badge count {args.Parameters[1]}");
+                HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandFailedParseBadgeCount, args.Parameters[1]));
                 return;
             }
 
-            args.Channel.SendMessageAsync($"{args.User.Mention} BWS: {CalculateBWS(rank, badge)}");
+            args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandResult, args.User.Mention, CalculateBWS(rank, badge)));
         }
 
         private double CalculateBWS(int rank, int badges)

@@ -145,6 +145,60 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to bws.
+        /// </summary>
+        internal static string BWSCommand {
+            get {
+                return ResourceManager.GetString("BWSCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Calculates the bws rank.
+        /// </summary>
+        internal static string BWSCommandDescription {
+            get {
+                return ResourceManager.GetString("BWSCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not parse the badge count {0}.
+        /// </summary>
+        internal static string BWSCommandFailedParseBadgeCount {
+            get {
+                return ResourceManager.GetString("BWSCommandFailedParseBadgeCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not parse the rank {0}.
+        /// </summary>
+        internal static string BWSCommandFailedParseRank {
+            get {
+                return ResourceManager.GetString("BWSCommandFailedParseRank", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} BWS: {1}.
+        /// </summary>
+        internal static string BWSCommandResult {
+            get {
+                return ResourceManager.GetString("BWSCommandResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !bws &lt;rank&gt; &lt;badgeCount&gt;.
+        /// </summary>
+        internal static string BWSCommandUsage {
+            get {
+                return ResourceManager.GetString("BWSCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Command.
         /// </summary>
         internal static string Command {
