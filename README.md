@@ -11,8 +11,8 @@ Currently Features:
 
 - Analyzer
 - Statistics:
--- Top list for Players and Teams
--- Detailed Info about specific matches, players and teams
+- - Top list for Players and Teams
+- - Detailed Info about specific matches, players and teams
 - Verification
 - API (WIP)
 
