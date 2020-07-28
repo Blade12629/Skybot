@@ -10,7 +10,9 @@ Once the bot is ready it will be hosted by me and made available to the whole to
 Currently Features:
 
 - Analyzer
-- Statistics for user and teams
+- Statistics:
+-- Top list for Players and Teams
+-- Detailed Info about specific matches, players and teams
 - Verification
 - API (WIP)
 

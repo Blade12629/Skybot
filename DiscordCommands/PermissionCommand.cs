@@ -54,6 +54,25 @@ namespace DiscordCommands
                     HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.PermissionCommandAccessLevelNotFound, args.Parameters[2]));
                     return;
                 }
+
+                if (access.HasValue)
+                {
+                    switch(args.AccessLevel)
+                    {
+                        case AccessLevel.Dev:
+                            args.Channel.SendMessageAsync(ResourcesCommands.PermissionCommandInsufficientPermission);
+                            return;
+
+                        case AccessLevel.Admin:
+                            if (access.Value < AccessLevel.Host)
+                            {
+                                args.Channel.SendMessageAsync(ResourcesCommands.PermissionCommandInsufficientPermission);
+                                return;
+                            }
+                            break;
+                    }
+                    return;
+                }
             }
 
 

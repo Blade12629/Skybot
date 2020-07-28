@@ -397,6 +397,15 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You do not have enough permissions.
+        /// </summary>
+        internal static string PermissionCommandInsufficientPermission {
+            get {
+                return ResourceManager.GetString("PermissionCommandInsufficientPermission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No permission binds found.
         /// </summary>
         internal static string PermissionCommandNoPermissionsFound {
@@ -439,6 +448,44 @@ namespace DiscordCommands {
         internal static string RegisteredCommand {
             get {
                 return ResourceManager.GetString("RegisteredCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to stats.
+        /// </summary>
+        internal static string StatsCommand {
+            get {
+                return ResourceManager.GetString("StatsCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Displays stats for players/teams/matches.
+        /// </summary>
+        internal static string StatsCommandDescription {
+            get {
+                return ResourceManager.GetString("StatsCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !stats p/player p/profile osuUserId/osuUsername
+        ///!stats p/player t/top
+        ///!stats p/player l/last
+        ///!stats p/player &lt;page&gt;
+        ///
+        ///!stats t/team p/profile osuUserId/osuUsername
+        ///!stats t/team t/top
+        ///!stats t/team l/last
+        ///!stats t/team &lt;page&gt;
+        ///
+        ///!stats m/match &lt;matchId&gt;
+        ///!stats m/match &lt;team a&gt; vs &lt;team b&gt;.
+        /// </summary>
+        internal static string StatsCommandUsage {
+            get {
+                return ResourceManager.GetString("StatsCommandUsage", resourceCulture);
             }
         }
         

@@ -117,160 +117,46 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AccessLevelCommand" xml:space="preserve">
-    <value>accesslevel</value>
+  <data name="AverageAccuracy" xml:space="preserve">
+    <value>Average Accuracy</value>
   </data>
-  <data name="AccessLevelDescription" xml:space="preserve">
-    <value>Shows or sets your accesslevel</value>
+  <data name="AverageCombo" xml:space="preserve">
+    <value>Average Combo</value>
   </data>
-  <data name="AccessLevelDevOnlyAddHost" xml:space="preserve">
-    <value>You need to be atleast Dev to set someone to host!</value>
+  <data name="AverageGPS" xml:space="preserve">
+    <value>Average GPS</value>
   </data>
-  <data name="AccessLevelHostOnlyAddAdmins" xml:space="preserve">
-    <value>Only the host can add more admins!</value>
+  <data name="AverageMisses" xml:space="preserve">
+    <value>Average Misses</value>
   </data>
-  <data name="AccessLevelSetDevPermission" xml:space="preserve">
-    <value>Dev permission can only be set via db</value>
+  <data name="AverageScore" xml:space="preserve">
+    <value>Average Score</value>
   </data>
-  <data name="AccessLevelSetPermission" xml:space="preserve">
-    <value>Set {0} from {1} to {2}</value>
+  <data name="LastUpdated" xml:space="preserve">
+    <value>Last Updated</value>
   </data>
-  <data name="AccessLevelUsage" xml:space="preserve">
-    <value>!accesslevel
-!accesslevel &lt;userId&gt;\n
-Admin:\n
-!accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;</value>
+  <data name="MatchMVPs" xml:space="preserve">
+    <value>Match MVPs</value>
   </data>
-  <data name="AccessLevelUser" xml:space="preserve">
-    <value>{0} your access level is {1}</value>
-  </data>
-  <data name="AccessLevelUserOther" xml:space="preserve">
-    <value>Access level of user {0} is {1}</value>
-  </data>
-  <data name="BWSCommand" xml:space="preserve">
-    <value>bws</value>
-  </data>
-  <data name="BWSCommandDescription" xml:space="preserve">
-    <value>Calculates the bws rank</value>
-  </data>
-  <data name="BWSCommandFailedParseBadgeCount" xml:space="preserve">
-    <value>Could not parse the badge count {0}</value>
-  </data>
-  <data name="BWSCommandFailedParseRank" xml:space="preserve">
-    <value>Could not parse the rank {0}</value>
-  </data>
-  <data name="BWSCommandResult" xml:space="preserve">
-    <value>{0} BWS: {1}</value>
-  </data>
-  <data name="BWSCommandUsage" xml:space="preserve">
-    <value>!bws &lt;rank&gt; &lt;badgeCount&gt;</value>
-  </data>
-  <data name="Command" xml:space="preserve">
-    <value>Command</value>
-  </data>
-  <data name="CommandInfo" xml:space="preserve">
-    <value>Command Info</value>
-  </data>
-  <data name="CommandList" xml:space="preserve">
-    <value>Command List</value>
-  </data>
-  <data name="CommandType" xml:space="preserve">
-    <value>Command Type</value>
-  </data>
-  <data name="Description" xml:space="preserve">
-    <value>Description</value>
-  </data>
-  <data name="HelpCommand" xml:space="preserve">
-    <value>help</value>
-  </data>
-  <data name="HelpDescription" xml:space="preserve">
-    <value>Displays a command list or infos about a specific command</value>
-  </data>
-  <data name="HelpFooter" xml:space="preserve">
-    <value>&lt; &gt; = required\n[ ] = optional\n/ = choose between\n!! !! = atleast one marked parameter required</value>
-  </data>
-  <data name="HelpUsage" xml:space="preserve">
-    <value>!help [page]\n!help &lt;command&gt;</value>
-  </data>
-  <data name="IsDisabled" xml:space="preserve">
-    <value>Is Disabled</value>
-  </data>
-  <data name="MaintenanceCommand" xml:space="preserve">
-    <value>maintenance</value>
-  </data>
-  <data name="MaintenanceCommandDescription" xml:space="preserve">
-    <value>Sets the maintenance message/status</value>
-  </data>
-  <data name="MaintenanceCommandFailedParseStatus" xml:space="preserve">
-    <value>Failed to parse status</value>
-  </data>
-  <data name="MaintenanceCommandSetStatus" xml:space="preserve">
-    <value>Set status to: {0} and message to: {1}</value>
-  </data>
-  <data name="MaintenanceCommandUsage" xml:space="preserve">
-    <value>!maintenance &lt;status&gt; &lt;message&gt;</value>
-  </data>
-  <data name="Notice" xml:space="preserve">
-    <value>Notice</value>
+  <data name="OverallRating" xml:space="preserve">
+    <value>Overall Rating</value>
   </data>
   <data name="Page" xml:space="preserve">
     <value>Page</value>
   </data>
-  <data name="PermissionCommand" xml:space="preserve">
-    <value>permission</value>
+  <data name="Rank" xml:space="preserve">
+    <value>Rank</value>
   </data>
-  <data name="PermissionCommandAccessLevelNotFound" xml:space="preserve">
-    <value>Access Level {0} not found!</value>
+  <data name="Rating" xml:space="preserve">
+    <value>Rating</value>
   </data>
-  <data name="PermissionCommandBindAlreadyExists" xml:space="preserve">
-    <value>Permission bind already exists</value>
+  <data name="StatsFor" xml:space="preserve">
+    <value>Stats For</value>
   </data>
-  <data name="PermissionCommandBinded" xml:space="preserve">
-    <value>Binded access level {0} to role {1}</value>
+  <data name="Team" xml:space="preserve">
+    <value>Team</value>
   </data>
-  <data name="PermissionCommandDescription" xml:space="preserve">
-    <value>Binds or unbinds a permission</value>
-  </data>
-  <data name="PermissionCommandInsufficientPermission" xml:space="preserve">
-    <value>You do not have enough permissions</value>
-  </data>
-  <data name="PermissionCommandNoPermissionsFound" xml:space="preserve">
-    <value>No permission binds found</value>
-  </data>
-  <data name="PermissionCommandRoleNotFound" xml:space="preserve">
-    <value>Discord Role {0} not found!</value>
-  </data>
-  <data name="PermissionCommandUnbinded" xml:space="preserve">
-    <value>Unbinded {0} permissions from role {1}</value>
-  </data>
-  <data name="PermissionCommandUsage" xml:space="preserve">
-    <value>!permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
-!permission unbind &lt;discordRoleId&gt; [accessLevel]</value>
-  </data>
-  <data name="RegisteredCommand" xml:space="preserve">
-    <value>Registered {0} for discord command exceptions</value>
-  </data>
-  <data name="StatsCommand" xml:space="preserve">
-    <value>stats</value>
-  </data>
-  <data name="StatsCommandDescription" xml:space="preserve">
-    <value>Displays stats for players/teams/matches</value>
-  </data>
-  <data name="StatsCommandUsage" xml:space="preserve">
-    <value>!stats p/player p/profile osuUserId/osuUsername
-!stats p/player t/top
-!stats p/player l/last
-!stats p/player &lt;page&gt;
-
-!stats t/team p/profile osuUserId/osuUsername
-!stats t/team t/top
-!stats t/team l/last
-!stats t/team &lt;page&gt;
-
-!stats m/match &lt;matchId&gt;
-!stats m/match &lt;team a&gt; vs &lt;team b&gt;</value>
-  </data>
-  <data name="Usage" xml:space="preserve">
-    <value>Usage</value>
+  <data name="Top" xml:space="preserve">
+    <value>Top</value>
   </data>
 </root>

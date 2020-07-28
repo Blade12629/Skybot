@@ -90,24 +90,6 @@ namespace DiscordCommands
             CommandHandler.SetAccessLevel(uid, args.Guild.Id, newAccess);
 
             args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelSetPermission, uid, access, newAccess));
-
-            //TODO: add command to bind discord role to permission
-            //TODO: add command to create embeds with token parser or json
-            //TODO: add localizations via resource file
-
-            //TODO: add top list for players and teams
-            //      - !stats p/player p/profile osuUserId/osuUsername
-            //      - !stats p/player t/top
-            //      - !stats p/player l/last
-            //      - !stats p/player <page>
-            //      - !stats t/team p/profile osuUserId/osuUsername
-            //      - !stats t/team t/top
-            //      - !stats t/team l/last
-            //      - !stats t/team <page>
-            //      - !stats m/match <matchId>
-            //      - !stats m/match <team a> vs <team b>
-
-
         }
     }
 }

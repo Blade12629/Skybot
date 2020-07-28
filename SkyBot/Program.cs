@@ -50,8 +50,7 @@ namespace SkyBot
                 }
 
                 await LoadDiscord().ConfigureAwait(false);
-                //TODO: test irc
-                //await LoadIrc();
+                await LoadIrc();
 
                 Logger.Log("Skybot started", LogLevel.Info);
             }
