@@ -12,7 +12,7 @@ namespace DiscordCommands
 
         public string Command => "notifyhosts";
 
-        public AccessLevel AccessLevel => AccessLevel.Host;
+        public AccessLevel AccessLevel => AccessLevel.Dev;
 
         public CommandType CommandType => CommandType.None;
 

@@ -48,15 +48,13 @@ namespace DiscordCommands
                 HelpCommand.ShowHelp(args.Channel, this);
                 return;
             }
-            
 
-            AccessLevel newAccess = AccessLevel.User;
+
+            AccessLevel newAccess;
             if (int.TryParse(args.Parameters[0], out int al))
                 newAccess = (AccessLevel)al;
-            else if (Enum.TryParse<AccessLevel>(args.Parameters[0], out newAccess))
-            {
-                
-            }
+            else if (Enum.TryParse<AccessLevel>(args.Parameters[0], out AccessLevel ac))
+                newAccess = ac;
             else
             {
                 HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, Resources.FailedParseException, Resources.AccessLevel));

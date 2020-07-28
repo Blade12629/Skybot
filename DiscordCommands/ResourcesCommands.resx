@@ -216,6 +216,34 @@ Admin:\n
   <data name="Page" xml:space="preserve">
     <value>Page</value>
   </data>
+  <data name="PermissionCommand" xml:space="preserve">
+    <value>permission</value>
+  </data>
+  <data name="PermissionCommandAccessLevelNotFound" xml:space="preserve">
+    <value>Access Level {0} not found!</value>
+  </data>
+  <data name="PermissionCommandBindAlreadyExists" xml:space="preserve">
+    <value>Permission bind already exists</value>
+  </data>
+  <data name="PermissionCommandBinded" xml:space="preserve">
+    <value>Binded access level {0} to role {1}</value>
+  </data>
+  <data name="PermissionCommandDescription" xml:space="preserve">
+    <value>Binds or unbinds a permission</value>
+  </data>
+  <data name="PermissionCommandNoPermissionsFound" xml:space="preserve">
+    <value>No permission binds found</value>
+  </data>
+  <data name="PermissionCommandRoleNotFound" xml:space="preserve">
+    <value>Discord Role {0} not found!</value>
+  </data>
+  <data name="PermissionCommandUnbinded" xml:space="preserve">
+    <value>Unbinded {0} permissions from role {1}</value>
+  </data>
+  <data name="PermissionCommandUsage" xml:space="preserve">
+    <value>!permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
+!permission unbind &lt;discordRoleId&gt; [accessLevel]</value>
+  </data>
   <data name="RegisteredCommand" xml:space="preserve">
     <value>Registered {0} for discord command exceptions</value>
   </data>

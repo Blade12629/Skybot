@@ -352,6 +352,88 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to permission.
+        /// </summary>
+        internal static string PermissionCommand {
+            get {
+                return ResourceManager.GetString("PermissionCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Access Level {0} not found!.
+        /// </summary>
+        internal static string PermissionCommandAccessLevelNotFound {
+            get {
+                return ResourceManager.GetString("PermissionCommandAccessLevelNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Permission bind already exists.
+        /// </summary>
+        internal static string PermissionCommandBindAlreadyExists {
+            get {
+                return ResourceManager.GetString("PermissionCommandBindAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binded access level {0} to role {1}.
+        /// </summary>
+        internal static string PermissionCommandBinded {
+            get {
+                return ResourceManager.GetString("PermissionCommandBinded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binds or unbinds a permission.
+        /// </summary>
+        internal static string PermissionCommandDescription {
+            get {
+                return ResourceManager.GetString("PermissionCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No permission binds found.
+        /// </summary>
+        internal static string PermissionCommandNoPermissionsFound {
+            get {
+                return ResourceManager.GetString("PermissionCommandNoPermissionsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Discord Role {0} not found!.
+        /// </summary>
+        internal static string PermissionCommandRoleNotFound {
+            get {
+                return ResourceManager.GetString("PermissionCommandRoleNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unbinded {0} permissions from role {1}.
+        /// </summary>
+        internal static string PermissionCommandUnbinded {
+            get {
+                return ResourceManager.GetString("PermissionCommandUnbinded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
+        ///!permission unbind &lt;discordRoleId&gt; [accessLevel].
+        /// </summary>
+        internal static string PermissionCommandUsage {
+            get {
+                return ResourceManager.GetString("PermissionCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Registered {0} for discord command exceptions.
         /// </summary>
         internal static string RegisteredCommand {
