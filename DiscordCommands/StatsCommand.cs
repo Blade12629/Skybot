@@ -28,8 +28,226 @@ namespace DiscordCommands
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            //TODO: top list for player/teams
-            //TODO: card for player/teams/match result
+            string param = args.Parameters[0].ToLower(CultureInfo.CurrentCulture);
+            args.Parameters.RemoveAt(0);
+
+            switch(param)
+            {
+                default:
+                    HelpCommand.ShowHelp(args.Channel, this);
+                    return;
+
+                case "player":
+                case "p":
+                    OnPlayerCommand(args);
+                    return;
+
+                case "team":
+                case "t":
+                    OnTeamCommand(args);
+                    return;
+
+                case "match":
+                case "m":
+                    OnMatchCommand(args);
+                    return;
+            }
+        }
+
+        private void OnPlayerCommand(CommandEventArg args)
+        {
+            string param = args.Parameters[0].ToLower(CultureInfo.CurrentCulture);
+            args.Parameters.RemoveAt(0);
+
+            switch (param)
+            {
+                case "profile":
+                case "p":
+                    OnPlayerProfile(args);
+                    return;
+
+                case "top":
+                case "t":
+                    OnPlayerTopList(args);
+                    return;
+
+                case "last":
+                case "l":
+                    OnPlayerTopList(args, true);
+                    return;
+
+                default:
+                    HelpCommand.ShowHelp(args.Channel, this);
+                    return;
+            }
+        }
+
+        private void OnTeamCommand(CommandEventArg args)
+        {
+            string param = args.Parameters[0].ToLower(CultureInfo.CurrentCulture);
+            args.Parameters.RemoveAt(0);
+
+            switch (param)
+            {
+                case "profile":
+                case "p":
+                    OnTeamProfile(args);
+                    return;
+
+                case "top":
+                case "t":
+                    OnTeamTopList(args);
+                    return;
+
+                case "last":
+                case "l":
+                    OnTeamTopList(args, true);
+                    return;
+
+                default:
+                    HelpCommand.ShowHelp(args.Channel, this);
+                    return;
+            }
+        }
+
+        private void OnPlayerTopList(CommandEventArg args, bool reverse = false)
+        {
+            int page = 1;
+
+            if (args.Parameters.Count > 0 && int.TryParse(args.Parameters[0], out int p))
+                page = p;
+
+            page--;
+
+            List<SeasonPlayerCardCache> players = GetPlayers(args.Guild).OrderByDescending(sp => sp.OverallRating).ToList();
+
+            if (reverse)
+                players.Reverse();
+
+            args.Channel.SendMessageAsync(embed: GetListAsEmbed<SeasonPlayerCardCache>(players, page * 10, 10, ResourceStats.Players,
+                                                                                       new Func<SeasonPlayerCardCache, string>(sp => sp.Username),
+                                                                                       new Func<SeasonPlayerCardCache, double>(sp => sp.OverallRating)));
+        }
+
+        private void OnTeamTopList(CommandEventArg args, bool reverse = false)
+        {
+            int page = 1;
+
+            if (args.Parameters.Count > 0 && int.TryParse(args.Parameters[0], out int p))
+                page = p;
+
+            page--;
+
+            List<SeasonTeamCardCache> teams = GetTeams(args.Guild).OrderByDescending(sp => sp.TeamRating).ToList();
+
+            if (reverse)
+                teams.Reverse();
+
+            args.Channel.SendMessageAsync(embed: GetListAsEmbed<SeasonTeamCardCache>(teams, page * 10, 10, ResourceStats.Players,
+                                                                                       new Func<SeasonTeamCardCache, string>(sp => sp.TeamName),
+                                                                                       new Func<SeasonTeamCardCache, double>(sp => sp.TeamRating)));
+        }
+
+        private void OnPlayerProfile(CommandEventArg args)
+        {
+            using DBContext c = new DBContext();
+            (string, long) userParsed = TryParseIdOrUsernameString(args.Parameters);
+
+            long osuUserId = -1;
+
+            if (userParsed.Item1 != null)
+                osuUserId = c.SeasonPlayer.FirstOrDefault(sp => sp.LastOsuUsername.Equals(userParsed.Item1, StringComparison.CurrentCultureIgnoreCase) &&
+                                                                sp.DiscordGuildId == (long)args.Guild.Id)?.Id ?? -1;
+            else if (userParsed.Item2 != -1)
+                osuUserId = userParsed.Item2;
+
+            if (osuUserId == -1)
+            {
+                args.Channel.SendMessageAsync(ResourceStats.PlayerNotFound + osuUserId);
+                return;
+            }
+
+            SeasonPlayerCardCache spcc = GetPlayer(args.Guild, osuUserId);
+
+            if (spcc == null)
+            {
+                args.Channel.SendMessageAsync(ResourceStats.PlayerNotFound + osuUserId);
+                return;
+            }
+
+            args.Channel.SendMessageAsync(embed: GetPlayerEmbed(spcc.Username, spcc.TeamName, spcc.OsuUserId, spcc.AverageAccuracy, (int)spcc.AverageScore, spcc.AverageMisses, (int)spcc.AverageCombo, spcc.AveragePerformance, spcc.MatchMvps, spcc.OverallRating));
+        }
+
+        private void OnTeamProfile(CommandEventArg args)
+        {
+            using DBContext c = new DBContext();
+            string teamName = null;
+
+            SeasonTeamCardCache stcc = GetTeam(args.Guild, teamName);
+
+            if (stcc == null)
+            {
+                args.Channel.SendMessageAsync(ResourceStats.TeamNotFound + teamName);
+                return;
+            }
+
+            args.Channel.SendMessageAsync(embed: GetTeamEmbed(stcc.TeamName, stcc.AverageAccuracy, (int)stcc.AverageScore, stcc.AverageMisses, (int)stcc.AverageCombo, stcc.AverageGeneralPerformanceScore, stcc.TotalMatchMVPs, stcc.AverageOverallRating, stcc.TeamRating, stcc.MVPName));
+        }
+
+        private void OnMatchCommand(CommandEventArg args)
+        {
+            using DBContext c = new DBContext();
+            long matchId = -1;
+
+            //team a vs team b
+            if (args.Parameters.Count > 1)
+            {
+                StringBuilder vsSb = new StringBuilder();
+
+                for (int i = 0; i < args.Parameters.Count; i++)
+                    vsSb.Append(" " + args.Parameters[i]);
+
+                vsSb.Remove(0, 1);
+
+                string matchName = vsSb.ToString();
+
+                matchId = c.SeasonResult.FirstOrDefault(sr => sr.MatchName.Equals(matchName, StringComparison.CurrentCultureIgnoreCase) &&
+                                                              sr.DiscordGuildId == (long)args.Guild.Id)?.Id ?? -1;
+            }
+            else //matchid
+            {
+                if (!int.TryParse(args.Parameters[0], out int mid))
+                {
+                    HelpCommand.ShowHelp(args.Channel, this);
+                    return;
+                }
+
+                matchId = mid;
+
+                if (!c.SeasonResult.Any(sr => sr.MatchId == matchId &&
+                                              sr.DiscordGuildId == (long)args.Guild.Id))
+                {
+                    args.Channel.SendMessageAsync(ResourceStats.MatchNotFound + matchId);
+                    return;
+                }
+            }
+
+            args.Channel.SendMessageAsync(embed: GetMatchEmbedFromDB((int)matchId));
+        }
+
+        private (string, long) TryParseIdOrUsernameString(List<string> parameters)
+        {
+            if (long.TryParse(parameters[0], out long id))
+                return (null, id);
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < parameters.Count; i++)
+                sb.Append(" " + parameters[i]);
+
+            sb.Remove(0, 1);
+
+            return (sb.ToString(), -1);
+
         }
 
         private List<SeasonPlayerCardCache> GetPlayers(DiscordGuild guild)
@@ -51,18 +269,16 @@ namespace DiscordCommands
                                                                   spcc.OsuUserId == osuId);
         }
 
-        private SeasonPlayerCardCache GetPlayer(DiscordGuild guild, string userName)
-        {
-            using DBContext c = new DBContext();
-            return c.SeasonPlayerCardCache.FirstOrDefault(spcc => spcc.DiscordGuildId == (long)guild.Id &&
-                                                                  spcc.Username.Equals(userName, StringComparison.CurrentCultureIgnoreCase));
-        }
-
         private SeasonTeamCardCache GetTeam(DiscordGuild guild, string teamName)
         {
             using DBContext c = new DBContext();
             return c.SeasonTeamCardCache.FirstOrDefault(stcc => stcc.DiscordGuildId == (long)guild.Id &&
                                                                 stcc.TeamName.Equals(teamName, StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        private DiscordEmbed GetMatchEmbedFromDB(int matchId)
+        {
+            return SkyBot.Analyzer.OsuAnalyzer.GetMatchResultEmbed(matchId);
         }
 
         private DiscordEmbed GetPlayerEmbed(string userName, string teamName, long osuUserId, double avgAcc, int avgScore, double avgMisses, int avgCombo, double avgGps, int matchMvps, double overallRating)
@@ -98,11 +314,12 @@ namespace DiscordCommands
             return builder.Build();
         }
 
-        private DiscordEmbed GetTeamEmbed(string teamName, double avgAcc, int avgScore, double avgMisses, int avgCombo, double avgGps, int avgMvps, double avgRating)
+        private DiscordEmbed GetTeamEmbed(string teamName, double avgAcc, int avgScore, double avgMisses, int avgCombo, double avgGps, int totalMvps, double avgRating, double teamRating, string mvpName)
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
                 Title = string.Format(CultureInfo.CurrentCulture, "{0} {1} {2}", ResourceStats.StatsFor, ResourceStats.Team, teamName),
+                Description = ResourceStats.TeamMVP + mvpName,
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
                     Text = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", ResourceStats.LastUpdated, DateTime.UtcNow)
@@ -113,14 +330,16 @@ namespace DiscordCommands
             avgMisses = Math.Round(avgMisses, 1, MidpointRounding.AwayFromZero);
             avgGps = Math.Round(avgGps, 2, MidpointRounding.AwayFromZero);
             avgRating = Math.Round(avgRating, 2, MidpointRounding.AwayFromZero);
+            teamRating = Math.Round(teamRating, 2, MidpointRounding.AwayFromZero);
 
             builder.AddField(ResourceStats.AverageAccuracy, avgAcc.ToString(CultureInfo.CurrentCulture) + " %", true)
                    .AddField(ResourceStats.AverageScore, string.Format(CultureInfo.CurrentCulture, "{0:n0}", avgScore), true)
                    .AddField(ResourceStats.AverageMisses, avgMisses.ToString(CultureInfo.CurrentCulture), true)
                    .AddField(ResourceStats.AverageCombo, avgCombo.ToString(CultureInfo.CurrentCulture), true)
                    .AddField(ResourceStats.AverageGPS, avgGps.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.MatchMVPs, avgMvps.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.OverallRating, (avgRating.ToString(CultureInfo.CurrentCulture) + $"({avgMvps * 3.5})"), true);
+                   .AddField(ResourceStats.MatchMVPs, totalMvps.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField(ResourceStats.AverageRating, avgRating.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField(ResourceStats.OverallRating, (teamRating.ToString(CultureInfo.CurrentCulture) + $"({totalMvps * 3.5})"), true);
 
             return builder.Build();
         }
@@ -152,7 +371,7 @@ namespace DiscordCommands
             return maxPages;
         }
 
-        private DiscordEmbed GetList<T>(List<T> input, int start, int count, string listTitle, Func<T, string> nameConverter, Func<T, double> ratingConverter)
+        private DiscordEmbed GetListAsEmbed<T>(List<T> input, int start, int count, string listTitle, Func<T, string> nameConverter, Func<T, double> ratingConverter)
         {
             int page = GetPage(start);
             int maxPages = GetMaxPages(input.Count);

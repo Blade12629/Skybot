@@ -50,7 +50,7 @@ namespace SkyBot
                 }
 
                 await LoadDiscord().ConfigureAwait(false);
-                await LoadIrc();
+                await LoadIrc().ConfigureAwait(false);
 
                 Logger.Log("Skybot started", LogLevel.Info);
             }
@@ -105,7 +105,14 @@ namespace SkyBot
             IRC.OnUserCommand += (s, e) =>
             {
                 Logger.Log($"User command from {e.Sender.Nickname.ToString()}: {e.Message.ToString()}", member: "IRC");
-                VerificationManager.FinishVerification(e.Message.ToString(), e.Sender.Nickname.ToString());
+
+                string msg = e.Message.ToString();
+                int index = msg.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
+
+                if (index == -1)
+                    return;
+
+                VerificationManager.FinishVerification(msg.Remove(0, index + 1), e.Sender.Nickname.ToString());
             };
             IRC.OnWelcomeMessageReceived += (s, e) => Logger.Log($"Welcome message received", member: "IRC");
 

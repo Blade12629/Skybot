@@ -45,8 +45,8 @@ namespace DiscordCommands
             {
                 string username = SkyBot.Osu.API.V1.OsuApi.GetUserName((int)u.OsuUserId).Result;
 
-                if (args.Member.Nickname.Equals(username, StringComparison.CurrentCultureIgnoreCase))
-                    args.Member.ModifyAsync(username).Wait();
+                if (args.Member.Nickname == null || !args.Member.Nickname.Equals(username, StringComparison.CurrentCultureIgnoreCase))
+                    args.Member.ModifyAsync(username, reason: "synchronized roles").Wait();
             }
 
             if (dgc.VerifiedRoleId > 0)

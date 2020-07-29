@@ -33,21 +33,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ResourcesCommands.resx</DependentUpon>
     </Compile>
-    <Compile Update="ResourceStats.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ResourceStats.resx</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Update="ResourcesCommands.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResourcesCommands.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="ResourceStats.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>ResourceStats.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

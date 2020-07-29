@@ -129,8 +129,26 @@
   <data name="AverageMisses" xml:space="preserve">
     <value>Average Misses</value>
   </data>
+  <data name="AverageRating" xml:space="preserve">
+    <value>Average Rating</value>
+  </data>
   <data name="AverageScore" xml:space="preserve">
     <value>Average Score</value>
+  </data>
+  <data name="GPS" xml:space="preserve">
+    <value>GPS</value>
+  </data>
+  <data name="HighestAccuracy" xml:space="preserve">
+    <value>Highest Accuracy</value>
+  </data>
+  <data name="HighestAccuracyMap" xml:space="preserve">
+    <value>{0} on the map {1} - {2} [{3}] ({4}*) with {6:n0} Points and {7}% Accuracy!</value>
+  </data>
+  <data name="HighestAvgAccuracy" xml:space="preserve">
+    <value>Highest Average Accuracy</value>
+  </data>
+  <data name="HighestAvgScore" xml:space="preserve">
+    <value>Highest Average Score</value>
   </data>
   <data name="LastUpdated" xml:space="preserve">
     <value>Last Updated</value>
@@ -138,11 +156,26 @@
   <data name="MatchMVPs" xml:space="preserve">
     <value>Match MVPs</value>
   </data>
+  <data name="MatchNotFound" xml:space="preserve">
+    <value>Could not find match </value>
+  </data>
+  <data name="MatchPlayed" xml:space="preserve">
+    <value>Match played at</value>
+  </data>
+  <data name="MVP" xml:space="preserve">
+    <value>Most Valuable Player</value>
+  </data>
   <data name="OverallRating" xml:space="preserve">
     <value>Overall Rating</value>
   </data>
   <data name="Page" xml:space="preserve">
     <value>Page</value>
+  </data>
+  <data name="PlayerNotFound" xml:space="preserve">
+    <value>Could not find player </value>
+  </data>
+  <data name="Players" xml:space="preserve">
+    <value>Players</value>
   </data>
   <data name="Rank" xml:space="preserve">
     <value>Rank</value>
@@ -150,11 +183,26 @@
   <data name="Rating" xml:space="preserve">
     <value>Rating</value>
   </data>
+  <data name="Score" xml:space="preserve">
+    <value>Score</value>
+  </data>
   <data name="StatsFor" xml:space="preserve">
     <value>Stats For</value>
   </data>
   <data name="Team" xml:space="preserve">
     <value>Team</value>
+  </data>
+  <data name="TeamMVP" xml:space="preserve">
+    <value>Team MVP: </value>
+  </data>
+  <data name="TeamNotFound" xml:space="preserve">
+    <value>Could not find team </value>
+  </data>
+  <data name="Teams" xml:space="preserve">
+    <value>Teams</value>
+  </data>
+  <data name="TeamWon" xml:space="preserve">
+    <value>Team {0} won! ({1}:{2})</value>
   </data>
   <data name="Top" xml:space="preserve">
     <value>Top</value>

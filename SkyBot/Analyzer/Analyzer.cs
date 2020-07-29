@@ -241,74 +241,285 @@ namespace SkyBot.Analyzer
             return (historyJson, matchId);
         }
 
-        public static DiscordEmbed CreateStatisticEmbed(AnalyzerResult ar, DiscordColor embedColor)
+        public static DiscordEmbed GetMatchResultEmbed(long matchId)
         {
-            if (ar == null)
-                throw new ArgumentNullException(nameof(ar));
+            using DBContext c = new DBContext();
+            Func<int, bool> intToBool = new Func<int, bool>(i =>
+            {
+                if (i == 0)
+                    return false;
 
-            string description = string.Format(CultureInfo.CurrentCulture, Resources.TeamWonWithPoins, ar.WinningTeam, ar.WinningTeamWins, ar.LosingTeamWins);
+                return true;
+            });
+
+            SeasonResult result = c.SeasonResult.FirstOrDefault(r => r.MatchId == matchId);
+
+            if (result == null)
+                return null;
+
+            SeasonPlayer highestGpsWinningPlayer, highestGpsLosingPlayer;
+
+            List<SeasonScore> scores = c.SeasonScore.Where(s => s.SeasonResultId == result.Id).ToList();
+
+            SeasonScore highestAcc = scores.OrderByDescending(s => s.Accuracy).ElementAt(0);
+            SeasonScore highestScore = scores.OrderByDescending(s => s.Score).ElementAt(0);
+
+            SeasonBeatmap highestAccMap = c.SeasonBeatmap.FirstOrDefault(b => b.BeatmapId == highestAcc.BeatmapId);
+            SeasonBeatmap highestScoreMap = c.SeasonBeatmap.FirstOrDefault(b => b.BeatmapId == highestScore.BeatmapId);
+
+            SeasonPlayer highestAccPlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestAcc.SeasonPlayerId);
+            SeasonPlayer highestScorePlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestScore.SeasonPlayerId);
+
+            List<SeasonScore> highestGpsScores = scores.Where(s => s.HighestGeneralPerformanceScore).ToList();
+
+            string winningTeamTrim = result.WinningTeam.Trim(' ', '_');
+            string losingTeamTrim = result.LosingTeam.Trim(' ', '_');
+
+            SeasonScore highestGpsWinningScore = highestGpsScores.FirstOrDefault(s => s.TeamName.Trim(' ', '_').Equals(winningTeamTrim, StringComparison.CurrentCultureIgnoreCase));
+            SeasonScore highestGpsLosingScore = highestGpsScores.FirstOrDefault(s => s.TeamName.Trim(' ', '_').Equals(losingTeamTrim, StringComparison.CurrentCultureIgnoreCase));
+
+            highestGpsWinningPlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestGpsWinningScore.SeasonPlayerId);
+            highestGpsLosingPlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestGpsLosingScore.SeasonPlayerId);
+
+            int rnd = Program.Random.Next(0, 8);
+            DiscordColor color;
+            switch (rnd)
+            {
+                default:
+                case 0:
+                    color = DiscordColor.Aquamarine;
+                    break;
+                case 1:
+                    color = DiscordColor.Red;
+                    break;
+                case 2:
+                    color = DiscordColor.Blurple;
+                    break;
+                case 3:
+                    color = DiscordColor.Green;
+                    break;
+                case 4:
+                    color = DiscordColor.Yellow;
+                    break;
+                case 5:
+                    color = DiscordColor.Orange;
+                    break;
+                case 6:
+                    color = DiscordColor.Black;
+                    break;
+                case 7:
+                    color = DiscordColor.Gold;
+                    break;
+                case 8:
+                    color = DiscordColor.CornflowerBlue;
+                    break;
+            }
+
+            string description = string.Format(CultureInfo.CurrentCulture, ResourceStats.TeamWon, result.WinningTeam, result.WinningTeamWins, result.LosingTeamWins);
 
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder()
             {
-                Title = ar.MatchName,
+                Title = result.MatchName,
                 Description = description,
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
-                    Text = $"Match played at {ar.TimeStamp}",
+                    Text = $"{ResourceStats.MatchPlayed} {result.TimeStamp}",
                 },
-                Color = embedColor,
+                Color = color,
             };
 
-            var playersBlue = ar.HighestScoresRanking.Where(r => r.Player.Scores.ElementAt(r.Player.Scores.Length - 1).match.team.Trim(' ').Equals(Resources.BlueLower, StringComparison.CurrentCultureIgnoreCase)).OrderByDescending(f => f.Player.MVPScore).ToList();
-            var playersRed = ar.HighestScoresRanking.Where(r => r.Player.Scores.ElementAt(r.Player.Scores.Length - 1).match.team.Trim(' ').Equals(Resources.RedLower, StringComparison.CurrentCultureIgnoreCase)).OrderByDescending(f => f.Player.MVPScore).ToList();
+            Dictionary<long, List<(double, double, double)>> playerValues = new Dictionary<long, List<(double, double, double)>>();
 
-            var playerBlue = playersBlue.ElementAt(0).Player;
-            var playerRed = playersRed.ElementAt(0).Player;
-            //generated performance score = gps
-            discordEmbedBuilder.AddField(Resources.MVP, $"{Resources.TeamBlue}: {playerBlue.UserName} ({playerBlue.MVPScore} GPS){Environment.NewLine}{Resources.TeamRed}: {playerRed.UserName} ({playerRed.MVPScore} GPS)");
-
-            discordEmbedBuilder.AddField(Resources.HighestScore, string.Format(CultureInfo.CurrentCulture, "{0} on the map {1} - {2} [{3}] ({4}*) with {5:n0} Points and {6}% Accuracy!",
-                ar.HighestScoreUser.UserName, ar.HighestScoreBeatmap.beatmapset.artist,
-                ar.HighestScoreBeatmap.beatmapset.title, ar.HighestScoreBeatmap.version,
-                ar.HighestScoreBeatmap.difficulty_rating,
-                string.Format(CultureInfo.CurrentCulture, "{0:n0}", ar.HighestScoreUser.HighestScore.score),
-                Math.Round(ar.HighestScoreUser.HighestScore.accuracy.Value * 100.0f, 2, MidpointRounding.AwayFromZero)));
-
-            discordEmbedBuilder.AddField(Resources.HighestAccuracy, string.Format(CultureInfo.CurrentCulture, "{0} on the map {1} - {2} [{3}] ({4}*) with {5:n0} Points and {6}% Accuracy!",
-                ar.HighestAccuracyUser.UserName,
-                ar.HighestAccuracyBeatmap.beatmapset.artist,
-                ar.HighestAccuracyBeatmap.beatmapset.title,
-                ar.HighestAccuracyBeatmap.version,
-                ar.HighestAccuracyBeatmap.difficulty_rating,
-                string.Format(CultureInfo.CurrentCulture, "{0:n0}", ar.HighestAccuracyScore.score),
-                Math.Round(ar.HighestAccuracyScore.accuracy.Value * 100.0f, 2, MidpointRounding.AwayFromZero)));
-
-            for (int i = 1; i < 4; i++)
+            for (int i = 0; i < scores.Count; i++)
             {
-                Rank place = ar.HighestAverageAccuracyRanking.Last(ob => ob.Place == i) as Rank;
-                (string, string) placeString = GetPlaceString(place);
-                discordEmbedBuilder.AddField(placeString.Item1, placeString.Item2);
-            }
-            
-            return discordEmbedBuilder.Build();
-
-            (string, string) GetPlaceString(Rank place)
-            {
-                switch (place.Place)
+                if (!playerValues.ContainsKey(scores[i].SeasonPlayerId))
                 {
-                    case 1:
-                        return ("First Place", $"{ place.Player.UserName}: Average Acc: { place.Player.AverageAccuracyRounded}%");
-                    case 2:
-                        return ("Second Place", $"{ place.Player.UserName}: Average Acc: { place.Player.AverageAccuracyRounded}%");
-                    case 3:
-                        return ("Third Place", $"{place.Player.UserName}: Average Acc: { place.Player.AverageAccuracyRounded}%");
-                    //Normally unused
-                    case 4:
-                        return ("Fourth Place", $"{place.Player.UserName}: Average Acc: { place.Player.AverageAccuracyRounded}%");
-                    default:
-                        return ($"{place.Place} Place", $"{ place.Player.UserName}: Average Acc: { place.Player.AverageAccuracyRounded}%");
+                    playerValues.Add(scores[i].SeasonPlayerId, new List<(double, double, double)>() { (scores[i].Accuracy, scores[i].GeneralPerformanceScore, scores[i].Score) });
+                    continue;
+                }
+
+                playerValues[scores[i].SeasonPlayerId].Add((scores[i].Accuracy, scores[i].GeneralPerformanceScore, scores[i].Score));
+            }
+
+            Dictionary<long, (double, double, double)> playerAverage = new Dictionary<long, (double, double, double)>();
+
+            foreach (var pair in playerValues)
+            {
+                double avgAcc = pair.Value.Sum(s => s.Item1) / pair.Value.Count;
+                double avgGps = pair.Value.Sum(s => s.Item2) / pair.Value.Count;
+                double avgScore = pair.Value.Sum(s => s.Item3) / pair.Value.Count;
+
+                playerAverage.Add(pair.Key, (avgAcc, avgGps, avgScore));
+            }
+
+            var sortedAvgAcc = playerAverage.OrderByDescending(p => p.Value.Item1).ToList();
+            var sortedAvgGps = playerAverage.OrderByDescending(p => p.Value.Item2).ToList();
+            var sortedAvgScore = playerAverage.OrderByDescending(p => p.Value.Item3).ToList();
+
+
+            KeyValuePair<long, (double, double, double)> playerTeamAHighestAvgGps = sortedAvgGps.ElementAt(0);
+            SeasonPlayer playerTeamAHighestGps = c.SeasonPlayer.FirstOrDefault(p => p.Id == playerTeamAHighestAvgGps.Key);
+            KeyValuePair<long, (double, double, double)> playerTeamBHighestAvgGps = default;
+            SeasonPlayer playerTeamBHighestGps = null;
+
+            KeyValuePair<long, (double, double, double)> playerTeamAHighestAvgAcc = sortedAvgAcc.ElementAt(0);
+            SeasonPlayer playerTeamAHighestAcc = c.SeasonPlayer.FirstOrDefault(p => p.Id == playerTeamAHighestAvgAcc.Key);
+            KeyValuePair<long, (double, double, double)> playerTeamBHighestAvgAcc = default;
+            SeasonPlayer playerTeamBHighestAcc = null;
+
+            KeyValuePair<long, (double, double, double)> playerTeamAHighestAvgScore = sortedAvgScore.ElementAt(0);
+            SeasonPlayer playerTeamAHighestScore = c.SeasonPlayer.FirstOrDefault(p => p.Id == playerTeamAHighestAvgScore.Key);
+            KeyValuePair<long, (double, double, double)> playerTeamBHighestAvgScore = default;
+            SeasonPlayer playerTeamBHighestScore = null;
+
+            for (int i = 1; i < sortedAvgGps.Count; i++)
+            {
+                var pair = sortedAvgGps.ElementAt(i);
+                var player = c.SeasonPlayer.FirstOrDefault(p => p.Id == pair.Key);
+
+                Console.WriteLine(sortedAvgGps[i].Value.Item1 + " | " + sortedAvgGps[i].Value.Item2 + " | " + sortedAvgGps[i].Value.Item3 + " | ");
+
+                if (player.TeamName.Equals(playerTeamAHighestGps.TeamName, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    if (playerTeamAHighestAvgGps.Value.Item2 >= pair.Value.Item2)
+                        continue;
+
+                    playerTeamAHighestAvgGps = pair;
+                    playerTeamAHighestGps = player;
+                }
+                else
+                {
+                    if (playerTeamBHighestAvgGps.Equals(default))
+                    {
+                        playerTeamBHighestAvgGps = pair;
+                        playerTeamBHighestGps = player;
+
+                        continue;
+                    }
+
+                    if (playerTeamBHighestAvgGps.Value.Item2 >= pair.Value.Item2)
+                        continue;
+
+                    playerTeamBHighestAvgGps = pair;
+                    playerTeamBHighestGps = player;
                 }
             }
+
+            for (int i = 1; i < sortedAvgScore.Count; i++)
+            {
+                var pair = sortedAvgGps.ElementAt(i);
+                var player = c.SeasonPlayer.FirstOrDefault(p => p.Id == pair.Key);
+
+                if (player.TeamName.Equals(playerTeamAHighestScore.TeamName, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    if (playerTeamAHighestAvgScore.Value.Item3 >= pair.Value.Item3)
+                        continue;
+
+                    playerTeamAHighestAvgScore = pair;
+                    playerTeamAHighestScore = player;
+                }
+                else
+                {
+                    if (playerTeamBHighestAvgScore.Equals(default))
+                    {
+                        playerTeamBHighestAvgScore = pair;
+                        playerTeamBHighestScore = player;
+
+                        continue;
+                    }
+
+                    if (playerTeamBHighestAvgScore.Value.Item3 >= pair.Value.Item3)
+                        continue;
+
+                    playerTeamBHighestAvgScore = pair;
+                    playerTeamBHighestScore = player;
+                }
+            }
+
+            for (int i = 1; i < sortedAvgAcc.Count; i++)
+            {
+                var pair = sortedAvgGps.ElementAt(i);
+                var player = c.SeasonPlayer.FirstOrDefault(p => p.Id == pair.Key);
+
+                if (player.TeamName.Equals(playerTeamAHighestAcc.TeamName, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    if (playerTeamAHighestAvgAcc.Value.Item1 >= pair.Value.Item1)
+                        continue;
+
+                    playerTeamAHighestAvgAcc = pair;
+                    playerTeamAHighestAcc = player;
+                }
+                else
+                {
+                    if (playerTeamBHighestAvgAcc.Equals(default))
+                    {
+                        playerTeamBHighestAvgAcc = pair;
+                        playerTeamBHighestAcc = player;
+
+                        continue;
+                    }
+
+                    if (playerTeamBHighestAvgAcc.Value.Item1 >= pair.Value.Item1)
+                        continue;
+
+                    playerTeamBHighestAvgAcc = pair;
+                    playerTeamBHighestAcc = player;
+                }
+            }
+
+            discordEmbedBuilder.AddField(ResourceStats.HighestAccuracy, string.Format(CultureInfo.CurrentCulture, ResourceStats.HighestAccuracyMap,
+                                                                                      highestAccPlayer.LastOsuUsername,
+                                                                                      highestAccMap.Author,
+                                                                                      highestAccMap.Title,
+                                                                                      highestAccMap.Difficulty,
+                                                                                      highestAccMap.DifficultyRating,
+                                                                                      string.Format(CultureInfo.CurrentCulture, "{0:n0}", highestAcc.Score),
+                                                                                      Math.Round(highestAcc.Accuracy, 2, MidpointRounding.AwayFromZero)));
+
+            discordEmbedBuilder.AddField("——————————————————", result.WinningTeam, true);
+            discordEmbedBuilder.AddField("——————————————————", result.LosingTeam, true);
+
+
+            discordEmbedBuilder.AddField(".", ResourceStats.MVP);
+
+            if (playerTeamAHighestGps.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
+            {
+                discordEmbedBuilder.AddField($"{playerTeamAHighestGps.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", ".", true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", ".", true);
+            }
+            else
+            {
+                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", ".", true);
+                discordEmbedBuilder.AddField($"{playerTeamAHighestGps.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", ".", true);
+            }
+
+            discordEmbedBuilder.AddField(".", ResourceStats.HighestAvgScore);
+
+            if (playerTeamAHighestScore.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
+            {
+                discordEmbedBuilder.AddField($"{playerTeamAHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamAHighestAvgScore.Value.Item3)} {ResourceStats.Score}", ".", true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {ResourceStats.Score}", ".", true);
+            }
+            else
+            {
+                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {ResourceStats.Score}", ".", true);
+                discordEmbedBuilder.AddField($"{playerTeamAHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamAHighestAvgScore.Value.Item3)} {ResourceStats.Score}", ".", true);
+            }
+
+            discordEmbedBuilder.AddField(".", ResourceStats.HighestAvgAccuracy);
+
+            if (playerTeamAHighestAcc.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
+            {
+                discordEmbedBuilder.AddField($"{playerTeamAHighestAcc.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "——————————————————", true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestAcc.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "——————————————————", true);
+            }
+            else
+            {
+                discordEmbedBuilder.AddField($"{playerTeamBHighestAcc.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "——————————————————", true);
+                discordEmbedBuilder.AddField($"{playerTeamAHighestAcc.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "——————————————————", true);
+            }
+
+            return discordEmbedBuilder.Build();
         }
 
         public static void SubmitStats(AnalyzerResult ar, DiscordGuild guild, List<HistoryJson.Game> games)

@@ -10,7 +10,7 @@ namespace SkyBot.Osu.API.V1
 {
     public static class OsuApi
     {
-        private static string API_Key { get { return Environment.GetEnvironmentVariable("OsuApiKey", EnvironmentVariableTarget.Process); } }
+        private static string API_Key { get { return SkyBotConfig.OsuApiKey; } }
         private static string API_URL = "https://osu.ppy.sh/api/";
         private static QueueRateLimiter _qrl { get; } = new QueueRateLimiter(0, SkyBotConfig.OsuApiRateLimitMax, TimeSpan.FromMilliseconds(SkyBotConfig.OsuApiRateLimitResetDelayMS));
 
@@ -28,7 +28,7 @@ namespace SkyBot.Osu.API.V1
 
         private static async Task<T> GetJson<T>(string url)
         {
-            await Task.Run(async () =>
+            return await Task.Run(async () =>
             {
                 JsonDataTransmitter<T> jdt = new JsonDataTransmitter<T>();
 
@@ -51,13 +51,11 @@ namespace SkyBot.Osu.API.V1
                     }),
                     jdt);
 
-                while (!jdt.Status)
+                while (jdt.Value == null)
                     await Task.Delay(5).ConfigureAwait(false);
 
                 return jdt.Value;
             }).ConfigureAwait(false);
-
-            return default;
         }
 
         private class JsonDataTransmitter<T>
@@ -88,7 +86,12 @@ namespace SkyBot.Osu.API.V1
                 throw new ArgumentException("string type is 'name'" + Environment.NewLine +
                                             " - object user should be string but is instead: " + nameof(user));
 
-            return (await GetJson<JsonGetUser[]>(string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0}get_user?k={1}&u={2}&m={3}&t={4}&event_days={5}", API_URL, API_Key, user.ToString(), mode.ToString(System.Globalization.CultureInfo.CurrentCulture), type, eventDays)).ConfigureAwait(false))?[0] ?? null;
+            JsonGetUser[] users = await GetJson<JsonGetUser[]>(string.Format(System.Globalization.CultureInfo.CurrentCulture, 
+                                                                             "{0}get_user?k={1}&u={2}&m={3}&t={4}&event_days={5}", API_URL, API_Key, user.ToString(), 
+                                                                             mode.ToString(System.Globalization.CultureInfo.CurrentCulture), type, eventDays))
+                                                               .ConfigureAwait(false);
+
+            return users?[0] ?? null;
         }
 
         /// <summary>

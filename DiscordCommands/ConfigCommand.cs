@@ -95,6 +95,9 @@ namespace DiscordCommands
 
             bool result = dgc.TrySetValue(args.Parameters[0], args.Parameters[1]);
 
+            c.DiscordGuildConfig.Update(dgc);
+            c.SaveChanges();
+
             if (result)
                 args.Channel.SendMessageAsync("Set value");
             else

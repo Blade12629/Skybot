@@ -98,7 +98,7 @@ namespace SkyBot.Discord
             var warmupMaps = c.WarmupBeatmaps.Where(wb => wb.DiscordGuildId == dgc.GuildId);
 
             var result = Analyzer.OsuAnalyzer.CreateStatistic(history, e.Guild, 0, warmupCount: dgc.AnalyzeWarmupMatches, stage, true, beatmapsToIgnore: warmupMaps.Select(wm => wm.BeatmapId).ToArray());
-            var embed = Analyzer.OsuAnalyzer.CreateStatisticEmbed(result, new DSharpPlus.Entities.DiscordColor(1, 0, 1));
+            var embed = Analyzer.OsuAnalyzer.GetMatchResultEmbed(result.MatchId);
 
             e.Channel.SendMessageAsync(embed: embed);
         }

@@ -13,6 +13,7 @@ Currently Features:
 - Statistics:
 - - Top list for Players and Teams
 - - Detailed Info about specific matches, players and teams
+- Bind bot permissions (like VIP, admin etc.) to discord roles!
 - Verification
 - API (WIP)
 

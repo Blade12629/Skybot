@@ -262,7 +262,10 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt; &gt; = required\n[ ] = optional\n/ = choose between\n!! !! = atleast one marked parameter required.
+        ///   Looks up a localized string similar to &lt; &gt; = required
+        ///[ ] = optional
+        //// = choose between
+        ///!! !! = atleast one marked parameter required.
         /// </summary>
         internal static string HelpFooter {
             get {
@@ -471,14 +474,10 @@ namespace DiscordCommands {
         
         /// <summary>
         ///   Looks up a localized string similar to !stats p/player p/profile osuUserId/osuUsername
-        ///!stats p/player t/top
-        ///!stats p/player l/last
-        ///!stats p/player &lt;page&gt;
+        ///!stats p/player t/top [page]
         ///
         ///!stats t/team p/profile osuUserId/osuUsername
-        ///!stats t/team t/top
-        ///!stats t/team l/last
-        ///!stats t/team &lt;page&gt;
+        ///!stats t/team t/top [page]
         ///
         ///!stats m/match &lt;matchId&gt;
         ///!stats m/match &lt;team a&gt; vs &lt;team b&gt;.

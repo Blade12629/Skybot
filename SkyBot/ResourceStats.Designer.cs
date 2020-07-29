@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DiscordCommands {
+namespace SkyBot {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace DiscordCommands {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ResourceStats {
+    public class ResourceStats {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace DiscordCommands {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DiscordCommands.ResourceStats", typeof(ResourceStats).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SkyBot.ResourceStats", typeof(ResourceStats).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace DiscordCommands {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace DiscordCommands {
         /// <summary>
         ///   Looks up a localized string similar to Average Accuracy.
         /// </summary>
-        internal static string AverageAccuracy {
+        public static string AverageAccuracy {
             get {
                 return ResourceManager.GetString("AverageAccuracy", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace DiscordCommands {
         /// <summary>
         ///   Looks up a localized string similar to Average Combo.
         /// </summary>
-        internal static string AverageCombo {
+        public static string AverageCombo {
             get {
                 return ResourceManager.GetString("AverageCombo", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace DiscordCommands {
         /// <summary>
         ///   Looks up a localized string similar to Average GPS.
         /// </summary>
-        internal static string AverageGPS {
+        public static string AverageGPS {
             get {
                 return ResourceManager.GetString("AverageGPS", resourceCulture);
             }
@@ -90,25 +90,79 @@ namespace DiscordCommands {
         /// <summary>
         ///   Looks up a localized string similar to Average Misses.
         /// </summary>
-        internal static string AverageMisses {
+        public static string AverageMisses {
             get {
                 return ResourceManager.GetString("AverageMisses", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Average Rating.
+        /// </summary>
+        public static string AverageRating {
+            get {
+                return ResourceManager.GetString("AverageRating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Average Score.
         /// </summary>
-        internal static string AverageScore {
+        public static string AverageScore {
             get {
                 return ResourceManager.GetString("AverageScore", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to GPS.
+        /// </summary>
+        public static string GPS {
+            get {
+                return ResourceManager.GetString("GPS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Highest Accuracy.
+        /// </summary>
+        public static string HighestAccuracy {
+            get {
+                return ResourceManager.GetString("HighestAccuracy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} on the map {1} - {2} [{3}] ({4}*) with {6:n0} Points and {7}% Accuracy!.
+        /// </summary>
+        public static string HighestAccuracyMap {
+            get {
+                return ResourceManager.GetString("HighestAccuracyMap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Highest Average Accuracy.
+        /// </summary>
+        public static string HighestAvgAccuracy {
+            get {
+                return ResourceManager.GetString("HighestAvgAccuracy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Highest Average Score.
+        /// </summary>
+        public static string HighestAvgScore {
+            get {
+                return ResourceManager.GetString("HighestAvgScore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Last Updated.
         /// </summary>
-        internal static string LastUpdated {
+        public static string LastUpdated {
             get {
                 return ResourceManager.GetString("LastUpdated", resourceCulture);
             }
@@ -117,16 +171,43 @@ namespace DiscordCommands {
         /// <summary>
         ///   Looks up a localized string similar to Match MVPs.
         /// </summary>
-        internal static string MatchMVPs {
+        public static string MatchMVPs {
             get {
                 return ResourceManager.GetString("MatchMVPs", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find match .
+        /// </summary>
+        public static string MatchNotFound {
+            get {
+                return ResourceManager.GetString("MatchNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Match played at.
+        /// </summary>
+        public static string MatchPlayed {
+            get {
+                return ResourceManager.GetString("MatchPlayed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Most Valuable Player.
+        /// </summary>
+        public static string MVP {
+            get {
+                return ResourceManager.GetString("MVP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Overall Rating.
         /// </summary>
-        internal static string OverallRating {
+        public static string OverallRating {
             get {
                 return ResourceManager.GetString("OverallRating", resourceCulture);
             }
@@ -135,16 +216,34 @@ namespace DiscordCommands {
         /// <summary>
         ///   Looks up a localized string similar to Page.
         /// </summary>
-        internal static string Page {
+        public static string Page {
             get {
                 return ResourceManager.GetString("Page", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find player .
+        /// </summary>
+        public static string PlayerNotFound {
+            get {
+                return ResourceManager.GetString("PlayerNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Players.
+        /// </summary>
+        public static string Players {
+            get {
+                return ResourceManager.GetString("Players", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rank.
         /// </summary>
-        internal static string Rank {
+        public static string Rank {
             get {
                 return ResourceManager.GetString("Rank", resourceCulture);
             }
@@ -153,16 +252,25 @@ namespace DiscordCommands {
         /// <summary>
         ///   Looks up a localized string similar to Rating.
         /// </summary>
-        internal static string Rating {
+        public static string Rating {
             get {
                 return ResourceManager.GetString("Rating", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Score.
+        /// </summary>
+        public static string Score {
+            get {
+                return ResourceManager.GetString("Score", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Stats For.
         /// </summary>
-        internal static string StatsFor {
+        public static string StatsFor {
             get {
                 return ResourceManager.GetString("StatsFor", resourceCulture);
             }
@@ -171,16 +279,52 @@ namespace DiscordCommands {
         /// <summary>
         ///   Looks up a localized string similar to Team.
         /// </summary>
-        internal static string Team {
+        public static string Team {
             get {
                 return ResourceManager.GetString("Team", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Team MVP: .
+        /// </summary>
+        public static string TeamMVP {
+            get {
+                return ResourceManager.GetString("TeamMVP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find team .
+        /// </summary>
+        public static string TeamNotFound {
+            get {
+                return ResourceManager.GetString("TeamNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Teams.
+        /// </summary>
+        public static string Teams {
+            get {
+                return ResourceManager.GetString("Teams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Team {0} won! ({1}:{2}).
+        /// </summary>
+        public static string TeamWon {
+            get {
+                return ResourceManager.GetString("TeamWon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Top.
         /// </summary>
-        internal static string Top {
+        public static string Top {
             get {
                 return ResourceManager.GetString("Top", resourceCulture);
             }

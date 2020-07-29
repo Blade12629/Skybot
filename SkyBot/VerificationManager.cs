@@ -39,6 +39,7 @@ namespace SkyBot
 
             ver = new Verification((long)user.Id, code);
             c.Verification.Add(ver);
+            c.SaveChanges();
 
             dmChannel.SendMessageAsync($"Started your verification, please send the following code to {Program.BotMention}: {ver.VerificationCode}").Wait();
         }
