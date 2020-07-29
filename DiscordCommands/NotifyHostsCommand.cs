@@ -27,7 +27,7 @@ namespace DiscordCommands
 
             StringBuilder message = new StringBuilder(args.Parameters[0]);
 
-            for (int i = 0; i < args.Parameters.Count; i++)
+            for (int i = 1; i < args.Parameters.Count; i++)
                 message.Append(' ' + args.Parameters[i]);
 
             foreach(var guild in Program.DiscordHandler.Client.Guilds)

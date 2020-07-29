@@ -28,6 +28,12 @@ namespace DiscordCommands
                 AutoReset = true,
             };
             _remindMeTimer.Elapsed += OnRemindMeTimerElapsed;
+
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                System.Threading.Tasks.Task.Delay(2500).Wait();
+                _remindMeTimer.Start();
+            });
         }
 
         private void OnRemindMeTimerElapsed(object sender, ElapsedEventArgs e)
@@ -39,12 +45,12 @@ namespace DiscordCommands
             {
                 for (int i = 0; i < reminders.Count; i++)
                 {
-                    c.Reminder.Remove(reminders[i]);
-
                     var dchannel = Program.DiscordHandler.Client.GetChannelAsync((ulong)reminders[i].DiscordChannelId).Result;
                     var duser = Program.DiscordHandler.Client.GetUserAsync((ulong)reminders[i].DiscordUserId).Result;
 
                     dchannel.SendMessageAsync($"Reminder for you {duser.Mention}:\n{reminders[i].Message}");
+
+                    c.Reminder.Remove(reminders[i]);
                 }
             }
             catch (Exception ex)
@@ -70,7 +76,7 @@ namespace DiscordCommands
 
         public string Description => "Sets a timer to remind you";
 
-        public string Usage => "!remindme list [page, default: 1]\n!remindme remove <reminderId>\n!remindme <days>:<minutes>:<hours> <message>\n(Max: 62 days)";
+        public string Usage => "!remindme list [page, default: 1]\n!remindme remove <reminderId>\n!remindme <days>:<hours>:<minutes> <message>\n(Max: 62 days)";
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
@@ -119,7 +125,8 @@ namespace DiscordCommands
             var reminder = c.Reminder.Add(new SkyBot.Database.Models.Reminder((long)args.User.Id, (long)args.Channel.Id, msg.ToString(), date.Value)).Entity;
             c.SaveChanges();
 
-            args.Channel.SendMessageAsync("Created your reminder with id " + reminder.Id);
+            args.Channel.SendMessageAsync("Created your reminder with id " + reminder.Id +
+                                          " for date: " + reminder.EndDate);
         }
 
         private void ShowList(CommandEventArg args)
@@ -142,7 +149,7 @@ namespace DiscordCommands
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
                 Title = "Reminder list",
-                Description = $"Page {page}/{maxPages}"
+                Description = $"Page {page}/{maxPages + 1}"
             };
             page--;
 
@@ -161,9 +168,18 @@ namespace DiscordCommands
                 edb.AppendLine(reminders[i].EndDate.ToString(System.Globalization.CultureInfo.CurrentCulture));
             }
 
-            builder.AddField("ID", idb.ToString(), true);
-            builder.AddField("EndDate", idb.ToString(), true);
-            builder.AddField("Message", idb.ToString(), true);
+            if (idb.Length > 0)
+            {
+                builder.AddField("ID", idb.ToString(), true);
+                builder.AddField("EndDate", edb.ToString(), true);
+                builder.AddField("Message", mb.ToString(), true);
+            }
+            else
+            {
+                builder.AddField("ID", ".", true);
+                builder.AddField("EndDate", ".", true);
+                builder.AddField("Message", ".", true);
+            }
 
             args.Channel.SendMessageAsync(embed: builder.Build());
         }
@@ -198,7 +214,7 @@ namespace DiscordCommands
 
             if (!int.TryParse(dateSplit[0], out int days) || 
                 !int.TryParse(dateSplit[1], out int hours) ||
-                !int.TryParse(dateSplit[1], out int minutes))
+                !int.TryParse(dateSplit[2], out int minutes))
                 return null;
 
             TimeSpan validationTS = new TimeSpan(days, hours, minutes, 0);
