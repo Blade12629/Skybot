@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace SkyBot.Osu.IRC
 {
@@ -28,8 +29,10 @@ namespace SkyBot.Osu.IRC
         private string _pass;
         private IrcClient _client;
         private QueueRateLimiter _qrl;
+        private int _autoReconnectDelayMinutes;
+        private Timer _reconnectTimer;
 
-        public OsuIrcClient(string host = "irc.ppy.sh", int port = 6667, char commandPrefix = '!')
+        public OsuIrcClient(string host = "irc.ppy.sh", int port = 6667, char commandPrefix = '!', int autoReconnectDelayMinutes = 15)
         {
             CommandPrefix = commandPrefix;
             Host = host;
@@ -39,6 +42,21 @@ namespace SkyBot.Osu.IRC
             _client.GotWelcomeMessage += OnWelcomeMessage;
             _client.GotIrcError += OnError;
             _qrl = new QueueRateLimiter(0, SkyBotConfig.IrcRateLimitMax, TimeSpan.FromMilliseconds(SkyBotConfig.IrcRateLimitResetDelayMS));
+            _autoReconnectDelayMinutes = autoReconnectDelayMinutes;
+
+            _reconnectTimer = new Timer(TimeSpan.FromMinutes(autoReconnectDelayMinutes).TotalMilliseconds)
+            {
+                AutoReset = true
+            };
+
+            _reconnectTimer.Elapsed += OnReconnectTimerElapsed;
+            _reconnectTimer.Start();
+        }
+
+        private void OnReconnectTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            Disconnect();
+            ConnectAndLoginAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void OnError(object sender, IrcErrorEventArgs e)

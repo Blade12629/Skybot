@@ -132,6 +132,9 @@ namespace SkyBot
             IRC.OnIrcException += (s, e) => Logger.Log("IRC Exception: " + e, LogLevel.Error, member: "IRC");
             IRC.OnUserCommand += (s, e) =>
             {
+                //TODO: enable again after tests
+                return;
+
                 Logger.Log($"User command from {e.Sender.Nickname.ToString()}: {e.Message.ToString()}", member: "IRC");
 
                 string msg = e.Message.ToString();
