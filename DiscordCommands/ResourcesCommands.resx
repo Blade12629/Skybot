@@ -296,4 +296,17 @@ I will try to answer withing 48 hours
   <data name="Usage" xml:space="preserve">
     <value>Usage</value>
   </data>
+  <data name="WarmupCommand" xml:space="preserve">
+    <value>warmup</value>
+  </data>
+  <data name="WarmupCommandConfirmation" xml:space="preserve">
+    <value>Added/Deleted maps</value>
+  </data>
+  <data name="WarmupCommandDescription" xml:space="preserve">
+    <value>Add or remove warmup maps</value>
+  </data>
+  <data name="WarmupCommandUsage" xml:space="preserve">
+    <value>!warmup add &lt;beatmapId&gt; [beatmapId] [etc.]
+!warmup remove &lt;beatmapId&gt; [beatmapId] [etc.]</value>
+  </data>
 </root>

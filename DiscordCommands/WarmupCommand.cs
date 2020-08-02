@@ -12,15 +12,15 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => "warmup";
+        public string Command => ResourcesCommands.WarmupCommand;
 
         public AccessLevel AccessLevel => AccessLevel.Moderator;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => "Add or remove warmup maps";
+        public string Description => ResourcesCommands.WarmupCommandDescription;
 
-        public string Usage => "!warmup add <beatmapId> [beatmapId] [etc.]\n!warmup remove <beatmapId> [beatmapId] [etc.]";
+        public string Usage => ResourcesCommands.WarmupCommandUsage;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
@@ -72,7 +72,7 @@ namespace DiscordCommands
             foreach (long mapId in GetMaps(args.Parameters))
                 ac(mapId);
 
-            args.Channel.SendMessageAsync("Done");
+            args.Channel.SendMessageAsync(ResourcesCommands.WarmupCommandConfirmation);
         }
 
         private List<long> GetMaps(List<string> parameters, int start = 1)

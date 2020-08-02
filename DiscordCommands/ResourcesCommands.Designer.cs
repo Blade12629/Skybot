@@ -543,5 +543,42 @@ namespace DiscordCommands {
                 return ResourceManager.GetString("Usage", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to warmup.
+        /// </summary>
+        internal static string WarmupCommand {
+            get {
+                return ResourceManager.GetString("WarmupCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Added/Deleted maps.
+        /// </summary>
+        internal static string WarmupCommandConfirmation {
+            get {
+                return ResourceManager.GetString("WarmupCommandConfirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add or remove warmup maps.
+        /// </summary>
+        internal static string WarmupCommandDescription {
+            get {
+                return ResourceManager.GetString("WarmupCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !warmup add &lt;beatmapId&gt; [beatmapId] [etc.]
+        ///!warmup remove &lt;beatmapId&gt; [beatmapId] [etc.].
+        /// </summary>
+        internal static string WarmupCommandUsage {
+            get {
+                return ResourceManager.GetString("WarmupCommandUsage", resourceCulture);
+            }
+        }
     }
 }
