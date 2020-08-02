@@ -251,6 +251,29 @@ Admin:\n
     <value>!permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
 !permission unbind &lt;discordRoleId&gt; [accessLevel]</value>
   </data>
+  <data name="PrivacyPolicyCommand" xml:space="preserve">
+    <value>privacy</value>
+  </data>
+  <data name="PrivacyPolicyCommandDescription" xml:space="preserve">
+    <value>Displays the bots privacy policy</value>
+  </data>
+  <data name="PrivacyPolicyCommandPrivacyPolicy" xml:space="preserve">
+    <value>Privacy Policy
+```
+The following data is collected:
+Your Discord user data (username, ID, mention, roles)
+Your osu! data (username, ID, Scores)
+This data is used to verify users, analyze tournament matches, deliver tourney stats and improve the general discord user feeling
+
+
+If you have any questions or want your data deleted contact me on discord: ??????#0284
+I will try to answer withing 48 hours
+(If you request the deletion of your data, your data will be deleted and you will be blacklisted from the bot for atleast 1 month)
+```</value>
+  </data>
+  <data name="PrivacyPolicyCommandUsage" xml:space="preserve">
+    <value>!privacy</value>
+  </data>
   <data name="RegisteredCommand" xml:space="preserve">
     <value>Registered {0} for discord command exceptions</value>
   </data>

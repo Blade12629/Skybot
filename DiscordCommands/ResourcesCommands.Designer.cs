@@ -447,6 +447,52 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to privacy.
+        /// </summary>
+        internal static string PrivacyPolicyCommand {
+            get {
+                return ResourceManager.GetString("PrivacyPolicyCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Displays the bots privacy policy.
+        /// </summary>
+        internal static string PrivacyPolicyCommandDescription {
+            get {
+                return ResourceManager.GetString("PrivacyPolicyCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Privacy Policy
+        ///```
+        ///The following data is collected:
+        ///Your Discord user data (username, ID, mention, roles)
+        ///Your osu! data (username, ID, Scores)
+        ///This data is used to verify users, analyze tournament matches, deliver tourney stats and improve the general discord user feeling
+        ///
+        ///
+        ///If you have any questions or want your data deleted contact me on discord: ??????#0284
+        ///I will try to answer withing 48 hours
+        ///(If you request the deletion of your data, your data will be deleted and you will be blacklisted from [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string PrivacyPolicyCommandPrivacyPolicy {
+            get {
+                return ResourceManager.GetString("PrivacyPolicyCommandPrivacyPolicy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !privacy.
+        /// </summary>
+        internal static string PrivacyPolicyCommandUsage {
+            get {
+                return ResourceManager.GetString("PrivacyPolicyCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Registered {0} for discord command exceptions.
         /// </summary>
         internal static string RegisteredCommand {
