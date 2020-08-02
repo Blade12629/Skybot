@@ -502,6 +502,42 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to removematch.
+        /// </summary>
+        internal static string RemoveMatchCommand {
+            get {
+                return ResourceManager.GetString("RemoveMatchCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Removes a match from the analyzer db.
+        /// </summary>
+        internal static string RemoveMatchCommandDescription {
+            get {
+                return ResourceManager.GetString("RemoveMatchCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Removed match .
+        /// </summary>
+        internal static string RemoveMatchCommandSuccess {
+            get {
+                return ResourceManager.GetString("RemoveMatchCommandSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !removematch &lt;matchId&gt;.
+        /// </summary>
+        internal static string RemoveMatchCommandUsage {
+            get {
+                return ResourceManager.GetString("RemoveMatchCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to stats.
         /// </summary>
         internal static string StatsCommand {

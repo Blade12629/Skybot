@@ -277,6 +277,19 @@ I will try to answer withing 48 hours
   <data name="RegisteredCommand" xml:space="preserve">
     <value>Registered {0} for discord command exceptions</value>
   </data>
+  <data name="RemoveMatchCommand" xml:space="preserve">
+    <value>removematch</value>
+  </data>
+  <data name="RemoveMatchCommandDescription" xml:space="preserve">
+    <value>Removes a match from the analyzer db</value>
+  </data>
+  <data name="RemoveMatchCommandSuccess" xml:space="preserve">
+    <value>Removed match </value>
+    <comment>Removed match &lt;matchId&gt;</comment>
+  </data>
+  <data name="RemoveMatchCommandUsage" xml:space="preserve">
+    <value>!removematch &lt;matchId&gt;</value>
+  </data>
   <data name="StatsCommand" xml:space="preserve">
     <value>stats</value>
   </data>

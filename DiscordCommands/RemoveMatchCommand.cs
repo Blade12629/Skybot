@@ -10,15 +10,15 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => "removematch";
+        public string Command => ResourcesCommands.RemoveMatchCommand;
 
         public AccessLevel AccessLevel => AccessLevel.Admin;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => "Removes a match from the analyzer db";
+        public string Description => ResourcesCommands.RemoveMatchCommandDescription;
 
-        public string Usage => "!removematch <matchId>";
+        public string Usage => ResourcesCommands.RemoveMatchCommandUsage;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
@@ -27,7 +27,7 @@ namespace DiscordCommands
 
             SkyBot.Analyzer.OsuAnalyzer.RemoveMatch(matchId, args.Guild);
 
-            args.Channel.SendMessageAsync("Removed match " + matchId);
+            args.Channel.SendMessageAsync(ResourcesCommands.RemoveMatchCommandSuccess + matchId);
         }
     }
 }
