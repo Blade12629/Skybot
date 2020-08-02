@@ -1,13 +1,10 @@
-﻿using OsuHistoryEndPoint;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using OsuHistoryEndPoint.Data;
 
 namespace SkyBot.Analyzer.Results
 {
     public class BeatmapPlayCount
     {
-        public HistoryJson.BeatMap BeatMap { get; set; }
+        public HistoryBeatmap BeatMap { get; set; }
         public int Count { get; set; }
     }
 }

@@ -82,13 +82,16 @@ namespace SkyBot.Analyzer
 
             SeasonPlayer player = c.SeasonPlayer.FirstOrDefault(p => p.OsuUserId == osuUserId && p.DiscordGuildId == guildId);
             List<SeasonResult> results = c.SeasonResult.Where(sr => sr.DiscordGuildId == guildId).ToList();
-            List<SeasonScore> scores = c.SeasonScore.Where(s => s.SeasonPlayerId == player.Id && results.Any(sr => s.SeasonResultId == sr.Id)).ToList();
+            List<long> resultIds = results.Select(r => r.Id).ToList();
+
+            List<SeasonScore> scores = c.SeasonScore.Where(s => s.SeasonPlayerId == player.Id).ToList();
+            scores = scores.Where(s => resultIds.Contains(s.SeasonResultId)).ToList();
 
             cardCache.DiscordGuildId = guildId;
 
             foreach (SeasonScore score in scores)
             {
-                cardCache.AverageAccuracy += score.Accuracy * 100.0;
+                cardCache.AverageAccuracy += score.Accuracy;
                 cardCache.AverageCombo += score.MaxCombo;
                 cardCache.AverageMisses += score.CountMiss;
                 cardCache.AverageScore += score.Score;
@@ -98,13 +101,23 @@ namespace SkyBot.Analyzer
                     cardCache.MatchMvps++;
             }
 
-            cardCache.AverageAccuracy /= scores.Count;
-            cardCache.AverageCombo /= scores.Count;
-            cardCache.AverageMisses /= scores.Count;
-            cardCache.AverageScore /= scores.Count;
-            cardCache.AveragePerformance /= scores.Count;
+            if (cardCache.AverageAccuracy > 0)
+                cardCache.AverageAccuracy /= scores.Count;
 
-            cardCache.OverallRating = getOverallRatingAction(player, c);
+            if (cardCache.AverageCombo > 0)
+                cardCache.AverageCombo /= scores.Count;
+
+            if (cardCache.AverageMisses > 0)
+                cardCache.AverageMisses /= scores.Count;
+
+            if (cardCache.AverageScore > 0)
+                cardCache.AverageScore /= scores.Count;
+
+            if (cardCache.AveragePerformance > 0)
+            {
+                cardCache.AveragePerformance /= scores.Count;
+                cardCache.OverallRating = getOverallRatingAction(player, c);
+            }
 
             cardCache.LastUpdated = DateTime.UtcNow;
             cardCache.TeamName = player.TeamName;
@@ -200,7 +213,7 @@ namespace SkyBot.Analyzer
                 if (scores.Count == 0)
                     continue;
 
-                double acc = 0, score = 0, misses = 0, combo = 0, gps = 0, mvps = 0;
+                double /*acc = 0, score = 0, misses = 0, combo = 0, gps = 0,*/ mvps = 0;
                 for (int s = 0; s < scores.Count; s++)
                 {
                     if (!userMvps.Keys.Contains(scores[s].SeasonPlayerId))
@@ -218,11 +231,11 @@ namespace SkyBot.Analyzer
                         mvps++;
                 }
 
-                avgAcc += acc / scores.Count;
-                avgScore = score / scores.Count;
-                avgMisses += misses / scores.Count;
-                avgCombo += combo / scores.Count;
-                avgGPS += gps / scores.Count;
+                avgAcc /= scores.Count;
+                avgScore /= scores.Count;
+                avgMisses /= scores.Count;
+                avgCombo /= scores.Count;
+                avgGPS /= scores.Count;
                 matchMVPs += mvps;
 
                 counter++;
@@ -236,8 +249,8 @@ namespace SkyBot.Analyzer
             List<SeasonPlayer> players = c.SeasonPlayer.Where(p => p.DiscordGuildId == guildId &&
                                                                    userMvps.Keys.Contains(p.Id)).ToList();
 
-            List<SeasonPlayerCardCache> cardCaches = c.SeasonPlayerCardCache.Where(spcc => spcc.DiscordGuildId == guildId &&
-                                                                                           players.Any(p => p.OsuUserId == spcc.OsuUserId)).ToList();
+            List<SeasonPlayerCardCache> cardCaches = c.SeasonPlayerCardCache.Where(spcc => spcc.DiscordGuildId == guildId).ToList()
+                                                                            .Where(spcc => players.Any(p => p.OsuUserId == spcc.OsuUserId)).ToList();
 
             for (int i = 0; i < cardCaches.Count; i++)
                 avgRating += cardCaches[i].OverallRating;
@@ -253,15 +266,13 @@ namespace SkyBot.Analyzer
             stcc.AverageScore = avgScore;
             stcc.AverageMisses = avgMisses;
             stcc.AverageCombo = avgCombo;
-            stcc.MVPName = cardCaches.First(cc => cc.OsuUserId == 
-                                                               players.First(p => p.Id == 
-                                                                                       userMvps.First(m => m.Value == 
-                                                                                                                   userMvps.Max(mp => mp.Value))
-                                                                                               .Key)
-                                                                      .OsuUserId)
-                                     .Username;
 
-            stcc.TeamRating = avgRating + (0.25 * matchMVPs);
+            long playerId = userMvps.FirstOrDefault(m => m.Value == userMvps.Max(mp => mp.Value)).Key;
+            long osuUserId = players.FirstOrDefault(p => p.Id == playerId).OsuUserId;
+
+            stcc.MVPName = cardCaches.FirstOrDefault(cc => cc.OsuUserId == osuUserId)?.Username ?? "null";
+
+            stcc.TeamRating = avgRating + (0.25 * matchMVPs) + (avgGPS / 2);
 
             
             stcc.LastUpdated = DateTime.UtcNow;

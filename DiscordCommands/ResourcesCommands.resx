@@ -193,7 +193,8 @@ Admin:\n
 !! !! = atleast one marked parameter required</value>
   </data>
   <data name="HelpUsage" xml:space="preserve">
-    <value>!help [page]\n!help &lt;command&gt;</value>
+    <value>!help [page]
+!help &lt;command&gt;</value>
   </data>
   <data name="IsDisabled" xml:space="preserve">
     <value>Is Disabled</value>

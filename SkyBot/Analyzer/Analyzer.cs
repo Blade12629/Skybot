@@ -9,17 +9,13 @@ using SkyBot.Analyzer.Results;
 using SkyBot.Database.Models.Statistics;
 using System.Reflection;
 using System.Globalization;
+using OsuHistoryEndPoint.Data;
+using System.Diagnostics;
 
 namespace SkyBot.Analyzer
 {
     public static class OsuAnalyzer
     {
-        private const float _accMulti = 0.8f;
-        private const float _scoreMulti = 0.9f;
-        private const float _missesMulti = 0.1f;
-        private const float _comboMulti = 1.0f;
-        private const float _300Multi = 1.0f;
-
         /// <summary>
         /// Creates a statistic for a osu mp match
         /// </summary>
@@ -30,39 +26,77 @@ namespace SkyBot.Analyzer
         /// <param name="stage">Stage</param>
         /// <param name="submitStats">Submit stats to DB</param>
         /// <param name="beatmapsToIgnore">Ignore specific beatmaps</param>
-        public static AnalyzerResult CreateStatistic(HistoryJson.History history, DiscordGuild guild, int matchId, int warmupCount, string stage, bool submitStats, params long[] beatmapsToIgnore)
+        public static AnalyzerResult CreateStatistic(History history, DiscordGuild guild, int matchId, int warmupCount, string stage, bool submitStats, params long[] beatmapsToIgnore)
         {
             if (history == null)
                 throw new ArgumentNullException(nameof(history));
             else if (guild == null)
                 throw new ArgumentNullException(nameof(guild));
 
-            string matchName = history.Events.FirstOrDefault(ob => ob.Detail.Type == "other").Detail.MatchName;
+            string matchName = GetData.GetMatchNames(history)[0];
 
-            List<HistoryJson.Game> games = GetData.GetMatches(history).ToList();
+            List<HistoryGame> games = GetData.GetMatches(history);
             //beatmapid, score
-            List<(long, HistoryJson.Score)> scores = new List<(long, HistoryJson.Score)>();
+            List<(long, HistoryScore)> scores = new List<(long, HistoryScore)>();
+
+            int teamRedWins = 0;
+            int teamBlueWins = 0;
 
             for (int i = 0; i < games.Count; i++)
             {
-                if (beatmapsToIgnore.Contains((long)(games[i].beatmap.id ?? 0)) || games[i].team_type.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase))
+                if (games[i].Beatmap == null || string.IsNullOrEmpty(games[i].TeamType) ||
+                    games[i].TeamType.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase))
+                    continue;
+                else if (beatmapsToIgnore != null && beatmapsToIgnore.Length > 0 && beatmapsToIgnore.Contains((long)(games[i].Beatmap.Id)))
                 {
                     games.RemoveAt(i);
                     i--;
                     continue;
                 }
 
-                for (int x = 0; x < games[i].scores.Count; x++)
-                    scores.Add((games[i].beatmap.id ?? -1, games[i].scores[x]));
+                int teamRedWinsCurrent = 0;
+                int teamBlueWinsCurrent = 0;
+                for (int x = 0; x < games[i].Scores.Length ; x++)
+                {
+                    switch (games[i].Scores[x].Match.Team.ToLower(CultureInfo.CurrentCulture))
+                    {
+                        case "red":
+                            teamRedWinsCurrent += games[i].Scores[x].Score;
+                            break;
+
+                        case "blue":
+                            teamBlueWinsCurrent += games[i].Scores[x].Score;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    scores.Add((games[i].Beatmap.Id, games[i].Scores[x]));
+                }
+
+                if (teamRedWinsCurrent > teamBlueWinsCurrent)
+                    teamRedWins++;
+                else if (teamBlueWinsCurrent > teamRedWinsCurrent)
+                    teamBlueWins++;
             }
 
-            var HighestScoreRankingResult = CalculateHighestRankingAndPlayCount(games.ToArray(), history, warmupCount, true);
+            var HighestScoreRankingResult = CalculateHighestRankingAndPlayCount(games.ToArray(), history, warmupCount, beatmapsToIgnore);
                 
             (string, string) teamNames = GetVersusTeamNames(matchName);
-            Tuple<int, int> wins = GetWins(games.ToArray(), warmupCount);
 
-            TeamColor winningTeam = wins.Item1 > wins.Item2 ? TeamColor.Blue : TeamColor.Red;
-            TeamColor losingTeam = wins.Item1 > wins.Item2 ? TeamColor.Red : TeamColor.Blue;
+            TeamColor winningTeam;
+            TeamColor losingTeam;
+            if (teamBlueWins > teamRedWins)
+            {
+                winningTeam = TeamColor.Blue;
+                losingTeam = TeamColor.Red;
+            }
+            else
+            {
+                winningTeam = TeamColor.Red;
+                losingTeam = TeamColor.Blue;
+            }
 
             AnalyzerResult result = new AnalyzerResult()
             {
@@ -78,10 +112,10 @@ namespace SkyBot.Analyzer
                     
                 WinningTeam = winningTeam == TeamColor.Red ? teamNames.Item2 : teamNames.Item1,
                 WinningTeamColor = winningTeam,
-                WinningTeamWins = winningTeam == TeamColor.Red ? wins.Item2 : wins.Item1,
+                WinningTeamWins = winningTeam == TeamColor.Red ? teamRedWins : teamBlueWins,
 
                 LosingTeam = losingTeam == TeamColor.Red ? teamNames.Item2 : teamNames.Item1,
-                LosingTeamWins = losingTeam == TeamColor.Red ? wins.Item2 : wins.Item1,
+                LosingTeamWins = losingTeam == TeamColor.Red ? teamRedWins : teamBlueWins,
                 Scores = scores.ToArray(),
 
                 Stage = stage,
@@ -89,8 +123,8 @@ namespace SkyBot.Analyzer
                 TimeStamp = history.Events.Last().TimeStamp
             };
 
-            result.HighestScoreUser = HighestScoreRankingResult.Item1[0].Item3.FirstOrDefault(r => r.Player.UserId == result.HighestScore.user_id).Player;
-            result.HighestAccuracyUser = HighestScoreRankingResult.Item1[1].Item3.FirstOrDefault(r => r.Player.UserId == result.HighestAccuracyScore.user_id).Player;
+            result.HighestScoreUser = HighestScoreRankingResult.Item1[0].Item3.FirstOrDefault(r => r.Player.UserId == result.HighestScore.UserId).Player;
+            result.HighestAccuracyUser = HighestScoreRankingResult.Item1[1].Item3.FirstOrDefault(r => r.Player.UserId == result.HighestAccuracyScore.UserId).Player;
             result.Ranks = HighestScoreRankingResult.Item1[0].Item3;
             result.Beatmaps = HighestScoreRankingResult.Item2.Select(b => b.BeatMap).ToArray();
 
@@ -111,49 +145,6 @@ namespace SkyBot.Analyzer
         }
 
         /// <summary>
-        /// Gets a <see cref="HistoryJson.History"/> from the <paramref name="matchUrl"/>
-        /// </summary>
-        public static HistoryJson.History GetHistory(string matchUrl)
-        {
-            if (string.IsNullOrEmpty(matchUrl))
-                throw new ArgumentNullException(nameof(matchUrl));
-
-            List<HistoryJson.History> histories = new List<HistoryJson.History>()
-            {
-                ParseMatch(matchUrl).Item1
-            };
-
-            HistoryJson.Event firstEvent = histories[0].Events[0];
-
-            while(firstEvent.Detail == null || !firstEvent.Detail.Type.Equals("match-created", StringComparison.CurrentCultureIgnoreCase))
-            {
-                long before = firstEvent.EventId.Value;
-
-                histories.Insert(0, ParseMatch(matchUrl, $"before={before}").Item1);
-                firstEvent = histories[0].Events[0];
-            }
-
-            List<HistoryJson.Event> events = new List<HistoryJson.Event>();
-            List<HistoryJson.User> users = new List<HistoryJson.User>();
-
-            for (int i = 0; i < histories.Count; i++)
-            {
-                events.AddRange(histories[i].Events);
-                users.AddRange(histories[i].Users);
-            }
-
-            HistoryJson.History history = new HistoryJson.History();
-
-            SetProperty(history, "Events", events.ToArray());
-            SetProperty(history, "Users", users.ToArray());
-            SetProperty(history, "EventCount", events.Count);
-            SetProperty(history, "LatestEventId", histories[histories.Count - 1].LatestEventId);
-            SetProperty(histories, "current_game_id", histories[0].current_game_id ?? 0);
-
-            return history;
-        }
-        
-        /// <summary>
         /// Removes a match from the DB
         /// </summary>
         public static void RemoveMatch(long matchId, DiscordGuild guild)
@@ -168,77 +159,6 @@ namespace SkyBot.Analyzer
             c.SeasonScore.Where(sc => sc.SeasonResultId == sr.Id).ToList().ForEach(sr => c.SeasonScore.Remove(sr));
 
             c.SaveChanges();
-        }
-
-        /// <summary>
-        /// parses a osu mp match
-        /// </summary>
-        public static (HistoryJson.History, int) ParseMatch(string matchIdString, params string[] parameters)
-        {
-            if (string.IsNullOrEmpty(matchIdString))
-                throw new ArgumentNullException(nameof(matchIdString));
-
-            const string historyUrl = "https://osu.ppy.sh/community/matches/";
-            const string historyUrlVariant = "https://osu.ppy.sh/mp/";
-
-            if (matchIdString.Contains(historyUrlVariant, StringComparison.CurrentCultureIgnoreCase))
-                matchIdString = matchIdString.Replace(historyUrlVariant, historyUrl, StringComparison.CurrentCultureIgnoreCase);
-
-            int matchId = -1;
-            string[] multiLinkSplit = matchIdString.Split(new[] { "\r\n", "\r", "\n", Environment.NewLine }, StringSplitOptions.None);
-
-            foreach (string s in multiLinkSplit)
-            {
-                if (string.IsNullOrEmpty(s))
-                    continue;
-                if (s.Contains(historyUrl, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    string[] split = s.Split('/');
-
-                    foreach (string str in split)
-                        if (int.TryParse(str, out int PresultSplit))
-                        {
-                            matchId = PresultSplit;
-                            break;
-                        }
-                    if (matchId > 0)
-                        break;
-
-                    string numbers = null;
-                    int indexOf = s.IndexOf(historyUrl, StringComparison.CurrentCultureIgnoreCase) + historyUrl.Length;
-
-                    string sub = s.Substring(indexOf, s.Length - indexOf);
-
-                    foreach (char c in sub)
-                    {
-                        if (c.Equals(' '))
-                            break;
-
-                        if (int.TryParse(c.ToString(CultureInfo.CurrentCulture), out int result))
-                            numbers += result;
-                    }
-
-                    if (int.TryParse(numbers, out int resultMP))
-                        matchId = resultMP;
-                }
-            }
-
-            if (matchId <= 0)
-                return (null, -1);
-
-            string endpointUrl = $"https://osu.ppy.sh/community/matches/{matchId}/history";
-
-            if (parameters != null && parameters.Length > 0)
-            {
-                endpointUrl += "?" + parameters[0];
-
-                for (int i = 1; i < parameters.Length; i++)
-                    endpointUrl += "&" + parameters[i];
-            }
-
-            HistoryJson.History historyJson = GetData.ParseJsonFromUrl(endpointUrl);
-
-            return (historyJson, matchId);
         }
 
         public static DiscordEmbed GetMatchResultEmbed(long matchId)
@@ -272,11 +192,8 @@ namespace SkyBot.Analyzer
 
             List<SeasonScore> highestGpsScores = scores.Where(s => s.HighestGeneralPerformanceScore).ToList();
 
-            string winningTeamTrim = result.WinningTeam.Trim(' ', '_');
-            string losingTeamTrim = result.LosingTeam.Trim(' ', '_');
-
-            SeasonScore highestGpsWinningScore = highestGpsScores.FirstOrDefault(s => s.TeamName.Trim(' ', '_').Equals(winningTeamTrim, StringComparison.CurrentCultureIgnoreCase));
-            SeasonScore highestGpsLosingScore = highestGpsScores.FirstOrDefault(s => s.TeamName.Trim(' ', '_').Equals(losingTeamTrim, StringComparison.CurrentCultureIgnoreCase));
+            SeasonScore highestGpsWinningScore = highestGpsScores.FirstOrDefault(s => s.TeamName.Equals(result.WinningTeam, StringComparison.CurrentCultureIgnoreCase));
+            SeasonScore highestGpsLosingScore = highestGpsScores.FirstOrDefault(s => s.TeamName.Equals(result.LosingTeam, StringComparison.CurrentCultureIgnoreCase));
 
             highestGpsWinningPlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestGpsWinningScore.SeasonPlayerId);
             highestGpsLosingPlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestGpsLosingScore.SeasonPlayerId);
@@ -376,8 +293,6 @@ namespace SkyBot.Analyzer
             {
                 var pair = sortedAvgGps.ElementAt(i);
                 var player = c.SeasonPlayer.FirstOrDefault(p => p.Id == pair.Key);
-
-                Console.WriteLine(sortedAvgGps[i].Value.Item1 + " | " + sortedAvgGps[i].Value.Item2 + " | " + sortedAvgGps[i].Value.Item3 + " | ");
 
                 if (player.TeamName.Equals(playerTeamAHighestGps.TeamName, StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -522,7 +437,7 @@ namespace SkyBot.Analyzer
             return discordEmbedBuilder.Build();
         }
 
-        public static void SubmitStats(AnalyzerResult ar, DiscordGuild guild, List<HistoryJson.Game> games)
+        public static void SubmitStats(AnalyzerResult ar, DiscordGuild guild, List<HistoryGame> games, params long[] beatmapsToIgnore)
         {
             if (ar == null)
                 throw new ArgumentNullException(nameof(ar));
@@ -536,7 +451,10 @@ namespace SkyBot.Analyzer
             SeasonResult sr = c.SeasonResult.FirstOrDefault(sr => sr.MatchId == ar.MatchId);
 
             if (sr != null)
+            {
+                Logger.Log("Failed to submit stats, match already exist", LogLevel.Error);
                 return;
+            }
 
             sr = new SeasonResult()
             {
@@ -560,18 +478,18 @@ namespace SkyBot.Analyzer
 
             for (int i = 0; i < ar.Beatmaps.Length; i++)
             {
-                SeasonBeatmap sb = c.SeasonBeatmap.FirstOrDefault(sb => sb.BeatmapId == (long)ar.Beatmaps[i].id);
+                SeasonBeatmap sb = c.SeasonBeatmap.FirstOrDefault(sb => sb.BeatmapId == (long)ar.Beatmaps[i].Id);
 
                 if (sb != null)
                     continue;
 
                 sb = new SeasonBeatmap()
                 {
-                    Author = ar.Beatmaps[i].beatmapset.artist,
-                    BeatmapId = (long)ar.Beatmaps[i].id,
-                    Difficulty = ar.Beatmaps[i].version,
-                    DifficultyRating = ar.Beatmaps[i].difficulty_rating,
-                    Title = ar.Beatmaps[i].beatmapset.title
+                    Author = ar.Beatmaps[i].Beatmapset.Artist,
+                    BeatmapId = (long)ar.Beatmaps[i].Id,
+                    Difficulty = ar.Beatmaps[i].Version,
+                    DifficultyRating = ar.Beatmaps[i].DifficultyRating,
+                    Title = ar.Beatmaps[i].Beatmapset.Title
                 };
 
                 c.SeasonBeatmap.Add(sb);
@@ -598,7 +516,7 @@ namespace SkyBot.Analyzer
                     DiscordGuildId = (long)guild.Id,
                     LastOsuUsername = player.UserName,
                     OsuUserId = (long)player.UserId,
-                    TeamName = player.HighestScore.match.team.Equals("red", StringComparison.CurrentCultureIgnoreCase) ? versusNames.Item2 : versusNames.Item1
+                    TeamName = player.HighestScore.Match.Team.Equals("red", StringComparison.CurrentCultureIgnoreCase) ? versusNames.Item2 : versusNames.Item1
                 };
 
                players.Add(c.SeasonPlayer.Add(sp).Entity);
@@ -607,7 +525,7 @@ namespace SkyBot.Analyzer
 
             List<SeasonScore> scores = new List<SeasonScore>();
 
-            games = games.OrderBy(g => g.start_time).ToList();
+            games = games.OrderBy(g => g.StartTime).ToList();
 
             int playOrder = 0;
             for (int i = 0; i < games.Count; i++)
@@ -615,13 +533,18 @@ namespace SkyBot.Analyzer
                 var game = games[i];
 
                 playOrder++;
-                for (int x = 0; x < game.scores.Count; x++)
+                for (int x = 0; x < game.Scores.Length; x++)
                 {
-                    var score = game.scores[x];
+                    if (games[i].Beatmap == null || string.IsNullOrEmpty(games[i].TeamType) ||
+                        games[i].TeamType.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase) ||
+                        (beatmapsToIgnore != null && beatmapsToIgnore.Length > 0 && beatmapsToIgnore.Contains((long)(games[i].Beatmap.Id))))
+                        continue;
 
-                    SeasonPlayer sp = players.First(p => p.OsuUserId == (long)score.user_id.Value);
+                    var score = game.Scores[x];
+
+                    SeasonPlayer sp = players.First(p => p.OsuUserId == (long)score.UserId);
                     SeasonScore ss = c.SeasonScore.FirstOrDefault(ss => ss.SeasonPlayerId == sp.Id &&
-                                                                        ss.PlayedAt == score.created_at.Value);
+                                                                        ss.PlayedAt == (game.EndTime.HasValue ? game.EndTime.Value : game.StartTime));
 
                     if (ss != null)
                         continue;
@@ -629,24 +552,24 @@ namespace SkyBot.Analyzer
                     ss = new SeasonScore()
                     {
                         Id = 0,
-                        Accuracy = score.accuracy.Value,
-                        Score = score.score.Value,
+                        Accuracy = (float)score.Accuracy,
+                        Score = score.Score,
                         SeasonPlayerId = sp.Id,
                         SeasonResultId = sr.Id,
-                        Count100 = score.statistics.count_100.Value,
-                        Count300 = score.statistics.count_300.Value,
-                        Count50 = score.statistics.count_50.Value,
-                        CountGeki = score.statistics.count_geki.Value,
-                        CountKatu = score.statistics.count_katu.Value,
-                        CountMiss = score.statistics.count_miss.Value,
-                        MaxCombo = score.max_combo.Value,
-                        Pass = score.match.pass.Value,
-                        Perfect = score.perfect.Value,
-                        PlayedAt = score.created_at.Value,
+                        Count100 = score.Statistics.Count100,
+                        Count300 = score.Statistics.Count300,
+                        Count50 = score.Statistics.Count50,
+                        CountGeki = score.Statistics.CountGeki,
+                        CountKatu = score.Statistics.CountKatu,
+                        CountMiss = score.Statistics.CountMiss,
+                        MaxCombo = score.MaxCombo,
+                        Pass = score.Match.Pass,
+                        Perfect = score.Perfect,
+                        PlayedAt = game.EndTime.HasValue ? game.EndTime.Value : game.StartTime,
                         TeamName = sp.TeamName,
                         TeamVs = true,
                         PlayOrder = playOrder,
-                        BeatmapId = (long)game.beatmap.id.Value,
+                        BeatmapId = (long)game.Beatmap.Id,
                     };
 
                     scores.Add(ss);
@@ -655,8 +578,21 @@ namespace SkyBot.Analyzer
 
             CalculateGPS(ref scores);
 
-            double max = scores.Max(s => s.GeneralPerformanceScore);
-            scores.First(s => s.GeneralPerformanceScore == max).HighestGeneralPerformanceScore = true;
+            SeasonScore teamAHighestGPS = scores[0];
+            SeasonScore teamBHighestGPS = null;
+            for (int i = 1; i < scores.Count; i++)
+            {
+                if (teamAHighestGPS.TeamName.Equals(scores[i].TeamName, StringComparison.CurrentCulture))
+                {
+                    if (teamAHighestGPS.GeneralPerformanceScore < scores[i].GeneralPerformanceScore)
+                        teamAHighestGPS = scores[i];
+                }
+                else if (teamBHighestGPS == null || teamBHighestGPS.GeneralPerformanceScore < scores[i].GeneralPerformanceScore)
+                        teamBHighestGPS = scores[i];
+            }
+
+            teamAHighestGPS.HighestGeneralPerformanceScore = true;
+            teamBHighestGPS.HighestGeneralPerformanceScore = true;
 
             c.SeasonScore.AddRange(scores);
 
@@ -726,34 +662,34 @@ namespace SkyBot.Analyzer
         /// </summary>
         /// <param name="games"><see cref="GetData.GetMatches(HistoryJson.History)"/></param>
         /// <returns>Tuple { Tuple { HighestScore, HighestScoreBeatmap, HighestScoreRanking }[], BeatmapPlayCount } }</returns>
-        private static Tuple<Tuple<HistoryJson.Score, HistoryJson.BeatMap, Rank[]>[], BeatmapPlayCount[]> CalculateHighestRankingAndPlayCount(HistoryJson.Game[] games, HistoryJson.History history, int warmupCount, bool calculateMVP = false, params long[] beatmapsToIgnore)
+        private static Tuple<Tuple<HistoryScore, HistoryBeatmap, Rank[]>[], BeatmapPlayCount[]> CalculateHighestRankingAndPlayCount(HistoryGame[] games, History history, int warmupCount, params long[] beatmapsToIgnore)
         {
-            HistoryJson.Score highestScore = null;
-            HistoryJson.BeatMap highestScoreBeatmap = null;
+            HistoryScore highestScore = null;
+            HistoryBeatmap highestScoreBeatmap = null;
             List<Player> highestScoreRanking = new List<Player>();
             List<Rank> sortedRanksScore = new List<Rank>();
 
-            HistoryJson.Score highestAccuracy = null;
-            HistoryJson.BeatMap highestAccuracyBeatmap = null;
+            HistoryScore highestAccuracy = null;
+            HistoryBeatmap highestAccuracyBeatmap = null;
             List<Rank> sortedRanksAccuracy = new List<Rank>();
 
             StringComparer curCultIgnore = StringComparer.CurrentCultureIgnoreCase;
 
-            List<HistoryJson.Score> scores = new List<HistoryJson.Score>();
+            List<HistoryScore> scores = new List<HistoryScore>();
             List<BeatmapPlayCount> playCounts = new List<BeatmapPlayCount>();
 
             int warmupCounter = 0;
 
             for (int i = 0; i < games.Length; i++)
             {
-                HistoryJson.Game game = games[i];
+                HistoryGame game = games[i];
 
-                if (beatmapsToIgnore.Contains((long)(game.beatmap.id ?? 0)) || game.team_type.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase))
+                if (games[i].Beatmap == null || string.IsNullOrEmpty(games[i].TeamType) ||
+                    games[i].TeamType.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase) ||
+                    (beatmapsToIgnore != null && beatmapsToIgnore.Length > 0 && beatmapsToIgnore.Contains((long)(games[i].Beatmap.Id))))
                     continue;
 
-                List<HistoryJson.Score> gameScores = game.scores;
-
-                if (gameScores == null)
+                if (game.Scores == null || game.Scores.Length == 0)
                     continue;
                 else if (warmupCount > 0 && warmupCounter < warmupCount)
                 {
@@ -761,52 +697,49 @@ namespace SkyBot.Analyzer
                     continue;
                 }
 
-                int playCountIndex = playCounts.FindIndex(bpc => bpc.BeatMap.id.Value == game.beatmap.id.Value);
+                int playCountIndex = playCounts.FindIndex(bpc => bpc.BeatMap.Id == game.Beatmap.Id);
 
                 if (playCountIndex > -1)
                     playCounts[playCountIndex].Count++;
                 else
                     playCounts.Add(new BeatmapPlayCount()
                     {
-                        BeatMap = game.beatmap,
+                        BeatMap = game.Beatmap,
                         Count = 1,
                     });
 
-                for (int x = 0; x < game.scores.Count; x++)
+                for (int x = 0; x < game.Scores.Length; x++)
                 {
-                    HistoryJson.Score score = game.scores[x];
-                    Player CurrentPlayer = highestScoreRanking.Find(player => player.UserId == score.user_id.Value);
+                    HistoryScore score = game.Scores[x];
+                    Player CurrentPlayer = highestScoreRanking.Find(player => player.UserId == score.UserId);
 
                     if (CurrentPlayer == null)
                     {
                         CurrentPlayer = new Player();
-                        CurrentPlayer.UserId = score.user_id.Value;
+                        CurrentPlayer.UserId = score.UserId;
                         CurrentPlayer.UserName = GetData.GetUser(score, history).Username;
-                        CurrentPlayer.Scores = new HistoryJson.Score[] { score };
+                        CurrentPlayer.Scores = new HistoryScore[] { score };
                         highestScoreRanking.Add(CurrentPlayer);
                     }
                     else
                     {
-                        List<HistoryJson.Score> scoresPlayer = CurrentPlayer.Scores.ToList();
+                        List<HistoryScore> scoresPlayer = CurrentPlayer.Scores.ToList();
                         scoresPlayer.Add(score);
                         CurrentPlayer.Scores = scoresPlayer.ToArray();
                     }
 
-                    if (highestScore == null || score.score.Value > highestScore.score.Value)
+                    if (highestScore == null || score.Score > highestScore.Score)
                     {
                         highestScore = score;
-                        highestScoreBeatmap = game.beatmap;
+                        highestScoreBeatmap = game.Beatmap;
                     }
 
-                    if (highestAccuracy == null || highestAccuracy.accuracy.Value < score.accuracy.Value)
+                    if (highestAccuracy == null || highestAccuracy.Accuracy < score.Accuracy)
                     {
                         highestAccuracy = score;
-                        highestAccuracyBeatmap = game.beatmap;
+                        highestAccuracyBeatmap = game.Beatmap;
                     }
                 }
-
-                if (calculateMVP)
-                    CalculateMVP(ref highestScoreRanking, ref game);
             }
 
             highestScoreRanking.ForEach(ob =>
@@ -815,7 +748,7 @@ namespace SkyBot.Analyzer
                 ob.GetHighestScore();
             });
 
-            highestScoreRanking = highestScoreRanking.OrderByDescending(player => player.HighestScore.score.Value).ToList();
+            highestScoreRanking = highestScoreRanking.OrderByDescending(player => player.HighestScore.Score).ToList();
 
             for (int i = 0; i < highestScoreRanking.Count; i++)
             {
@@ -833,99 +766,13 @@ namespace SkyBot.Analyzer
             for (int i = 0; i < sortedRanksAccuracy.Count; i++)
                 sortedRanksAccuracy[i].Place = i + 1;
 
-            return new Tuple<Tuple<HistoryJson.Score, HistoryJson.BeatMap, Rank[]>[], BeatmapPlayCount[]>(
-                new Tuple<HistoryJson.Score, HistoryJson.BeatMap, Rank[]>[]
+            return new Tuple<Tuple<HistoryScore, HistoryBeatmap, Rank[]>[], BeatmapPlayCount[]>(
+                new Tuple<HistoryScore, HistoryBeatmap, Rank[]>[]
             {
-                new Tuple<HistoryJson.Score, HistoryJson.BeatMap, Rank[]>(highestScore, highestScoreBeatmap, sortedRanksScore.ToArray()),
-                new Tuple<HistoryJson.Score, HistoryJson.BeatMap, Rank[]>(highestAccuracy, highestAccuracyBeatmap, sortedRanksAccuracy.ToArray()),
+                new Tuple<HistoryScore, HistoryBeatmap, Rank[]>(highestScore, highestScoreBeatmap, sortedRanksScore.ToArray()),
+                new Tuple<HistoryScore, HistoryBeatmap, Rank[]>(highestAccuracy, highestAccuracyBeatmap, sortedRanksAccuracy.ToArray()),
             },
             playCounts.ToArray());
-        }
-
-        private static void CalculateMVP(ref List<Player> highestScoreRanking, ref HistoryJson.Game game)
-        {
-
-            List<HistoryJson.Score> hAcc = game.scores.OrderBy(f => f.accuracy.Value).ToList();
-            List<HistoryJson.Score> hScore = game.scores.OrderBy(f => f.score.Value).ToList();
-            List<HistoryJson.Score> hMisses = game.scores.OrderByDescending(f => f.statistics.count_miss.Value).ToList();
-            List<HistoryJson.Score> hCombo = game.scores.OrderBy(f => f.max_combo.Value).ToList();
-            List<HistoryJson.Score> h300 = game.scores.OrderBy(f => f.statistics.count_300.Value).ToList();
-
-            int x;
-            for (int i = hAcc.Count - 1; i > 0; i--)
-            {
-                if (i < hAcc.Count - 1)
-                {
-                    x = i + 1;
-                    while (x < hAcc.Count - 1 && hAcc[i].accuracy.Value == hAcc[x].accuracy.Value)
-                        x++;
-
-                    highestScoreRanking.Find(p => p.UserId == hAcc[i].user_id.Value).MVPScore += x * _accMulti;
-                    continue;
-                }
-
-                highestScoreRanking.Find(p => p.UserId == hAcc[i].user_id.Value).MVPScore += i * _accMulti;
-            }
-
-            for (int i = hScore.Count - 1; i > 0; i--)
-            {
-                if (i < hScore.Count - 1)
-                {
-                    x = i + 1;
-                    while (x < hScore.Count - 1 && hScore[i].score.Value == hScore[x].score.Value)
-                        x++;
-
-                    highestScoreRanking.Find(p => p.UserId == hScore[i].user_id.Value).MVPScore += x * _scoreMulti;
-                    continue;
-                }
-
-                highestScoreRanking.Find(p => p.UserId == hScore[i].user_id.Value).MVPScore += i * _scoreMulti;
-            }
-
-            for (int i = hMisses.Count - 1; i > 0; i--)
-            {
-                if (i < hMisses.Count - 1)
-                {
-                    x = i + 1;
-                    while (x < hMisses.Count - 1 && hMisses[i].statistics.count_miss.Value == hMisses[x].statistics.count_miss.Value)
-                        x++;
-
-                    highestScoreRanking.Find(p => p.UserId == hMisses[i].user_id.Value).MVPScore -= x * _missesMulti;
-                    continue;
-                }
-
-                highestScoreRanking.Find(p => p.UserId == hMisses[i].user_id.Value).MVPScore -= i * _missesMulti;
-            }
-
-            for (int i = hCombo.Count - 1; i > 0; i--)
-            {
-                if (i < hCombo.Count - 1)
-                {
-                    x = i + 1;
-                    while (x < hCombo.Count - 1 && hCombo[i].max_combo.Value == hCombo[x].max_combo.Value)
-                        x++;
-
-                    highestScoreRanking.Find(p => p.UserId == hCombo[i].user_id.Value).MVPScore += x * _comboMulti;
-                    continue;
-                }
-
-                highestScoreRanking.Find(p => p.UserId == hCombo[i].user_id.Value).MVPScore += i * _comboMulti;
-            }
-
-            for (int i = h300.Count - 1; i > 0; i--)
-            {
-                if (i < h300.Count - 1)
-                {
-                    x = i + 1;
-                    while (x < h300.Count - 1 && h300[i].max_combo.Value == h300[x].max_combo.Value)
-                        x++;
-
-                    highestScoreRanking.Find(p => p.UserId == h300[i].user_id.Value).MVPScore += x * _300Multi;
-                    continue;
-                }
-
-                highestScoreRanking.Find(p => p.UserId == h300[i].user_id.Value).MVPScore += i * _300Multi;
-            }
         }
 
         private static double GetOverallRating(SeasonPlayer player, DBContext c)
@@ -933,9 +780,6 @@ namespace SkyBot.Analyzer
             List<SeasonScore> scores = c.SeasonScore.Where(s => s.SeasonPlayerId == player.Id).ToList();
 
             double result = 0;
-
-            List<double> gpsValues = new List<double>();
-            List<double> accValues = new List<double>();
 
             int n = scores.Count;
             float x, y, z, acc, gps, miss;
@@ -947,39 +791,39 @@ namespace SkyBot.Analyzer
                 SeasonScore score = scores[i];
 
                 x = score.Accuracy;
-                y = (float)score.GeneralPerformanceScore;
                 z = (float)score.CountMiss;
 
-                if (x <= 0 || y <= 0)
-                {
-                    continue;
-                }
-
                 acc = ((x + x) * x) / (x * 3.0f);
-                gps = (y * y * y) / (y * 0.5f);
                 miss = z * 10 / x * 3;
 
                 accMax += acc - miss;
-                gpsMax += gps - miss;
+                Logger.Log("acc: " + acc + " | acc Max: " + accMax + " | acc calculated: " + (acc - miss));
 
-                accValues.Add(acc);
-                gpsValues.Add(gps);
+                if (score.GeneralPerformanceScore > 0)
+                {
+                    y = (float)score.GeneralPerformanceScore;
+                    gps = (y * y * y) / y;
+                    gpsMax += gps - miss;
+                    Logger.Log("GPS: " + gps + " | GPS Max: " + gpsMax + " | gps calculated: " + (gps - miss));
+                }
             }
             double accAvg = 0;
             double gpsAvg = 0;
 
             if (accMax > 0)
-            {
                 accAvg = accMax / n;
-                gpsAvg = gpsMax / n;
-            }
 
-            if (accAvg != 0 || gpsAvg != 0)
+            if (gpsMax > 0)
+                gpsAvg = gpsMax / n;
+
+            if (accAvg != 0 && gpsAvg != 0)
             {
-                double overallRating = ((gpsAvg * gpsAvg) * (accAvg * accAvg)) / (gpsAvg * accAvg) / 100 / 30 / 2.5;
+                double overallRating = ((gpsAvg * gpsAvg) * (accAvg * accAvg)) / (gpsAvg * accAvg) / 100 / 2.5;
 
                 result = Math.Round(overallRating, 2, MidpointRounding.AwayFromZero);
             }
+
+            Logger.Log("Rating: " + result);
 
             return result;
         }
@@ -991,208 +835,85 @@ namespace SkyBot.Analyzer
         /// <returns>bot_season_player_id, gps</returns>
         private static void CalculateGPS(ref List<SeasonScore> scores)
         {
+            const double ACC_MULTI = 3.8;
+            const double SCORE_MULTI = 1.2;
+            const double COMBO_MULTI = 0.8;
+            const double HITS300_MULTI = 1.0;
+            const double MISSES_MULTI = 0.15;
+
+            if (scores.Count == 0)
+                throw new ArgumentOutOfRangeException(nameof(scores));
+
+            Dictionary<long, List<double>> results = new Dictionary<long, List<double>>();
+
             List<SeasonScore> scoresByAcc = scores.OrderBy(s => s.Accuracy).ToList();
             List<SeasonScore> scoresByScore = scores.OrderBy(s => s.Score).ToList();
             List<SeasonScore> scoresByMisses = scores.OrderBy(s => s.CountMiss).ToList();
             List<SeasonScore> scoresByCombo = scores.OrderBy(s => s.MaxCombo).ToList();
             List<SeasonScore> scoresByHits300 = scores.OrderBy(s => s.Count300).ToList();
 
-            const double SCORE_MULTI = 1.9;
-            const double ACC_MULTI = 2.4;
-            const double COMBO_MULTI = 2.0;
-            const double HITS300_MULTI = 1.65;
+            Dictionary<long, List<double>> resultMisses = new Dictionary<long, List<double>>();
 
-            const double MISSES_MULTI = 1.15;
-            const double MISSES_MULTI2 = 2.0;
-
-            Dictionary<long, double> resultAcc = new Dictionary<long, double>();
-            Dictionary<long, double> resultScore = new Dictionary<long, double>();
-            Dictionary<long, double> resultMisses = new Dictionary<long, double>();
-            Dictionary<long, double> resultCombo = new Dictionary<long, double>();
-            Dictionary<long, double> resultHits300 = new Dictionary<long, double>();
-
-            int x;
-            for (int i = scoresByAcc.Count - 1; i >= 0; i--)
+            Action<List<SeasonScore>, double, Func<SeasonScore, SeasonScore, bool>, Dictionary<long, List<double>>, bool> calculator = new Action<List<SeasonScore>, double, Func<SeasonScore, SeasonScore, bool>, Dictionary<long, List<double>>, bool>((scores, multi, equalityCheck, ranking, subtract) =>
             {
-                if (i < scoresByAcc.Count - 1)
+                int x;
+                for (int i = scores.Count - 1; i > 0; i--)
                 {
                     x = i + 1;
-                    while (x < scoresByAcc.Count - 1 && scoresByAcc[i].Accuracy == scoresByAcc[x].Accuracy)
+
+                    while ((x < scores.Count && equalityCheck(scores[i], scores[x])))
                         x++;
 
-                    if (resultAcc.ContainsKey(scoresByAcc[i].SeasonPlayerId))
-                        resultAcc[scoresByAcc[i].SeasonPlayerId] += x * ACC_MULTI;
+                    float value = (float)(x * multi);
+
+                    if (subtract && value > 0)
+                        value *= -1;
+
+                    if (ranking.ContainsKey(scores[i].SeasonPlayerId))
+                        ranking[scores[i].SeasonPlayerId].Add(value);
                     else
-                        resultAcc.Add(scoresByAcc[i].SeasonPlayerId, x * ACC_MULTI);
-
-                    continue;
+                        ranking.Add(scores[i].SeasonPlayerId, new List<double>() { value });
                 }
+            });
 
-                if (resultAcc.ContainsKey(scoresByAcc[i].SeasonPlayerId))
-                    resultAcc[scoresByAcc[i].SeasonPlayerId] += i * ACC_MULTI;
-                else
-                    resultAcc.Add(scoresByAcc[i].SeasonPlayerId, i * ACC_MULTI);
-            }
+            calculator(scoresByAcc, ACC_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => ss1.Accuracy == ss2.Accuracy), results, false);
+            calculator(scoresByScore, SCORE_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => ss1.Score == ss2.Score), results, false);
+            calculator(scoresByCombo, COMBO_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => ss1.MaxCombo == ss2.MaxCombo), results, false);
+            calculator(scoresByHits300, HITS300_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => ss1.Count300 == ss2.Count300), results, false);
+            calculator(scoresByMisses, MISSES_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => false), resultMisses, false);
 
-            for (int i = scoresByScore.Count - 1; i >= 0; i--)
+            Dictionary<long, double> averagePerformances = new Dictionary<long, double>();
+
+            foreach(var pair in results)
             {
-                if (i < scoresByScore.Count - 1)
-                {
-                    x = i + 1;
-                    while (x < scoresByScore.Count - 1 && scoresByScore[i].Score == scoresByScore[x].Score)
-                        x++;
+                double total = 0;
+                for (int i = 0; i < pair.Value.Count; i++)
+                    total += pair.Value[i];
 
-                    if (resultScore.ContainsKey(scoresByScore[i].SeasonPlayerId))
-                        resultScore[scoresByScore[i].SeasonPlayerId] += x * SCORE_MULTI;
-                    else
-                        resultScore.Add(scoresByScore[i].SeasonPlayerId, x * SCORE_MULTI);
+                total /= pair.Value.Count;
 
-                    continue;
-                }
+                List<double> misses = resultMisses[pair.Key];
 
-                if (resultScore.ContainsKey(scoresByScore[i].SeasonPlayerId))
-                    resultScore[scoresByScore[i].SeasonPlayerId] += i * SCORE_MULTI;
-                else
-                    resultScore.Add(scoresByScore[i].SeasonPlayerId, i * SCORE_MULTI);
+                double missTotal = 0;
+                for (int i = 0; i < misses.Count; i++)
+                    missTotal += misses[i];
+
+                missTotal /= misses.Count;
+
+                averagePerformances.Add(pair.Key, total - missTotal);
             }
 
-            for (int i = scoresByMisses.Count - 1; i >= 0; i--)
+            for (int i = 0; i < averagePerformances.Count; i++)
             {
-                if (i < scoresByMisses.Count - 1)
-                {
-                    x = i + 1;
-                    while (x < scoresByMisses.Count - 1 && scoresByMisses[i].CountMiss == scoresByMisses[x].CountMiss)
-                        x++;
+                var kvp = averagePerformances.ElementAt(i);
 
-                    if (resultMisses.ContainsKey(scoresByMisses[i].SeasonPlayerId))
-                        resultMisses[scoresByMisses[i].SeasonPlayerId] += x * MISSES_MULTI * MISSES_MULTI2;
-                    else
-                        resultMisses.Add(scoresByMisses[i].SeasonPlayerId, x * MISSES_MULTI * MISSES_MULTI2);
+                var score = scores.FirstOrDefault(s => s.SeasonPlayerId == kvp.Key);
 
-                    continue;
-                }
+                if (scores == null || scores.Count == 0 || kvp.Value <= 0)
+                    Debugger.Break();
 
-                if (resultMisses.ContainsKey(scoresByMisses[i].SeasonPlayerId))
-                    resultMisses[scoresByMisses[i].SeasonPlayerId] += i * MISSES_MULTI * MISSES_MULTI2;
-                else
-                    resultMisses.Add(scoresByMisses[i].SeasonPlayerId, i * MISSES_MULTI * MISSES_MULTI2);
+                score.GeneralPerformanceScore = kvp.Value;
             }
-
-            for (int i = scoresByCombo.Count - 1; i >= 0; i--)
-            {
-                if (i < scoresByCombo.Count - 1)
-                {
-                    x = i + 1;
-                    while (x < scoresByCombo.Count - 1 && scoresByCombo[i].MaxCombo == scoresByCombo[x].MaxCombo)
-                        x++;
-
-                    if (resultCombo.ContainsKey(scoresByCombo[i].SeasonPlayerId))
-                        resultCombo[scoresByCombo[i].SeasonPlayerId] += x * COMBO_MULTI;
-                    else
-                        resultCombo.Add(scoresByCombo[i].SeasonPlayerId, x * COMBO_MULTI);
-
-                    continue;
-                }
-
-                if (resultCombo.ContainsKey(scoresByCombo[i].SeasonPlayerId))
-                    resultCombo[scoresByCombo[i].SeasonPlayerId] += i * COMBO_MULTI;
-                else
-                    resultCombo.Add(scoresByCombo[i].SeasonPlayerId, i * COMBO_MULTI);
-
-            }
-
-            for (int i = scoresByHits300.Count - 1; i >= 0; i--)
-            {
-                if (i < scoresByHits300.Count - 1)
-                {
-                    x = i + 1;
-                    while (x < scoresByHits300.Count - 1 && scoresByHits300[i].Count300 == scoresByHits300[x].Count300)
-                        x++;
-
-                    if (resultHits300.ContainsKey(scoresByHits300[i].SeasonPlayerId))
-                        resultHits300[scoresByHits300[i].SeasonPlayerId] += x * HITS300_MULTI;
-                    else
-                        resultHits300.Add(scoresByHits300[i].SeasonPlayerId, x * HITS300_MULTI);
-
-                    continue;
-                }
-
-                if (resultHits300.ContainsKey(scoresByHits300[i].SeasonPlayerId))
-                    resultHits300[scoresByHits300[i].SeasonPlayerId] += i * HITS300_MULTI;
-                else
-                    resultHits300.Add(scoresByHits300[i].SeasonPlayerId, i * HITS300_MULTI);
-            }
-
-            for (int i = 0; i < resultAcc.Count; i++)
-            {
-                var pairAcc = resultAcc.ElementAt(i);
-                var pairScore = resultScore.ElementAt(i);
-                var pairCombo = resultCombo.ElementAt(i);
-                var pairHits300 = resultHits300.ElementAt(i);
-                var pairMisses = resultMisses.ElementAt(i);
-
-                double missesVal = pairMisses.Value * 1.5;
-                double gps = (2 * (pairAcc.Value + pairCombo.Value)) + (1.5 * (pairScore.Value + +pairHits300.Value));
-                gps -= missesVal;
-
-                if (gps < 0 || double.IsNaN(gps))
-                    gps = 0;
-                else
-                    gps *= 2;
-
-                scores.First(s => s.SeasonPlayerId == pairAcc.Key).GeneralPerformanceScore = gps;
-            }
-        }
-
-        /// <summary>
-        /// Gets team wins
-        /// </summary>
-        /// <param name="games">games to analyze</param>
-        /// <returns><see cref="Tuple{T1, T2}"/> [RedTeamWins, BlueTeamWins]</returns>
-        private static Tuple<int, int> GetWins(HistoryJson.Game[] games, int warmupCount)
-        {
-            int red = 0;
-            int blue = 0;
-            int warmupCounter = 0;
-
-            foreach (HistoryJson.Game game in games)
-            {
-                int redScore = 0;
-                int blueScore = 0;
-
-                if (warmupCount > 0 && warmupCounter < warmupCount)
-                {
-                    warmupCounter++;
-                    continue;
-                }
-
-                foreach (HistoryJson.Score score in game.scores)
-                {
-                    HistoryJson.Match multiplayer = score.match;
-
-                    if (multiplayer.pass == 0)
-                        continue;
-
-                    switch (multiplayer.team)
-                    {
-                        case "red":
-                            redScore += score.score.Value;
-                            break;
-                        case "blue":
-                            blueScore += score.score.Value;
-                            break;
-                    }
-                }
-
-                if (blueScore == redScore)
-                    continue;
-                else if (blueScore > redScore)
-                    blue++;
-                else if (redScore > blueScore)
-                    red++;
-            }
-            
-            return new Tuple<int, int>(blue, red);
         }
     }
 }

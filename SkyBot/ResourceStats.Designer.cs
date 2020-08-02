@@ -133,7 +133,7 @@ namespace SkyBot {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} on the map {1} - {2} [{3}] ({4}*) with {6:n0} Points and {7}% Accuracy!.
+        ///   Looks up a localized string similar to {0} on the map {1} - {2} [{3}] ({4}*) with {5:n0} Points and {6}% Accuracy!.
         /// </summary>
         public static string HighestAccuracyMap {
             get {
@@ -300,6 +300,15 @@ namespace SkyBot {
         public static string TeamNotFound {
             get {
                 return ResourceManager.GetString("TeamNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Team Rating.
+        /// </summary>
+        public static string TeamRating {
+            get {
+                return ResourceManager.GetString("TeamRating", resourceCulture);
             }
         }
         

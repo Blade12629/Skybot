@@ -41,7 +41,7 @@ namespace SkyBot
             c.Verification.Add(ver);
             c.SaveChanges();
 
-            dmChannel.SendMessageAsync($"Started your verification, please send the following code to {Program.BotMention}: {ver.VerificationCode}").Wait();
+            dmChannel.SendMessageAsync($"Started your verification, please send the following code to {Program.IRC.Nick} in osu via pm: {ver.VerificationCode}").Wait();
         }
 
         private static string GenerateVerificationCode()

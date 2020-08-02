@@ -1,6 +1,8 @@
-﻿using SkyBot.Database;
+﻿using OsuHistoryEndPoint.Data;
+using SkyBot.Database;
 using SkyBot.Discord;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Resources;
 using System.Text;
@@ -32,6 +34,32 @@ namespace SkyBot
             {
                 Logger.Log("Starting Skybot", LogLevel.Info);
 
+                //string json;
+                //History history;
+                //using (System.Net.WebClient wc = new System.Net.WebClient())
+                //{
+                //    json = wc.DownloadString("https://osu.ppy.sh/community/matches/62010884/history?before=1410907111");
+                //    history = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(json);
+
+                //    json = wc.DownloadString("https://osu.ppy.sh/community/matches/62010884/history");
+                //    History history2 = Newtonsoft.Json.JsonConvert.DeserializeObject<History>(json);
+
+                //    List<HistoryEvent> events = new List<HistoryEvent>(history.Events);
+                //    events.AddRange(history2.Events);
+
+                //    history.Events = events.ToArray();
+
+                //    List<HistoryUser> users = new List<HistoryUser>(history.Users);
+                //    users.AddRange(history2.Users);
+
+                //    history.Users = users.ToArray();
+                //}
+
+                //json = Newtonsoft.Json.JsonConvert.SerializeObject(history, Newtonsoft.Json.Formatting.Indented);
+                //System.IO.File.WriteAllText("history.json", json);
+
+                //await Task.Delay(-1).ConfigureAwait(false);
+
                 LoadSettings();
 
                 if (args != null && args.Length > 0)
@@ -50,7 +78,7 @@ namespace SkyBot
                 }
 
                 await LoadDiscord().ConfigureAwait(false);
-                await LoadIrc().ConfigureAwait(false);
+                //await LoadIrc().ConfigureAwait(false);
 
                 Logger.Log("Skybot started", LogLevel.Info);
             }

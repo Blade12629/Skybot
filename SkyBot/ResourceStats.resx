@@ -142,7 +142,7 @@
     <value>Highest Accuracy</value>
   </data>
   <data name="HighestAccuracyMap" xml:space="preserve">
-    <value>{0} on the map {1} - {2} [{3}] ({4}*) with {6:n0} Points and {7}% Accuracy!</value>
+    <value>{0} on the map {1} - {2} [{3}] ({4}*) with {5:n0} Points and {6}% Accuracy!</value>
   </data>
   <data name="HighestAvgAccuracy" xml:space="preserve">
     <value>Highest Average Accuracy</value>
@@ -197,6 +197,9 @@
   </data>
   <data name="TeamNotFound" xml:space="preserve">
     <value>Could not find team </value>
+  </data>
+  <data name="TeamRating" xml:space="preserve">
+    <value>Team Rating</value>
   </data>
   <data name="Teams" xml:space="preserve">
     <value>Teams</value>

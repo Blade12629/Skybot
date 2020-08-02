@@ -29,9 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="OsuHistoryEndPoint">
-      <HintPath>..\..\OsuHistoryEndPoint\OsuHistoryEndPoint\bin\x64\Release\OsuHistoryEndPoint.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\OsuHistoryEndPoint\OsuHistoryEndPoint\OsuHistoryEndPoint.csproj" />
   </ItemGroup>
 
   <ItemGroup>

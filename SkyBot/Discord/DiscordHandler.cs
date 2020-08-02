@@ -67,40 +67,56 @@ namespace SkyBot.Discord
 
         private async Task OnClientMessageCreated(MessageCreateEventArgs e)
         {
-            //Ignore bot messages
-            if (e.Author.Id == Client.CurrentUser.Id || string.IsNullOrEmpty(e.Message?.Content ?? ""))
-                return;
-
-            if (e.Guild != null)
+            try
             {
-                using DBContext c = new DBContext();
-                DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
-
-                if (dgc != null && dgc.AnalyzeChannelId != 0 && dgc.AnalyzeChannelId == (long)e.Channel.Id)
-                {
-                    await Task.Run(() => InvokeAnalyzer(e, dgc, c)).ConfigureAwait(false);
+                //Ignore bot messages
+                if (e.Author.Id == Client.CurrentUser.Id || string.IsNullOrEmpty(e.Message?.Content ?? ""))
                     return;
-                }
-            }
 
-            await Task.Run(() => CommandHandler.Invoke(e)).ConfigureAwait(false);
+                if (e.Guild != null)
+                {
+                    using DBContext c = new DBContext();
+                    DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
+
+                    if (dgc != null && dgc.AnalyzeChannelId != 0 && dgc.AnalyzeChannelId == (long)e.Channel.Id)
+                    {
+                        await Task.Run(() => InvokeAnalyzer(e, dgc, c)).ConfigureAwait(false);
+                        return;
+                    }
+                }
+
+                await Task.Run(() => CommandHandler.Invoke(e)).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex, LogLevel.Error);
+                throw;
+            }
         }
 
         private static void InvokeAnalyzer(MessageCreateEventArgs e, DiscordGuildConfig dgc, DBContext c)
         {
-            string[] lines = e.Message.Content.Split(Environment.NewLine);
+            try
+            {
+                string[] lines = e.Message.Content.Split('\n');
 
-            string stage = lines[0].Split('-')[1].Trim(' ');
-            string mpLink = lines[1].Split('<')[1].Trim('>');
+                string stage = lines[0].Split('-')[1].Trim(' ');
+                string mpLink = lines[1].Split(' ')[2].Trim('>').Trim('<');
 
-            var history = Analyzer.OsuAnalyzer.GetHistory(mpLink);
+                var history = OsuHistoryEndPoint.GetData.FromUrl(mpLink, null);
 
-            var warmupMaps = c.WarmupBeatmaps.Where(wb => wb.DiscordGuildId == dgc.GuildId);
+                var warmupMaps = c.WarmupBeatmaps.Where(wb => wb.DiscordGuildId == dgc.GuildId);
 
-            var result = Analyzer.OsuAnalyzer.CreateStatistic(history, e.Guild, 0, warmupCount: dgc.AnalyzeWarmupMatches, stage, true, beatmapsToIgnore: warmupMaps.Select(wm => wm.BeatmapId).ToArray());
-            var embed = Analyzer.OsuAnalyzer.GetMatchResultEmbed(result.MatchId);
+                var result = Analyzer.OsuAnalyzer.CreateStatistic(history, e.Guild, (int)(history.CurrentGameId ?? 0), dgc.AnalyzeWarmupMatches, stage, true, beatmapsToIgnore: warmupMaps.Select(wm => wm.BeatmapId).ToArray());
+                var embed = Analyzer.OsuAnalyzer.GetMatchResultEmbed(result.MatchId);
 
-            e.Channel.SendMessageAsync(embed: embed);
+                e.Channel.SendMessageAsync(embed: embed);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex, LogLevel.Error);
+                throw;
+            }
         }
 
         private void OnClientReady()

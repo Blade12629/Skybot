@@ -1,4 +1,5 @@
 ﻿using OsuHistoryEndPoint;
+using OsuHistoryEndPoint.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,9 @@ namespace SkyBot.Analyzer
     {
         public int UserId { get; set; }
         public string UserName { get; set; }
-        public HistoryJson.Score[] Scores { get; set; }
+        public HistoryScore[] Scores { get; set; }
 
-        public HistoryJson.Score HighestScore { get; set; }
-
-        public float MVPScore { get; set; }
+        public HistoryScore HighestScore { get; set; }
 
         public float AverageAccuracy { get; set; }
         public float AverageAccuracyRounded
@@ -37,7 +36,7 @@ namespace SkyBot.Analyzer
         /// Creates the player and invokes <see cref="CalculateAverageAccuracy"/> and <see cref="GetHighestScore"/>
         /// </summary>
         /// <param name="scores"></param>
-        public Player(params HistoryJson.Score[] scores)
+        public Player(params HistoryScore[] scores)
         {
             Scores = scores;
             CalculateAverageAccuracy();
@@ -46,8 +45,8 @@ namespace SkyBot.Analyzer
 
         public void GetHighestScore()
         {
-            foreach (HistoryJson.Score score in Scores)
-                if (HighestScore == null || score.score.Value > HighestScore.score.Value)
+            foreach (HistoryScore score in Scores)
+                if (HighestScore == null || score.Score > HighestScore.Score)
                     HighestScore = score;
         }
 
@@ -55,7 +54,7 @@ namespace SkyBot.Analyzer
         {
             float AvgAcc = 0;
 
-            Scores.ToList().ForEach(score => AvgAcc += score.accuracy.Value);
+            Scores.ToList().ForEach(score => AvgAcc += (float)score.Accuracy);
             AvgAcc /= Scores.Length;
             
             AvgAcc *= 100.0f;

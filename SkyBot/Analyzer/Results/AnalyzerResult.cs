@@ -3,6 +3,7 @@ using OsuHistoryEndPoint;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using OsuHistoryEndPoint.Data;
 
 namespace SkyBot.Analyzer.Results
 {
@@ -19,7 +20,7 @@ namespace SkyBot.Analyzer.Results
         public DateTime TimeStamp { get; set; }
         public (string, string) TeamNames { get; set; }
         
-        public HistoryJson.BeatMap[] Beatmaps { get; set; }
+        public HistoryBeatmap[] Beatmaps { get; set; }
 
 
         public Rank[] Ranks { get; set; }
@@ -27,18 +28,18 @@ namespace SkyBot.Analyzer.Results
         public Rank[] HighestScoresRanking { get; set; }
 
         
-        public HistoryJson.BeatMap HighestScoreBeatmap { get; set; }
+        public HistoryBeatmap HighestScoreBeatmap { get; set; }
 
-        public HistoryJson.Score HighestScore { get; set; }
+        public HistoryScore HighestScore { get; set; }
         public Player HighestScoreUser { get; set; }
 
-        public HistoryJson.BeatMap HighestAccuracyBeatmap { get; set; }
+        public HistoryBeatmap HighestAccuracyBeatmap { get; set; }
         public Player HighestAccuracyUser { get; set; }
-        public HistoryJson.Score HighestAccuracyScore { get; set; }
+        public HistoryScore HighestAccuracyScore { get; set; }
         /// <summary>
         /// Beatmapid, score
         /// </summary>
-        public (long, HistoryJson.Score)[] Scores { get; set; }
+        public (long, HistoryScore)[] Scores { get; set; }
 
         public Player MVP { get; set; }
     }

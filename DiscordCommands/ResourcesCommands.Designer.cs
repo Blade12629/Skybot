@@ -274,7 +274,8 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !help [page]\n!help &lt;command&gt;.
+        ///   Looks up a localized string similar to !help [page]
+        ///!help &lt;command&gt;.
         /// </summary>
         internal static string HelpUsage {
             get {

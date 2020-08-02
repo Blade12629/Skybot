@@ -143,9 +143,9 @@ namespace DiscordCommands
             if (reverse)
                 teams.Reverse();
 
-            args.Channel.SendMessageAsync(embed: GetListAsEmbed<SeasonTeamCardCache>(teams, page * 10, 10, ResourceStats.Players,
+            args.Channel.SendMessageAsync(embed: GetListAsEmbed<SeasonTeamCardCache>(teams, page * 10, 10, ResourceStats.Teams,
                                                                                        new Func<SeasonTeamCardCache, string>(sp => sp.TeamName),
-                                                                                       new Func<SeasonTeamCardCache, double>(sp => sp.TeamRating)));
+                                                                                       new Func<SeasonTeamCardCache, double>(sp => Math.Round(sp.TeamRating, 2, MidpointRounding.AwayFromZero))));
         }
 
         private void OnPlayerProfile(CommandEventArg args)
@@ -157,7 +157,7 @@ namespace DiscordCommands
 
             if (userParsed.Item1 != null)
                 osuUserId = c.SeasonPlayer.FirstOrDefault(sp => sp.LastOsuUsername.Equals(userParsed.Item1, StringComparison.CurrentCultureIgnoreCase) &&
-                                                                sp.DiscordGuildId == (long)args.Guild.Id)?.Id ?? -1;
+                                                                sp.DiscordGuildId == (long)args.Guild.Id).OsuUserId;
             else if (userParsed.Item2 != -1)
                 osuUserId = userParsed.Item2;
 
@@ -181,7 +181,9 @@ namespace DiscordCommands
         private void OnTeamProfile(CommandEventArg args)
         {
             using DBContext c = new DBContext();
-            string teamName = null;
+            (string, long) userParsed = TryParseIdOrUsernameString(args.Parameters);
+
+            string teamName = userParsed.Item1;
 
             SeasonTeamCardCache stcc = GetTeam(args.Guild, teamName);
 
@@ -309,7 +311,7 @@ namespace DiscordCommands
                    .AddField(ResourceStats.AverageCombo, avgCombo.ToString(CultureInfo.CurrentCulture), true)
                    .AddField(ResourceStats.AverageGPS, avgGps.ToString(CultureInfo.CurrentCulture), true)
                    .AddField(ResourceStats.MatchMVPs, matchMvps.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.OverallRating, (overallRating.ToString(CultureInfo.CurrentCulture) + $"({matchMvps * 3.5})"), true);
+                   .AddField(ResourceStats.OverallRating, (overallRating.ToString(CultureInfo.CurrentCulture) + $" (+{matchMvps * 3.5})"), true);
 
             return builder.Build();
         }
@@ -339,7 +341,7 @@ namespace DiscordCommands
                    .AddField(ResourceStats.AverageGPS, avgGps.ToString(CultureInfo.CurrentCulture), true)
                    .AddField(ResourceStats.MatchMVPs, totalMvps.ToString(CultureInfo.CurrentCulture), true)
                    .AddField(ResourceStats.AverageRating, avgRating.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.OverallRating, (teamRating.ToString(CultureInfo.CurrentCulture) + $"({totalMvps * 3.5})"), true);
+                   .AddField(ResourceStats.TeamRating, (teamRating.ToString(CultureInfo.CurrentCulture) + $" (+{totalMvps * 3.5})"), true);
 
             return builder.Build();
         }
@@ -378,7 +380,6 @@ namespace DiscordCommands
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
-                Title = $"{ResourceStats.Top} {page * 10}/{input.Count} {listTitle}s",
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
                     Text = $"{ResourceStats.Page} {page}/{maxPages}"
@@ -390,6 +391,8 @@ namespace DiscordCommands
             else if (start >= input.Count)
                 return builder.Build();
 
+            builder.Title = $"{ResourceStats.Top} {(page - 1) * 10 + count}/{input.Count} {listTitle}";
+
             StringBuilder ranksb = new StringBuilder();
             StringBuilder namesb = new StringBuilder();
             StringBuilder ratingsb = new StringBuilder();
@@ -398,7 +401,7 @@ namespace DiscordCommands
             {
                 ranksb.AppendLine($"{i + 1}.");
                 namesb.AppendLine(nameConverter(input[i]));
-                ratingsb.Append(ratingConverter(input[i]));
+                ratingsb.AppendLine(ratingConverter(input[i]).ToString(CultureInfo.CurrentCulture));
             }
 
             builder.AddField(ResourceStats.Rank, ranksb.ToString(), true)
