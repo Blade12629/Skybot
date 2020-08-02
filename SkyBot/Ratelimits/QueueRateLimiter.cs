@@ -40,9 +40,9 @@ namespace SkyBot.Ratelimits
                         {
                             nextTick.Item1.Invoke();
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
-
+                            Logger.Log("Failed to invoke next tick of QueueRateLimit: " + ex, LogLevel.Error);
                         }
                         finally
                         {

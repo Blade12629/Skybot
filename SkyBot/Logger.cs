@@ -10,14 +10,7 @@ namespace SkyBot
     public static class Logger
     {
         public const string LOG_FILE = "log.txt";
-        public static object SyncRoot { get; }
-
-#pragma warning disable CA1810 // Initialize reference type static fields inline
-        static Logger()
-#pragma warning restore CA1810 // Initialize reference type static fields inline
-        {
-            SyncRoot = new object();
-        }
+        public static object SyncRoot { get; } = new object();
 
         /// <summary>
         /// Log a message

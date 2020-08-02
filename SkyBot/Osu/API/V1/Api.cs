@@ -60,6 +60,8 @@ namespace SkyBot.Osu.API.V1
 
         private class JsonDataTransmitter<T>
         {
+            //TODO: move JsonDataTransmitter<T> class to own file, remove Status and just leave T, 
+            //since we already can do anything with T like (true, value) or new object[] { value }
             public bool Status { get; set; }
             public T Value { get; set; }
         }
