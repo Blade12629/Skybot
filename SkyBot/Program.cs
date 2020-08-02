@@ -24,6 +24,7 @@ namespace SkyBot
         public static string BotMention => DiscordHandler.Client.CurrentUser.Mention;
         public static MaintenanceScanner MaintenanceScanner { get; private set; }
 
+        //TODO: add setup command which the guild owner can use upon inviting the bot to set it up
 
         private static void Main(string[] args)
             => MainTask(args).ConfigureAwait(false).GetAwaiter().GetResult();

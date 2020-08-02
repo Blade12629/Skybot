@@ -240,6 +240,9 @@ namespace SkyBot.Discord.CommandSystem
 
                 if (guild != null)
                 {
+                    if (guild.Owner.Id == discordUserId)
+                        return AccessLevel.Host;
+
                     DiscordMember member = guild.GetMemberAsync(discordUserId).Result;
 
                     if (member != null)
