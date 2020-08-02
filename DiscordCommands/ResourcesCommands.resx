@@ -296,6 +296,15 @@ I will try to answer withing 48 hours
   <data name="Usage" xml:space="preserve">
     <value>Usage</value>
   </data>
+  <data name="VerifyCommand" xml:space="preserve">
+    <value>verify</value>
+  </data>
+  <data name="VerifyCommandDescription" xml:space="preserve">
+    <value>Verify yourself</value>
+  </data>
+  <data name="VerifyCommandUsage" xml:space="preserve">
+    <value>!verify</value>
+  </data>
   <data name="WarmupCommand" xml:space="preserve">
     <value>warmup</value>
   </data>

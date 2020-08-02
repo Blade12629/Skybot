@@ -545,6 +545,33 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to verify.
+        /// </summary>
+        internal static string VerifyCommand {
+            get {
+                return ResourceManager.GetString("VerifyCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verify yourself.
+        /// </summary>
+        internal static string VerifyCommandDescription {
+            get {
+                return ResourceManager.GetString("VerifyCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !verify.
+        /// </summary>
+        internal static string VerifyCommandUsage {
+            get {
+                return ResourceManager.GetString("VerifyCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to warmup.
         /// </summary>
         internal static string WarmupCommand {
