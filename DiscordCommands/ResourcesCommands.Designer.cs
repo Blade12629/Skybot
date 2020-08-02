@@ -536,6 +536,60 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to syncroles.
+        /// </summary>
+        internal static string SyncRolesCommand {
+            get {
+                return ResourceManager.GetString("SyncRolesCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please setup a config first.
+        /// </summary>
+        internal static string SyncRolesCommandConfigNotSetup {
+            get {
+                return ResourceManager.GetString("SyncRolesCommandConfigNotSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronizes you.
+        /// </summary>
+        internal static string SyncRolesCommandDescription {
+            get {
+                return ResourceManager.GetString("SyncRolesCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronized .
+        /// </summary>
+        internal static string SyncRolesCommandSyncSuccess {
+            get {
+                return ResourceManager.GetString("SyncRolesCommandSyncSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !syncroles.
+        /// </summary>
+        internal static string SyncRolesCommandUsage {
+            get {
+                return ResourceManager.GetString("SyncRolesCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You need to verify yourself first!.
+        /// </summary>
+        internal static string SyncRolesCommandVerifySelfFirst {
+            get {
+                return ResourceManager.GetString("SyncRolesCommandVerifySelfFirst", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Usage.
         /// </summary>
         internal static string Usage {

@@ -12,15 +12,15 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => "sync";
+        public string Command => ResourcesCommands.SyncRolesCommand;
 
         public AccessLevel AccessLevel => AccessLevel.User;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => "Synchronizes you";
+        public string Description => ResourcesCommands.SyncRolesCommandDescription;
 
-        public string Usage => "!sync";
+        public string Usage => ResourcesCommands.SyncRolesCommandUsage;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
@@ -29,7 +29,7 @@ namespace DiscordCommands
 
             if (dgc == null)
             {
-                args.Channel.SendMessageAsync("Please setup a config first");
+                args.Channel.SendMessageAsync(ResourcesCommands.SyncRolesCommandConfigNotSetup);
                 return;
             }
 
@@ -37,7 +37,7 @@ namespace DiscordCommands
 
             if (u == null)
             {
-                args.Channel.SendMessageAsync("You need to verify yourself first!");
+                args.Channel.SendMessageAsync(ResourcesCommands.SyncRolesCommandVerifySelfFirst);
                 return;
             }
 
@@ -57,7 +57,7 @@ namespace DiscordCommands
                     args.Member.GrantRoleAsync(drole, "!syncroles").Wait();
             }
 
-            args.Channel.SendMessageAsync("Synchronized " + args.User.Mention);
+            args.Channel.SendMessageAsync($"{ResourcesCommands.SyncRolesCommandSyncSuccess} {args.User.Mention}");
         }
     }
 }
