@@ -8,6 +8,7 @@ using System.Text;
 
 namespace DiscordCommands
 {
+    //TODO: localize ConfigCommand
     public class ConfigCommand : ICommand
     {
         public bool IsDisabled { get; set; }

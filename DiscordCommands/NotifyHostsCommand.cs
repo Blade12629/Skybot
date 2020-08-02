@@ -6,6 +6,7 @@ using System.Text;
 
 namespace DiscordCommands
 {
+    //TODO: localize NotifyHostsCommand
     public class NotifyHostsCommand : ICommand
     {
         public bool IsDisabled { get; set; }
