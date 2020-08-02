@@ -10,8 +10,14 @@ namespace SkyBot
     public static class Logger
     {
         public const string LOG_FILE = "log.txt";
+        public static object SyncRoot { get; }
 
-        private static object _loggerLock = new object();
+#pragma warning disable CA1810 // Initialize reference type static fields inline
+        static Logger()
+#pragma warning restore CA1810 // Initialize reference type static fields inline
+        {
+            SyncRoot = new object();
+        }
 
         /// <summary>
         /// Log a message
@@ -25,7 +31,7 @@ namespace SkyBot
 
             ThreadPool.QueueUserWorkItem(new WaitCallback(o =>
             {
-                lock(_loggerLock)
+                lock(SyncRoot)
                 {
                     string msg = $"{date} *{level}* {member ?? "unkown member"}: {message}\n";
 
