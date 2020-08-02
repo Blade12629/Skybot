@@ -209,7 +209,7 @@ namespace SkyBot.Discord.CommandSystem
                     catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
                     {
-                        Logger.Log($"Something went wrong while invoking command {cmd.Command}: {ex.ToString()}");
+                        Logger.Log($"Something went wrong while invoking command {cmd.Command}, message: {arg.Message.Content} from {arg.User.Username}#{arg.User.Discriminator} ({arg.User.Id}):\n {ex.ToString()}");
                         OnException?.Invoke(e.Channel, cmd, "Something went wrong executing this command");
                     }
                 }));

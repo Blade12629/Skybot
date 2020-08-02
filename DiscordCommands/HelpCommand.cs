@@ -137,14 +137,15 @@ namespace DiscordCommands
                 }
             };
 
+            if (!string.IsNullOrEmpty(notice))
+                builder = builder.AddField($"**{ResourcesCommands.Notice}**", notice);
+
             builder = builder.AddField(Resources.AccessLevel, command.AccessLevel.ToString())
                              .AddField(ResourcesCommands.Description, command.Description)
                              .AddField(ResourcesCommands.Usage, command.Usage)
                              .AddField(ResourcesCommands.CommandType, command.CommandType.ToString())
                              .AddField(ResourcesCommands.IsDisabled, command.IsDisabled ? Resources.True : Resources.False);
 
-            if (!string.IsNullOrEmpty(notice))
-                builder = builder.AddField($"**{ResourcesCommands.Notice}**", notice);
 
             channel.SendMessageAsync(embed: builder.Build()).Wait();
         }
