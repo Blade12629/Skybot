@@ -157,6 +157,7 @@ namespace SkyBot.Discord.CommandSystem
 
                 command = command.TrimStart(CommandPrefix);
 
+
                 if (!_commandTypes.TryGetValue(command.ToLower(System.Globalization.CultureInfo.CurrentCulture), out ICommand cmd))
                     return;
                 else if (cmd.IsDisabled)
@@ -164,8 +165,18 @@ namespace SkyBot.Discord.CommandSystem
                     e.Channel.SendMessageAsync("Command is currently disabled");
                     return;
                 }
+                else if (e.Guild != null)
+                {
+                    using (DBContext c = new DBContext())
+                    {
+                        DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
 
-                switch(cmd.CommandType)
+                        if (dgc != null && dgc.CommandChannelId > 0 && dgc.CommandChannelId != (long)e.Channel.Id)
+                            return;
+                    }
+                }
+
+                switch (cmd.CommandType)
                 {
                     default:
                     case CommandType.None:
