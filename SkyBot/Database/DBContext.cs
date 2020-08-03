@@ -25,6 +25,7 @@ public class DBContext : DbContext
     public virtual DbSet<SeasonTeamCardCache> SeasonTeamCardCache { get; set; }
     public virtual DbSet<WarmupBeatmap> WarmupBeatmaps { get; set; }
     public virtual DbSet<Reminder> Reminder { get; set; }
+    public virtual DbSet<Ticket> Ticket { get; set; }
 
     public DBContext()
     {
@@ -52,6 +53,43 @@ public class DBContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Ticket>(entity =>
+        {
+            entity.ToTable("ticket");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Tag)
+                .HasColumnName("tag")
+                .HasColumnType("smallint(6)");
+
+            entity.Property(e => e.Status)
+                .HasColumnName("status")
+                .HasColumnType("smallint(6)");
+
+            entity.Property(e => e.Priority)
+                .HasColumnName("priority")
+                .HasColumnType("smallint(6)");
+
+            entity.Property(e => e.Timestamp)
+                .HasColumnName("timestamp")
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.Message)
+                .HasColumnName("message")
+                .HasColumnType("longtext");
+        });
+
         modelBuilder.Entity<Reminder>(entity =>
         {
             entity.ToTable("reminder");
@@ -302,6 +340,10 @@ public class DBContext : DbContext
 
             entity.Property(e => e.AnalyzeChannelId)
                 .HasColumnName("analyze_channel_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.TicketDiscordChannelId)
+                .HasColumnName("ticket_discord_channel_id")
                 .HasColumnType("bigint(20)");
 
             entity.Property(e => e.CommandChannelId)

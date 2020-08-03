@@ -325,6 +325,15 @@ I will try to answer withing 48 hours
   <data name="SyncRolesCommandVerifySelfFirst" xml:space="preserve">
     <value>You need to verify yourself first!</value>
   </data>
+  <data name="TicketCommand" xml:space="preserve">
+    <value>ticket</value>
+  </data>
+  <data name="TicketCommandDescription" xml:space="preserve">
+    <value />
+  </data>
+  <data name="TicketCommandUsage" xml:space="preserve">
+    <value />
+  </data>
   <data name="Usage" xml:space="preserve">
     <value>Usage</value>
   </data>

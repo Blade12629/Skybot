@@ -626,6 +626,33 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ticket.
+        /// </summary>
+        internal static string TicketCommand {
+            get {
+                return ResourceManager.GetString("TicketCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string TicketCommandDescription {
+            get {
+                return ResourceManager.GetString("TicketCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string TicketCommandUsage {
+            get {
+                return ResourceManager.GetString("TicketCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Usage.
         /// </summary>
         internal static string Usage {

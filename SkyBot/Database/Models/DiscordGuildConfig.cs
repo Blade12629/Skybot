@@ -21,8 +21,11 @@ namespace SkyBot.Database.Models
         public bool VerifiedNameAutoSet { get; set; }
         public long VerifiedRoleId { get; set; }
 
+        public long TicketDiscordChannelId { get; set; }
+
         public DiscordGuildConfig(long guildId, long analyzeChannelId, long commandChannelId, 
-                                  bool verifiedNameAutoSet, long verifiedRoleId, short analyzeWarmupMatches)
+                                  bool verifiedNameAutoSet, long verifiedRoleId, short analyzeWarmupMatches,
+                                  long ticketDiscordChannelId)
         {
             GuildId = guildId;
             AnalyzeChannelId = analyzeChannelId;
@@ -30,6 +33,7 @@ namespace SkyBot.Database.Models
             VerifiedNameAutoSet = verifiedNameAutoSet;
             VerifiedRoleId = verifiedRoleId;
             AnalyzeWarmupMatches = analyzeWarmupMatches;
+            TicketDiscordChannelId = ticketDiscordChannelId;
         }
 
         public DiscordGuildConfig()
