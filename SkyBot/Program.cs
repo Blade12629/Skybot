@@ -107,18 +107,24 @@ namespace SkyBot
             IRC.OnIrcException += (s, e) => Logger.Log("IRC Exception: " + e, LogLevel.Error, member: "IRC");
             IRC.OnUserCommand += (s, e) =>
             {
-                //TODO: enable again after tests
-                return;
+                try
+                {
+                    Logger.Log($"User command from {e.Sender.Nickname.ToString()}: {e.Message.ToString()}", member: "IRC");
 
-                Logger.Log($"User command from {e.Sender.Nickname.ToString()}: {e.Message.ToString()}", member: "IRC");
+                    string msg = e.Message.ToString();
+                    int index = msg.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
 
-                string msg = e.Message.ToString();
-                int index = msg.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
+                    if (index == -1)
+                        return;
 
-                if (index == -1)
-                    return;
-
-                VerificationManager.FinishVerification(msg.Remove(0, index + 1), e.Sender.Nickname.ToString());
+                    VerificationManager.FinishVerification(msg.Remove(0, index + 1), e.Sender.Nickname.ToString());
+                }
+#pragma warning disable CA1031 // Do not catch general exception types
+                catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
+                {
+                    Logger.Log(ex, LogLevel.Error);
+                }
             };
             IRC.OnWelcomeMessageReceived += (s, e) => Logger.Log($"Welcome message received", member: "IRC");
 

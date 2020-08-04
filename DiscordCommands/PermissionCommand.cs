@@ -57,14 +57,14 @@ namespace DiscordCommands
 
                 if (access.HasValue)
                 {
-                    switch(args.AccessLevel)
+                    switch(access.Value)
                     {
                         case AccessLevel.Dev:
                             args.Channel.SendMessageAsync(ResourcesCommands.PermissionCommandInsufficientPermission);
                             return;
 
                         case AccessLevel.Admin:
-                            if (access.Value < AccessLevel.Host)
+                            if (args.AccessLevel < AccessLevel.Host)
                             {
                                 args.Channel.SendMessageAsync(ResourcesCommands.PermissionCommandInsufficientPermission);
                                 return;

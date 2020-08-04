@@ -358,6 +358,14 @@ public class DBContext : DbContext
                 .HasColumnName("verified_role_id")
                 .HasColumnType("bigint(20)");
 
+            entity.Property(e => e.WelcomeMessage)
+                .HasColumnName("welcome_message")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.WelcomeChannel)
+                .HasColumnName("welcome_channel")
+                .HasColumnType("bigint(20)");
+
             entity.Property(e => e.AnalyzeWarmupMatches)
                 .HasColumnName("analyze_warmup_matches")
                 .HasColumnType("smallint(1)");

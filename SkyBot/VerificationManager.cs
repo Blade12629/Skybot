@@ -41,7 +41,7 @@ namespace SkyBot
             c.Verification.Add(ver);
             c.SaveChanges();
 
-            dmChannel.SendMessageAsync($"Started your verification, please send the following code to {Program.IRC.Nick} in osu via pm: {ver.VerificationCode}").Wait();
+            dmChannel.SendMessageAsync($"Started your verification, please send the following to {Program.IRC.Nick} in osu via pm: !verify {ver.VerificationCode}").Wait();
         }
 
         private static string GenerateVerificationCode()
@@ -73,6 +73,51 @@ namespace SkyBot
                 Program.IRC.SendMessage(osuUserName, Resources.FailedFetchOsuApi);
                 return;
             }
+
+            DiscordGuild[] guilds = Program.DiscordHandler.Client.Guilds.Values.Where(g => g.Members.Any(m => m.Id == (ulong)ver.DiscordUserId)).ToArray();
+            for (int i = 0; i < guilds.Length; i++)
+            {
+                DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)guilds[i].Id);
+
+                if (dgc == null)
+                    continue;
+
+                DiscordMember member = guilds[i].GetMemberAsync((ulong)ver.DiscordUserId).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                try
+                {
+                    if (dgc.VerifiedNameAutoSet)
+                    {
+                        string username = SkyBot.Osu.API.V1.OsuApi.GetUserName((int)userJson.UserId).Result;
+
+                        member.ModifyAsync(username, reason: "synchronized roles").Wait();
+                    }
+                }
+#pragma warning disable CA1031 // Do not catch general exception types
+                catch (Exception ex)
+                {
+                    Logger.Log("VERERROR: " + ex, LogLevel.Error);
+                }
+
+                try
+                {
+                    if (dgc.VerifiedRoleId > 0)
+                    {
+                        var drole = guilds[i].GetRole((ulong)dgc.VerifiedRoleId);
+
+                        if (!member.Roles.Contains(drole))
+                            member.GrantRoleAsync(drole, "!syncroles").Wait();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log("VERERROR: " + ex, LogLevel.Error);
+                }
+#pragma warning restore CA1031 // Do not catch general exception types
+            }
+
+
 
             User u = new User(ver.DiscordUserId, userJson.UserId);
             c.Verification.Remove(ver);

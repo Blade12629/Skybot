@@ -23,9 +23,12 @@ namespace SkyBot.Database.Models
 
         public long TicketDiscordChannelId { get; set; }
 
+        public string WelcomeMessage { get; set; }
+        public long WelcomeChannel { get; set; }
+
         public DiscordGuildConfig(long guildId, long analyzeChannelId, long commandChannelId, 
                                   bool verifiedNameAutoSet, long verifiedRoleId, short analyzeWarmupMatches,
-                                  long ticketDiscordChannelId)
+                                  long ticketDiscordChannelId, string welcomeMessage, long welcomeChannel)
         {
             GuildId = guildId;
             AnalyzeChannelId = analyzeChannelId;
@@ -34,6 +37,8 @@ namespace SkyBot.Database.Models
             VerifiedRoleId = verifiedRoleId;
             AnalyzeWarmupMatches = analyzeWarmupMatches;
             TicketDiscordChannelId = ticketDiscordChannelId;
+            WelcomeMessage = welcomeMessage;
+            WelcomeChannel = welcomeChannel;
         }
 
         public DiscordGuildConfig()

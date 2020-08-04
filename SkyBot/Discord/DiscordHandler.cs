@@ -31,6 +31,7 @@ namespace SkyBot.Discord
 
             Client.Ready += e => Task.Run(() => OnClientReady());
             Client.MessageCreated += e => Task.Run(async () => await OnClientMessageCreated(e).ConfigureAwait(false));
+            Client.GuildMemberAdded += e => Task.Run(async () => await OnGuildMemberCreated(e).ConfigureAwait(false));
 
             CommandHandler = new CommandHandler(this, commandPrefix);
         }
@@ -51,6 +52,27 @@ namespace SkyBot.Discord
         public void Start()
         {
             StartAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        private async Task OnGuildMemberCreated(GuildMemberAddEventArgs args)
+        {
+            using DBContext c = new DBContext();
+            DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)args.Guild.Id);
+
+            if (dgc == null || string.IsNullOrEmpty(dgc.WelcomeMessage) || dgc.WelcomeChannel == 0)
+                return;
+            try
+            {
+                string parsedMessage = dgc.WelcomeMessage.Replace("{mention}", args.Member.Mention, StringComparison.CurrentCultureIgnoreCase);
+                var dchannel = args.Guild.GetChannel((ulong)dgc.WelcomeChannel);
+
+                await dchannel.SendMessageAsync(parsedMessage).ConfigureAwait(false);
+                
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex, LogLevel.Error);
+            }
         }
 
         public async Task StopAsync()
