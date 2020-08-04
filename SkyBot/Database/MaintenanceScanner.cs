@@ -58,9 +58,9 @@ namespace SkyBot.Database
             {
                 MaintenanceMessage = null;
                 IsMaintenance = false;
-
-                TryScan();
             }
+
+            TryScan();
         }
 
         public void SetMaintenanceStatus(bool status, string message)
