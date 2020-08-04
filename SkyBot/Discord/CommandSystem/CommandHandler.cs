@@ -157,6 +157,7 @@ namespace SkyBot.Discord.CommandSystem
 
                 command = command.TrimStart(CommandPrefix);
 
+                AccessLevel access = GetAccessLevel(e.Author.Id, e.Guild?.Id ?? 0);
 
                 if (!_commandTypes.TryGetValue(command.ToLower(System.Globalization.CultureInfo.CurrentCulture), out ICommand cmd))
                     return;
@@ -165,7 +166,7 @@ namespace SkyBot.Discord.CommandSystem
                     e.Channel.SendMessageAsync("Command is currently disabled");
                     return;
                 }
-                else if (e.Guild != null)
+                else if (e.Guild != null && access <= AccessLevel.VIP)
                 {
                     using (DBContext c = new DBContext())
                     {
@@ -198,8 +199,6 @@ namespace SkyBot.Discord.CommandSystem
                         }
                         break;
                 }
-
-                AccessLevel access = GetAccessLevel(e.Author.Id, e.Guild?.Id ?? 0);
 
                 if (access < cmd.AccessLevel)
                     return;
