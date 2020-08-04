@@ -141,7 +141,13 @@ namespace SkyBot
             Logger.Log("Loading Discord", LogLevel.Info);
 
             DiscordHandler = new DiscordHandler(SkyBotConfig.DiscordToken);
-            DiscordHandler.Client.Ready += s => Task.Run(() => LoadMaintenanceScanner());
+            DiscordHandler.Client.Ready += s => Task.Run(() =>
+            {
+                if (MaintenanceScanner == null)
+                    LoadMaintenanceScanner();
+                else
+                    MaintenanceScanner.ResetStatus();
+            });
             await DiscordHandler.StartAsync().ConfigureAwait(false);
 
             Logger.Log("Loaded Discord", LogLevel.Info);

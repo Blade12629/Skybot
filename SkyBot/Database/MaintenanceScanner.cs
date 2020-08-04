@@ -52,6 +52,17 @@ namespace SkyBot.Database
             }
         }
 
+        public void ResetStatus()
+        {
+            lock(SyncRoot)
+            {
+                MaintenanceMessage = null;
+                IsMaintenance = false;
+
+                TryScan();
+            }
+        }
+
         public void SetMaintenanceStatus(bool status, string message)
         {
             lock(SyncRoot)

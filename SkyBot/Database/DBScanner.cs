@@ -37,6 +37,11 @@ namespace SkyBot.Database
 
         private void OnScanTick(object sender, ElapsedEventArgs e)
         {
+            TryScan();
+        }
+
+        protected virtual void TryScan()
+        {
             using DBContext c = new DBContext();
             DbSet<SET> set = c.Set<SET>();
 
