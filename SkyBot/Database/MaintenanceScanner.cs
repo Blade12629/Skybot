@@ -17,7 +17,7 @@ namespace SkyBot.Database
 
         public MaintenanceScanner(TimeSpan scanDelay) : base(scanDelay)
         {
-
+            MaintenanceMessage = "";
         }
 
         protected override void OnScan(DbSet<ByteTable> set, DbContext c)
@@ -56,7 +56,7 @@ namespace SkyBot.Database
         {
             lock(SyncRoot)
             {
-                MaintenanceMessage = null;
+                MaintenanceMessage = "";
                 IsMaintenance = false;
             }
 
@@ -67,6 +67,9 @@ namespace SkyBot.Database
         {
             lock(SyncRoot)
             {
+                if (message == null)
+                    message = "";
+
                 using DBContext c = new DBContext();
                 ByteTable bt = c.ByteTable.FirstOrDefault(bt => bt.Identifier.Equals(_TABLE_KEY, StringComparison.CurrentCulture));
 
