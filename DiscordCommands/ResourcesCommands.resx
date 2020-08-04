@@ -120,31 +120,31 @@
   <data name="AccessLevelCommand" xml:space="preserve">
     <value>accesslevel</value>
   </data>
-  <data name="AccessLevelDescription" xml:space="preserve">
+  <data name="AccessLevelCommandDescription" xml:space="preserve">
     <value>Shows or sets your accesslevel</value>
   </data>
-  <data name="AccessLevelDevOnlyAddHost" xml:space="preserve">
+  <data name="AccessLevelCommandDevOnlyAddHost" xml:space="preserve">
     <value>You need to be atleast Dev to set someone to host!</value>
   </data>
-  <data name="AccessLevelHostOnlyAddAdmins" xml:space="preserve">
+  <data name="AccessLevelCommandHostOnlyAddAdmins" xml:space="preserve">
     <value>Only the host can add more admins!</value>
   </data>
-  <data name="AccessLevelSetDevPermission" xml:space="preserve">
+  <data name="AccessLevelCommandSetDevPermission" xml:space="preserve">
     <value>Dev permission can only be set via db</value>
   </data>
-  <data name="AccessLevelSetPermission" xml:space="preserve">
+  <data name="AccessLevelCommandSetPermission" xml:space="preserve">
     <value>Set {0} from {1} to {2}</value>
   </data>
-  <data name="AccessLevelUsage" xml:space="preserve">
+  <data name="AccessLevelCommandUsage" xml:space="preserve">
     <value>!accesslevel
 !accesslevel &lt;userId&gt;\n
 Admin:\n
 !accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;</value>
   </data>
-  <data name="AccessLevelUser" xml:space="preserve">
+  <data name="AccessLevelCommandUser" xml:space="preserve">
     <value>{0} your access level is {1}</value>
   </data>
-  <data name="AccessLevelUserOther" xml:space="preserve">
+  <data name="AccessLevelCommandUserOther" xml:space="preserve">
     <value>Access level of user {0} is {1}</value>
   </data>
   <data name="BWSCommand" xml:space="preserve">
@@ -168,8 +168,14 @@ Admin:\n
   <data name="Command" xml:space="preserve">
     <value>Command</value>
   </data>
+  <data name="CommandDescription" xml:space="preserve">
+    <value>Description</value>
+  </data>
   <data name="CommandInfo" xml:space="preserve">
     <value>Command Info</value>
+  </data>
+  <data name="CommandIsDisabled" xml:space="preserve">
+    <value>Is Disabled</value>
   </data>
   <data name="CommandList" xml:space="preserve">
     <value>Command List</value>
@@ -177,27 +183,30 @@ Admin:\n
   <data name="CommandType" xml:space="preserve">
     <value>Command Type</value>
   </data>
-  <data name="Description" xml:space="preserve">
-    <value>Description</value>
+  <data name="CommandUsage" xml:space="preserve">
+    <value>Usage</value>
   </data>
   <data name="HelpCommand" xml:space="preserve">
     <value>help</value>
   </data>
-  <data name="HelpDescription" xml:space="preserve">
+  <data name="HelpCommandDescription" xml:space="preserve">
     <value>Displays a command list or infos about a specific command</value>
   </data>
-  <data name="HelpFooter" xml:space="preserve">
+  <data name="HelpCommandFooter" xml:space="preserve">
     <value>&lt; &gt; = required
 [ ] = optional
 / = choose between
 !! !! = atleast one marked parameter required</value>
   </data>
-  <data name="HelpUsage" xml:space="preserve">
+  <data name="HelpCommandNotice" xml:space="preserve">
+    <value>Notice</value>
+  </data>
+  <data name="HelpCommandPage" xml:space="preserve">
+    <value>Page</value>
+  </data>
+  <data name="HelpCommandUsage" xml:space="preserve">
     <value>!help [page]
 !help &lt;command&gt;</value>
-  </data>
-  <data name="IsDisabled" xml:space="preserve">
-    <value>Is Disabled</value>
   </data>
   <data name="MaintenanceCommand" xml:space="preserve">
     <value>maintenance</value>
@@ -213,12 +222,6 @@ Admin:\n
   </data>
   <data name="MaintenanceCommandUsage" xml:space="preserve">
     <value>!maintenance &lt;status&gt; &lt;message&gt;</value>
-  </data>
-  <data name="Notice" xml:space="preserve">
-    <value>Notice</value>
-  </data>
-  <data name="Page" xml:space="preserve">
-    <value>Page</value>
   </data>
   <data name="PermissionCommand" xml:space="preserve">
     <value>permission</value>
@@ -333,9 +336,6 @@ I will try to answer withing 48 hours
   </data>
   <data name="TicketCommandUsage" xml:space="preserve">
     <value />
-  </data>
-  <data name="Usage" xml:space="preserve">
-    <value>Usage</value>
   </data>
   <data name="VerifyCommand" xml:space="preserve">
     <value>verify</value>

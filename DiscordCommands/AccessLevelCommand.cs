@@ -17,15 +17,15 @@ namespace DiscordCommands
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => ResourcesCommands.AccessLevelDescription;
+        public string Description => ResourcesCommands.AccessLevelCommandDescription;
 
-        public string Usage => ResourcesCommands.AccessLevelUsage;
+        public string Usage => ResourcesCommands.AccessLevelCommandUsage;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
             if (args.Parameters.Count == 0)
             {
-                args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelUser, args.User.Mention, Program.DiscordHandler.CommandHandler.GetAccessLevel(args.User, args.Guild)));
+                args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelCommandUser, args.User.Mention, Program.DiscordHandler.CommandHandler.GetAccessLevel(args.User, args.Guild)));
                 return;
             }
 
@@ -40,7 +40,7 @@ namespace DiscordCommands
 
             if (args.Parameters.Count == 1)
             {
-                args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelUserOther, duser.Username, access));
+                args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelCommandUserOther, duser.Username, access));
                 return;
             }
             else if (args.AccessLevel < AccessLevel.Admin)
@@ -64,13 +64,13 @@ namespace DiscordCommands
             switch(newAccess)
             {
                 case AccessLevel.Dev:
-                    args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelSetDevPermission);
+                    args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelCommandSetDevPermission);
                     return;
 
                 case AccessLevel.Host:
                     if (args.AccessLevel < AccessLevel.Dev)
                     {
-                        args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelDevOnlyAddHost);
+                        args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelCommandDevOnlyAddHost);
                         return;
                     }
                     break;
@@ -78,7 +78,7 @@ namespace DiscordCommands
                 case AccessLevel.Admin:
                     if (args.AccessLevel < AccessLevel.Host)
                     {
-                        args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelHostOnlyAddAdmins);
+                        args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelCommandHostOnlyAddAdmins);
                         return;
                     }
                     break;
@@ -89,7 +89,7 @@ namespace DiscordCommands
 
             CommandHandler.SetAccessLevel(uid, args.Guild.Id, newAccess);
 
-            args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelSetPermission, uid, access, newAccess));
+            args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.AccessLevelCommandSetPermission, uid, access, newAccess));
         }
     }
 }

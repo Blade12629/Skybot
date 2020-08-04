@@ -17,9 +17,9 @@ namespace DiscordCommands
         public AccessLevel AccessLevel => AccessLevel.User;
         public CommandType CommandType => CommandType.None;
 
-        public string Description => ResourcesCommands.HelpDescription;
+        public string Description => ResourcesCommands.HelpCommandDescription;
 
-        public string Usage => ResourcesCommands.HelpUsage;
+        public string Usage => ResourcesCommands.HelpCommandUsage;
 
 
         public HelpCommand()
@@ -65,7 +65,7 @@ namespace DiscordCommands
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
                 Title = ResourcesCommands.CommandList,
-                Description = $"{ResourcesCommands.Page}: {page + 1}/{totalPages}",
+                Description = $"{ResourcesCommands.HelpCommandPage}: {page + 1}/{totalPages}",
                 Timestamp = DateTime.UtcNow
             };
 
@@ -106,7 +106,7 @@ namespace DiscordCommands
 
             builder.AddField(ResourcesCommands.Command, cmdBuilder.ToString(), true);
             builder.AddField(Resources.Access, accessBuilder.ToString(), true);
-            builder.AddField(ResourcesCommands.Description, descriptionBuilder.ToString(), true);
+            builder.AddField(ResourcesCommands.CommandDescription, descriptionBuilder.ToString(), true);
 
             args.Channel.SendMessageAsync(embed: builder.Build()).Wait();
         }
@@ -133,18 +133,18 @@ namespace DiscordCommands
                 Timestamp = DateTime.UtcNow,
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
-                    Text = ResourcesCommands.HelpFooter
+                    Text = ResourcesCommands.HelpCommandFooter
                 }
             };
 
             if (!string.IsNullOrEmpty(notice))
-                builder = builder.AddField($"**{ResourcesCommands.Notice}**", notice);
+                builder = builder.AddField($"**{ResourcesCommands.HelpCommandNotice}**", notice);
 
             builder = builder.AddField(Resources.AccessLevel, command.AccessLevel.ToString())
-                             .AddField(ResourcesCommands.Description, command.Description)
-                             .AddField(ResourcesCommands.Usage, command.Usage)
+                             .AddField(ResourcesCommands.CommandDescription, command.Description)
+                             .AddField(ResourcesCommands.CommandUsage, command.Usage)
                              .AddField(ResourcesCommands.CommandType, command.CommandType.ToString())
-                             .AddField(ResourcesCommands.IsDisabled, command.IsDisabled ? Resources.True : Resources.False);
+                             .AddField(ResourcesCommands.CommandIsDisabled, command.IsDisabled ? Resources.True : Resources.False);
 
 
             channel.SendMessageAsync(embed: builder.Build()).Wait();
