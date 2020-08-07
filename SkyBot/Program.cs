@@ -124,6 +124,7 @@ namespace SkyBot
 #pragma warning restore CA1031 // Do not catch general exception types
                 {
                     Logger.Log(ex, LogLevel.Error);
+                    IRC.SendMessage(e.Sender.Nickname, "Something went wrong executing this command, if this keeps happening contact ??????#0284 via discord");
                 }
             };
             IRC.OnWelcomeMessageReceived += (s, e) => Logger.Log($"Welcome message received", member: "IRC");

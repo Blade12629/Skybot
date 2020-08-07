@@ -581,56 +581,56 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to syncroles.
+        ///   Looks up a localized string similar to sync.
         /// </summary>
-        internal static string SyncRolesCommand {
+        internal static string SyncCommand {
             get {
-                return ResourceManager.GetString("SyncRolesCommand", resourceCulture);
+                return ResourceManager.GetString("SyncCommand", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Please setup a config first.
         /// </summary>
-        internal static string SyncRolesCommandConfigNotSetup {
+        internal static string SyncCommandConfigNotSetup {
             get {
-                return ResourceManager.GetString("SyncRolesCommandConfigNotSetup", resourceCulture);
+                return ResourceManager.GetString("SyncCommandConfigNotSetup", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Synchronizes you.
         /// </summary>
-        internal static string SyncRolesCommandDescription {
+        internal static string SyncCommandDescription {
             get {
-                return ResourceManager.GetString("SyncRolesCommandDescription", resourceCulture);
+                return ResourceManager.GetString("SyncCommandDescription", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Synchronized .
         /// </summary>
-        internal static string SyncRolesCommandSyncSuccess {
+        internal static string SyncCommandSyncSuccess {
             get {
-                return ResourceManager.GetString("SyncRolesCommandSyncSuccess", resourceCulture);
+                return ResourceManager.GetString("SyncCommandSyncSuccess", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !syncroles.
+        ///   Looks up a localized string similar to !sync.
         /// </summary>
-        internal static string SyncRolesCommandUsage {
+        internal static string SyncCommandUsage {
             get {
-                return ResourceManager.GetString("SyncRolesCommandUsage", resourceCulture);
+                return ResourceManager.GetString("SyncCommandUsage", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to You need to verify yourself first!.
         /// </summary>
-        internal static string SyncRolesCommandVerifySelfFirst {
+        internal static string SyncCommandVerifySelfFirst {
             get {
-                return ResourceManager.GetString("SyncRolesCommandVerifySelfFirst", resourceCulture);
+                return ResourceManager.GetString("SyncCommandVerifySelfFirst", resourceCulture);
             }
         }
         
@@ -644,7 +644,7 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Used to write or manage tickets.
         /// </summary>
         internal static string TicketCommandDescription {
             get {
@@ -653,7 +653,17 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to !ticket ticket text
+        ///
+        ///
+        ///Moderator:
+        ///!ticket -get s/m(s/m, Single or Multisearch) page(value, Page Number) -id(+value, Ticket Id) -uid(+value, Discord User Id) -tag(+value, Ticket Tag) -status(+value, Ticket Status) -priority(+value, Ticket Priority) -sbn(value, Sort By Newest) -sbo(value, Sort By Oldest)
+        ///!ticket -set id(value, Ticket Id) -status(+value, Ticket status) -priority(+value, Ticket priority) -tag(+value, ticket tag)
+        ///
+        ///
+        ///Note:
+        ///+value = identifier value
+        ///value = valueItself.
         /// </summary>
         internal static string TicketCommandUsage {
             get {
