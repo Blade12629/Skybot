@@ -18,7 +18,10 @@ namespace DiscordCommands
 
         public string Command => "embed";
 
+        public AccessLevel AccessLevel => AccessLevel.Admin;
+
         public CommandType CommandType => CommandType.Public;
+
         public string Description => "Create, edit or reverse embeds";
 
         public string Usage =>  "```" + Environment.NewLine +
@@ -27,7 +30,6 @@ namespace DiscordCommands
                                 "!embed reverse channelId messageId" + Environment.NewLine +
                                 "```";
 
-        AccessLevel ICommand.AccessLevel => throw new NotImplementedException();
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
