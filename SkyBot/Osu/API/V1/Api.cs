@@ -30,7 +30,7 @@ namespace SkyBot.Osu.API.V1
         {
             return await Task.Run(async () =>
             {
-                JsonDataTransmitter<T> jdt = new JsonDataTransmitter<T>();
+                DataTransmitter<T> dt = new DataTransmitter<T>();
 
                 bool result = _qrl.Increment(new Action(() =>
                 {
@@ -41,31 +41,22 @@ namespace SkyBot.Osu.API.V1
                         jsonInput = webClient.DownloadString(url);
                     }
 
-                    jdt.Value = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(jsonInput);
+                    dt.Value = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(jsonInput);
                 }),
                     new Action<object>(o =>
                     {
-                        JsonDataTransmitter<T> jdt = (JsonDataTransmitter<T>)o;
-                        jdt.Status = true;
+                        DataTransmitter<T> dt = (DataTransmitter<T>)o;
 
                     }),
-                    jdt);
+                    dt);
 
-                while (jdt.Value == null)
+                while (dt.Value == null)
                     await Task.Delay(5).ConfigureAwait(false);
 
-                return jdt.Value;
+                return dt.Value;
             }).ConfigureAwait(false);
         }
 
-        private class JsonDataTransmitter<T>
-        {
-            //TODO: move JsonDataTransmitter<T> class to own file, remove Status and just leave T, 
-            //since we already can do anything with T like (true, value) or new object[] { value }
-            public bool Status { get; set; }
-            public T Value { get; set; }
-        }
-        
         /// <summary>
         /// Gets a user from the api
         /// </summary>

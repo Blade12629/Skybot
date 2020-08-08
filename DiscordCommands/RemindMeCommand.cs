@@ -9,7 +9,6 @@ using System.Timers;
 
 namespace DiscordCommands
 {
-    //TODO: localize RemindMeCommand
     public class RemindMeCommand : ICommand
     {
         public bool IsDisabled { get; set; }
