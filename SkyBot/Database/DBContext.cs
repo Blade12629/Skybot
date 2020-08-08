@@ -26,6 +26,7 @@ public class DBContext : DbContext
     public virtual DbSet<WarmupBeatmap> WarmupBeatmaps { get; set; }
     public virtual DbSet<Reminder> Reminder { get; set; }
     public virtual DbSet<Ticket> Ticket { get; set; }
+    public virtual DbSet<Mute> Mute { get; set; }
 
     public DBContext()
     {
@@ -53,6 +54,35 @@ public class DBContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Mute>(entity =>
+        {
+            entity.ToTable("mute");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.StartTime)
+                .HasColumnName("start_time")
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.DurationM)
+                .HasColumnName("duration_m")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Reason)
+                .HasColumnName("reason")
+                .HasColumnType("longtext");
+        });
+            
         modelBuilder.Entity<Ticket>(entity =>
         {
             entity.ToTable("ticket");
@@ -357,7 +387,7 @@ public class DBContext : DbContext
             entity.Property(e => e.VerifiedRoleId)
                 .HasColumnName("verified_role_id")
                 .HasColumnType("bigint(20)");
-
+            
             entity.Property(e => e.WelcomeMessage)
                 .HasColumnName("welcome_message")
                 .HasColumnType("longtext");
@@ -369,6 +399,10 @@ public class DBContext : DbContext
             entity.Property(e => e.AnalyzeWarmupMatches)
                 .HasColumnName("analyze_warmup_matches")
                 .HasColumnType("smallint(1)");
+
+            entity.Property(e => e.MutedRoleId)
+                .HasColumnName("muted_role_id")
+                .HasColumnType("bigint(20)");
 
         });
 

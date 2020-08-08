@@ -26,9 +26,12 @@ namespace SkyBot.Database.Models
         public string WelcomeMessage { get; set; }
         public long WelcomeChannel { get; set; }
 
+        public long MutedRoleId { get; set; }
+
         public DiscordGuildConfig(long guildId, long analyzeChannelId, long commandChannelId, 
                                   bool verifiedNameAutoSet, long verifiedRoleId, short analyzeWarmupMatches,
-                                  long ticketDiscordChannelId, string welcomeMessage, long welcomeChannel)
+                                  long ticketDiscordChannelId, string welcomeMessage, long welcomeChannel,
+                                  long mutedRoleId)
         {
             GuildId = guildId;
             AnalyzeChannelId = analyzeChannelId;
@@ -39,6 +42,7 @@ namespace SkyBot.Database.Models
             TicketDiscordChannelId = ticketDiscordChannelId;
             WelcomeMessage = welcomeMessage;
             WelcomeChannel = welcomeChannel;
+            MutedRoleId = mutedRoleId;
         }
 
         public DiscordGuildConfig()
