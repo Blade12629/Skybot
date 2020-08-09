@@ -90,51 +90,5 @@ namespace DiscordCommands
                     break;
             }
         }
-
-        private void BindPermission(CommandEventArg args, ulong roleId, AccessLevel accessLevel)
-        {
-            using DBContext c = new DBContext();
-
-            DiscordRoleBind drb = c.DiscordRoleBind.FirstOrDefault(drb => drb.GuildId == (long)args.Guild.Id &&
-                                                                          drb.RoleId == (long)roleId &&
-                                                                          drb.AccessLevel == (short)accessLevel);
-
-            if (drb != null)
-            {
-                args.Channel.SendMessageAsync(ResourcesCommands.PermissionCommandBindAlreadyExists);
-                return;
-            }
-
-            drb = new DiscordRoleBind((long)args.Guild.Id, (long)roleId, (short)accessLevel);
-
-            c.DiscordRoleBind.Add(drb);
-            c.SaveChanges();
-
-            args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.PermissionCommandBinded, accessLevel, roleId));
-        }
-
-        private void UnbindPermission(CommandEventArg args, ulong roleId, AccessLevel? accessLevel)
-        {
-            using DBContext c = new DBContext();
-
-            List<DiscordRoleBind> drb = c.DiscordRoleBind.Where(drb => drb.GuildId == (long)args.Guild.Id &&
-                                                                       drb.RoleId == (long)roleId).ToList();
-
-            if (accessLevel.HasValue)
-                drb = drb.Where(d => d.AccessLevel == (short)accessLevel.Value).ToList();
-
-            if (drb.Count == 0)
-            {
-                args.Channel.SendMessageAsync(ResourcesCommands.PermissionCommandNoPermissionsFound);
-                return;
-            }
-
-            for (int i = 0; i < drb.Count; i++)
-                c.DiscordRoleBind.Remove(drb[i]);
-
-            c.SaveChanges();
-
-            args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.PermissionCommandUnbinded, drb.Count, roleId));
-        }
     }
 }
