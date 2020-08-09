@@ -8,6 +8,8 @@ using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 
+[assembly: CLSCompliant(false)]
+
 namespace SkyBot
 {
     public static class Program

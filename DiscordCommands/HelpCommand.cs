@@ -1,10 +1,13 @@
 ﻿using DSharpPlus.Entities;
 using SkyBot;
+using SkyBot.Discord;
 using SkyBot.Discord.CommandSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
+[assembly: CLSCompliant(false)]
 
 namespace DiscordCommands
 {
@@ -54,59 +57,31 @@ namespace DiscordCommands
 
         private void ListCommands(CommandHandler handler, CommandEventArg args, int page = 1)
         {
-            const int elementsPerPage = 10;
-
             List<ICommand> commands = handler.Commands.Values.ToList();
-            page--;
-
-            double dtotalPages = (double)commands.Count / (double)elementsPerPage;
-            int totalPages = (int)(dtotalPages > (int)dtotalPages ? (int)dtotalPages + 1 : dtotalPages);
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
                 Title = ResourcesCommands.CommandList,
-                Description = $"{ResourcesCommands.HelpCommandPage}: {page + 1}/{totalPages}",
                 Timestamp = DateTime.UtcNow
             };
 
-            StringBuilder cmdBuilder = new StringBuilder();
-            StringBuilder descriptionBuilder = new StringBuilder();
-            StringBuilder accessBuilder = new StringBuilder();
+            EmbedPageBuilder epb = new EmbedPageBuilder(3);
+            epb.AddColumn(ResourcesCommands.Command);
+            epb.AddColumn(Resources.Access);
+            epb.AddColumn(ResourcesCommands.CommandDescription);
 
-            int end = elementsPerPage * (page + 1);
-
-            for (int i = elementsPerPage * page; i < end && i < commands.Count; i++)
+            for (int i = 0; i < commands.Count; i++)
             {
-                if (args.AccessLevel < commands[i].AccessLevel)
-                {
-                    end++;
-                    continue;
-                }
-
-                cmdBuilder.AppendLine(commands[i].Command);
-                descriptionBuilder.AppendLine(commands[i].Description);
-                accessBuilder.AppendLine(commands[i].AccessLevel.ToString());
-
-                if (commands[i].Description.Length > 104)
-                {
-                    for (int x = 0; x < 2; x++)
-                    {
-                        cmdBuilder.AppendLine();
-                        accessBuilder.AppendLine();
-                    }
-                }
-                else if (commands[i].Description.Length > 52)
-                {
-                    cmdBuilder.AppendLine();
-                    accessBuilder.AppendLine();
-                }
+                epb.Add(ResourcesCommands.Command, commands[i].Command);
+                epb.Add(Resources.Access, commands[i].AccessLevel.ToString());
+                epb.Add(ResourcesCommands.CommandDescription, commands[i].Description);
             }
 
-            builder.AddField(ResourcesCommands.Command, cmdBuilder.ToString(), true);
-            builder.AddField(Resources.Access, accessBuilder.ToString(), true);
-            builder.AddField(ResourcesCommands.CommandDescription, descriptionBuilder.ToString(), true);
+            DiscordEmbed embed = epb.BuildPage(builder, page);
 
-            args.Channel.SendMessageAsync(embed: builder.Build()).Wait();
+            args.Channel.SendMessageAsync(embed: embed).Wait();
+
+            return;
         }
 
 
