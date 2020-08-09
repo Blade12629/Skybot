@@ -342,6 +342,10 @@ namespace SkyBot.Discord.CommandSystem
             return GetAccessLevel(user.Id, guild?.Id ?? 0);
         }
 
+        /// <summary>
+        /// Binds an <see cref="AccessLevel"/> to a <see cref="DiscordRole"/>
+        /// </summary>
+        /// <returns>Binded/Already binded true otherwise false</returns>
         public static bool BindPermssion(DiscordGuild guild, ulong roleId, AccessLevel access)
         {
             if (guild == null)
@@ -365,6 +369,11 @@ namespace SkyBot.Discord.CommandSystem
             return true;
         }
 
+        /// <summary>
+        /// Unbinds an/all <see cref="AccessLevel"/> from a <see cref="DiscordRole"/>
+        /// </summary>
+        /// <param name="access">Leave empty to unbind all permissions from a role</param>
+        /// <returns>Binded/Already binded true otherwise false</returns>
         public static bool UnbindPermission(DiscordGuild guild, ulong roleId, AccessLevel? access = null)
         {
             if (guild == null)

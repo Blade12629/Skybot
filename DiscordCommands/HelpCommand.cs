@@ -87,20 +87,18 @@ namespace DiscordCommands
                 descriptionBuilder.AppendLine(commands[i].Description);
                 accessBuilder.AppendLine(commands[i].AccessLevel.ToString());
 
-                if (commands[i].Description.Length > 114)
+                if (commands[i].Description.Length > 104)
                 {
                     for (int x = 0; x < 2; x++)
                     {
                         cmdBuilder.AppendLine();
                         accessBuilder.AppendLine();
-                        descriptionBuilder.AppendLine();
                     }
                 }
-                else if (commands[i].Description.Length > 57)
+                else if (commands[i].Description.Length > 52)
                 {
                     cmdBuilder.AppendLine();
                     accessBuilder.AppendLine();
-                    descriptionBuilder.AppendLine();
                 }
             }
 
