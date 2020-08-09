@@ -82,11 +82,11 @@ namespace DiscordCommands
                         return;
                     }
 
-                    BindPermission(args, roleId, access.Value);
+                    CommandHandler.BindPermssion(args.Guild, roleId, access.Value);
                     break;
 
                 case "unbind":
-                    UnbindPermission(args, roleId, access);
+                    CommandHandler.UnbindPermission(args.Guild, roleId, access);
                     break;
             }
         }

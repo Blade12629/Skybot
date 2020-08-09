@@ -341,5 +341,51 @@ namespace SkyBot.Discord.CommandSystem
 
             return GetAccessLevel(user.Id, guild?.Id ?? 0);
         }
+
+        public static bool BindPermssion(DiscordGuild guild, ulong roleId, AccessLevel access)
+        {
+            if (guild == null)
+                throw new ArgumentNullException(nameof(guild));
+            else if (roleId == 0)
+                throw new ArgumentOutOfRangeException(nameof(roleId));
+
+            using DBContext c = new DBContext();
+            DiscordRoleBind drb = c.DiscordRoleBind.FirstOrDefault(drb => drb.GuildId == (long)guild.Id &&
+                                                                          drb.RoleId == (long)roleId &&
+                                                                          drb.AccessLevel == (short)access);
+
+            if (drb != null)
+                return true;
+
+            drb = new DiscordRoleBind((long)guild.Id, (long)roleId, (short)access);
+
+            c.DiscordRoleBind.Add(drb);
+            c.SaveChanges();
+
+            return true;
+        }
+
+        public static bool UnbindPermission(DiscordGuild guild, ulong roleId, AccessLevel? access = null)
+        {
+            if (guild == null)
+                throw new ArgumentNullException(nameof(guild));
+            else if (roleId == 0)
+                throw new ArgumentOutOfRangeException(nameof(roleId));
+
+            using DBContext c = new DBContext();
+            List<DiscordRoleBind> drb = c.DiscordRoleBind.Where(drb => drb.GuildId == (long)guild.Id &&
+                                                                       drb.RoleId == (long)roleId).ToList();
+
+            if (access.HasValue)
+                drb = drb.Where(d => d.AccessLevel == (short)access.Value).ToList();
+
+            if (drb.Count == 0)
+                return false;
+
+            c.DiscordRoleBind.RemoveRange(drb);
+
+            c.SaveChanges();
+            return true;
+        }
     }
 }
