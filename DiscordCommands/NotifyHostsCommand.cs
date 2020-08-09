@@ -25,13 +25,8 @@ namespace DiscordCommands
             if (args.Parameters.Count == 0)
                 return;
 
-            StringBuilder message = new StringBuilder(args.Parameters[0]);
-
-            for (int i = 1; i < args.Parameters.Count; i++)
-                message.Append(' ' + args.Parameters[i]);
-
             foreach(var guild in Program.DiscordHandler.Client.Guilds)
-                guild.Value.Owner.SendMessageAsync(message.ToString()).Wait();
+                guild.Value.Owner.SendMessageAsync(args.ParameterString).Wait();
         }
     }
 }

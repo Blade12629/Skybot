@@ -83,7 +83,9 @@ namespace DiscordCommands
             c.SaveChanges();
 
             }
+#pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
             {
                 Logger.Log(ex, LogLevel.Error);
             }
@@ -98,7 +100,7 @@ namespace DiscordCommands
             }
 
             using DBContext c = new DBContext();
-            DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)args.Guild.Id);
+            DiscordGuildConfig dgc = args.Config;
 
             if (dgc == null || dgc.MutedRoleId == 0)
             {
@@ -171,7 +173,7 @@ namespace DiscordCommands
             for (int i = 3; i < args.Parameters.Count; i++)
                 reasonBuilder.Append(" " + args.Parameters[i]);
 
-            m = new Mute((long)uid, (long)args.Guild.Id, DateTime.UtcNow, durationM, reasonBuilder.ToString());
+            m = new Mute((long)uid, (long)args.Guild.Id, DateTime.UtcNow, durationM, args.ParameterString.Remove(0, args.Parameters[0].Length + args.Parameters[1].Length + 2));
 
             member.GrantRoleAsync(drole, $"muted by {args.User.Username} for {durationM} minutes, reason: {m.Reason}");
 

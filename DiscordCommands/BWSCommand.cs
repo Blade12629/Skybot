@@ -35,18 +35,18 @@ namespace DiscordCommands
                 return;
             }
 
-            if (!int.TryParse(args.Parameters[1], out int badge))
+            if (!int.TryParse(args.Parameters[1], out int badgeCount))
             {
                 HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandFailedParseBadgeCount, args.Parameters[1]));
                 return;
             }
 
-            args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandResult, args.User.Mention, CalculateBWS(rank, badge)));
+            args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandResult, args.User.Mention, CalculateBWS(rank, badgeCount)));
         }
 
-        private double CalculateBWS(int rank, int badges)
+        private double CalculateBWS(int rank, int badgeCount)
         {
-            return Math.Round(Math.Pow(rank, Math.Pow(0.9921, badges * (badges + 1) / 2)), 4, MidpointRounding.AwayFromZero);
+            return Math.Round(Math.Pow(rank, Math.Pow(0.9921, badgeCount * (badgeCount + 1) / 2)), 4, MidpointRounding.AwayFromZero);
         }
     }
 }

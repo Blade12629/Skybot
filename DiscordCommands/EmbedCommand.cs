@@ -47,16 +47,11 @@ namespace DiscordCommands
                     return;
                 }
 
-                StringBuilder sbuilder = new StringBuilder(args.Parameters[0]);
-
-                for (int i = 1; i < args.Parameters.Count; i++)
-                    sbuilder.Append(" " + args.Parameters[i]);
-
-                string afterCMD = sbuilder.ToString();
+                string afterCMD = args.ParameterString;
 
                 string download = null;
 
-                int urlStart = afterCMD.IndexOf("-url:");
+                int urlStart = afterCMD.IndexOf("-url:", StringComparison.CurrentCultureIgnoreCase);
                 string urlString = null;
                 if (urlStart > 0)
                 {

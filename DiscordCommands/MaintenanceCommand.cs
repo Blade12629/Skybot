@@ -34,13 +34,12 @@ namespace DiscordCommands
                 return;
             }
 
-            StringBuilder message = new StringBuilder(args.Parameters[1]);
+            string message = args.ParameterString.Remove(0, args.Parameters[0].Length + 1);
 
-            for (int i = 2; i < args.Parameters.Count; i++)
-                message.Append(' ' + args.Parameters[i]);
-
-            Program.MaintenanceScanner.SetMaintenanceStatus(status, message.ToString());
-            args.Channel.SendMessageAsync(string.Format(System.Globalization.CultureInfo.CurrentCulture, ResourcesCommands.MaintenanceCommandSetStatus, status, message.ToString()));
+            Program.MaintenanceScanner.SetMaintenanceStatus(status, message);
+            args.Channel.SendMessageAsync(string.Format(System.Globalization.CultureInfo.CurrentCulture, 
+                                                        ResourcesCommands.MaintenanceCommandSetStatus, status, 
+                                                        message));
         }
     }
 }

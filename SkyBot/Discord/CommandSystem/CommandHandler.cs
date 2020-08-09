@@ -158,6 +158,7 @@ namespace SkyBot.Discord.CommandSystem
                 command = command.TrimStart(CommandPrefix);
 
                 AccessLevel access = GetAccessLevel(e.Author.Id, e.Guild?.Id ?? 0);
+                DiscordGuildConfig config = null;
 
                 if (!_commandTypes.TryGetValue(command.ToLower(System.Globalization.CultureInfo.CurrentCulture), out ICommand cmd))
                     return;
@@ -170,9 +171,9 @@ namespace SkyBot.Discord.CommandSystem
                 {
                     using (DBContext c = new DBContext())
                     {
-                        DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
+                        config = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
 
-                        if (dgc != null && dgc.CommandChannelId > 0 && dgc.CommandChannelId != (long)e.Channel.Id)
+                        if (config != null && config.CommandChannelId > 0 && config.CommandChannelId != (long)e.Channel.Id)
                             return;
                     }
                 }
@@ -206,8 +207,20 @@ namespace SkyBot.Discord.CommandSystem
                 if (parameters.Count > 0)
                     parameters.RemoveAt(0);
 
-                CommandEventArg arg = new CommandEventArg(e.Guild, e.Channel, e.Author, (e.Guild == null ? null : e.Guild.GetMemberAsync(e.Author.Id).Result),
-                                                          e.Message, access, parameters);
+                string afterCmd = e.Message.Content;
+
+                if (afterCmd.Length > cmd.Command.Length + 1)
+                    afterCmd = afterCmd.Remove(0, cmd.Command.Length + 2);
+                else
+                    afterCmd = string.Empty;
+
+                DiscordMember member = null;
+                if (e.Guild != null)
+                    member = e.Guild.GetMemberAsync(e.Author.Id).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                CommandEventArg arg = new CommandEventArg(e.Guild, e.Channel, e.Author, member,
+                                                          e.Message, access, parameters, afterCmd, 
+                                                          config);
 
                 ThreadPool.QueueUserWorkItem(new WaitCallback(o =>
                 {

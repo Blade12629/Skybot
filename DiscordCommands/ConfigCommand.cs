@@ -67,11 +67,6 @@ namespace DiscordCommands
 
         private void List(CommandEventArg args, DBContext c)
         {
-            DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(c => c.GuildId == (long)args.Guild.Id);
-
-            if (dgc == null)
-                dgc = new DiscordGuildConfig();
-
             StringBuilder response = new StringBuilder();
 
             foreach (var key in DiscordGuildConfig.GetKeys())
@@ -82,7 +77,7 @@ namespace DiscordCommands
 
         private void Set(CommandEventArg args, DBContext c)
         {
-            DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(c => c.GuildId == (long)args.Guild.Id);
+            DiscordGuildConfig dgc = args.Config;
 
             if (dgc == null)
             {
@@ -106,7 +101,7 @@ namespace DiscordCommands
 
         private void Get(CommandEventArg args, DBContext c)
         {
-            DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(c => c.GuildId == (long)args.Guild.Id);
+            DiscordGuildConfig dgc = args.Config;
 
             if (dgc == null)
                 dgc = new DiscordGuildConfig();

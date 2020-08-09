@@ -45,9 +45,7 @@ namespace DiscordCommands
             AccessLevel? access = null;
             if (args.Parameters.Count > 2)
             {
-                if (int.TryParse(args.Parameters[2], out int accVal) && Enum.IsDefined(typeof(AccessLevel), accVal))
-                    access = (AccessLevel)accVal;
-                else if (Enum.TryParse<AccessLevel>(args.Parameters[2], out AccessLevel acc))
+                if (args.Parameters[2].TryParseEnum(out AccessLevel acc))
                     access = acc;
                 else
                 {
