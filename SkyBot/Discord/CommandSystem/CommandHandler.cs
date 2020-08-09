@@ -1,6 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using SkyBot.Database.Models;
 using System;
 using System.Collections.Concurrent;
@@ -253,41 +254,56 @@ namespace SkyBot.Discord.CommandSystem
         {
             using DBContext c = new DBContext();
 
-            Permission perm = c.Permission.FirstOrDefault(p => p.DiscordUserId == (long)discordUserId);
+            List<Permission> perms = c.Permission.Where(p => p.DiscordUserId == (long)discordUserId).ToList();
 
-            short access = perm?.AccessLevel ?? 0;
+            //Check if we are dev
+            for (int i = 1; i < perms.Count; i++)
+                if (perms[i].AccessLevel == (short)AccessLevel.Dev)
+                    return AccessLevel.Dev;
+
+            //default access level
+            short access = (short)AccessLevel.User;
 
             if (discordGuildId != 0)
             {
-                DiscordGuild guild = DiscordHandler.Client.GetGuildAsync(discordGuildId).Result;
-
-                if (guild != null)
+                try
                 {
+                    DiscordGuild guild = DiscordHandler.Client.GetGuildAsync(discordGuildId).Result;
+
+                    //Check if user is owner
                     if (guild.Owner.Id == discordUserId)
                         return AccessLevel.Host;
 
+                    //check if any permission is higher than our old permission but only those that are for our guild
+                    perms = perms.Where(p => p.DiscordGuildId == (long)guild.Id).ToList();
+
+                    for (int i = 0; i < perms.Count; i++)
+                        if (perms[i].AccessLevel > access)
+                            access = perms[i].AccessLevel;
+
                     DiscordMember member = guild.GetMemberAsync(discordUserId).Result;
 
-                    if (member != null)
+                    //Check if we have any roles binded
+                    List<DiscordRoleBind> binds = new List<DiscordRoleBind>();
+                    List<DiscordRole> roles = member.Roles.ToList();
+
+                    for (int i = 0; i < roles.Count; i++)
                     {
-                        List<DiscordRoleBind> binds = new List<DiscordRoleBind>();
-                        List<DiscordRole> roles = member.Roles.ToList();
+                        DiscordRoleBind drb = c.DiscordRoleBind.FirstOrDefault(drb => drb.RoleId == (long)roles[i].Id);
 
-                        for (int i = 0; i < roles.Count; i++)
-                        {
-                            DiscordRoleBind drb = c.DiscordRoleBind.FirstOrDefault(drb => drb.RoleId == (long)roles[i].Id);
+                        if (drb == null)
+                            continue;
 
-                            if (drb == null)
-                                continue;
-
-                            if (access < drb.AccessLevel)
-                                access = drb.AccessLevel;
-                        }
+                        if (access < drb.AccessLevel)
+                            access = drb.AccessLevel;
                     }
                 }
+                catch (AggregateException ex)
+                {
+                    if (!ex.InnerExceptions.Any(e => e is NotFoundException))
+                        throw;
+                }
             }
-            else if (access < (short)AccessLevel.Dev)
-                access = 0;
 
             return (AccessLevel)access;
         }
