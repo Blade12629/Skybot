@@ -8,8 +8,8 @@ namespace SkyBot.Discord.Data
 {
     public class EmbedJson
     {
-        public string content { get; set; }
-        public Embed embed { get; set; }
+        public string Content { get; set; }
+        public Embed Embed { get; set; }
 
         public static EmbedJson ReverseEmbed(DiscordMessage message)
         {
@@ -27,28 +27,28 @@ namespace SkyBot.Discord.Data
             if (embed.Thumbnail != null)
                 thumbnail = new Thumbnail()
                 {
-                    url = embed.Thumbnail.Url.ToString()
+                    Url = embed.Thumbnail.Url.ToString()
                 };
 
             if (embed.Image != null)
                 image = new Image()
                 {
-                    url = embed.Image.Url.ToString()
+                    Url = embed.Image.Url.ToString()
                 };
 
             if (embed.Author != null)
                 author = new Author()
                 {
-                    url = embed.Author.Url.ToString(),
-                    icon_url = embed.Author.IconUrl.ToString(),
-                    name = embed.Author.Name
+                    Url = embed.Author.Url.ToString(),
+                    IconUrl = embed.Author.IconUrl.ToString(),
+                    Name = embed.Author.Name
                 };
 
             if (embed.Footer != null)
                 footer = new Footer()
                 {
-                    icon_url = embed.Footer.IconUrl?.ToString() ?? null,
-                    text = embed.Footer.Text
+                    IconUrl = embed.Footer.IconUrl?.ToString() ?? null,
+                    Text = embed.Footer.Text
                 };
 
             List<Field> fields = null;
@@ -60,27 +60,27 @@ namespace SkyBot.Discord.Data
                 foreach (DiscordEmbedField f in embed.Fields)
                     fields.Add(new Field()
                     {
-                        inline = f.Inline,
-                        value = f.Value,
-                        name = f.Name
+                        Inline = f.Inline,
+                        Value = f.Value,
+                        Name = f.Name
                     });
             }
 
             EmbedJson result = new EmbedJson()
             {
-                content = message.Content,
-                embed = new Embed()
+                Content = message.Content,
+                Embed = new Embed()
                 {
-                    author = author,
-                    thumbnail = thumbnail,
-                    image = image,
-                    footer = footer,
-                    color = embed.Color.Value,
-                    description = embed.Description,
-                    fields = fields?.ToArray() ?? null,
-                    timestamp = embed.Timestamp?.DateTime ?? DateTime.MinValue,
-                    title = embed.Title,
-                    url = embed.Url?.ToString() ?? null
+                    Author = author,
+                    Thumbnail = thumbnail,
+                    Image = image,
+                    Footer = footer,
+                    Color = embed.Color.Value,
+                    Description = embed.Description,
+                    Fields = fields?.ToArray() ?? null,
+                    Timestamp = embed.Timestamp?.DateTime ?? DateTime.MinValue,
+                    Title = embed.Title,
+                    Url = embed.Url?.ToString() ?? null
                 }
             };
 
@@ -89,29 +89,29 @@ namespace SkyBot.Discord.Data
 
         public DiscordEmbed BuildEmbed()
         {
-            Thumbnail thumbnail = embed.thumbnail;
-            Image image = embed.image;
+            Thumbnail thumbnail = Embed.Thumbnail;
+            Image image = Embed.Image;
 
-            Author author = embed.author;
-            Footer footer = embed.footer;
+            Author author = Embed.Author;
+            Footer footer = Embed.Footer;
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
-                Title = embed.title,
-                Description = embed.description,
-                Url = embed.url,
-                Color = new DiscordColor(embed.color),
-                Timestamp = embed.timestamp,
-                ThumbnailUrl = thumbnail?.url ?? null,
-                ImageUrl = image?.url ?? null,
+                Title = Embed.Title,
+                Description = Embed.Description,
+                Url = Embed.Url,
+                Color = new DiscordColor(Embed.Color),
+                Timestamp = Embed.Timestamp,
+                ThumbnailUrl = thumbnail?.Url ?? null,
+                ImageUrl = image?.Url ?? null,
             };
 
             if (footer != null)
             {
                 builder.Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
-                    IconUrl = footer?.icon_url ?? null,
-                    Text = footer?.text ?? null,
+                    IconUrl = footer?.IconUrl ?? null,
+                    Text = footer?.Text ?? null,
                 };
             }
 
@@ -119,69 +119,19 @@ namespace SkyBot.Discord.Data
             {
                 builder.Author = new DiscordEmbedBuilder.EmbedAuthor()
                 {
-                    IconUrl = author?.icon_url ?? null,
-                    Name = author?.name ?? null,
-                    Url = author?.url ?? null
+                    IconUrl = author?.IconUrl ?? null,
+                    Name = author?.Name ?? null,
+                    Url = author?.Url ?? null
                 };
             }
 
-            if (embed.fields != null)
+            if (Embed.Fields != null)
             {
-                foreach (Field f in embed.fields)
-                    builder.AddField(f.name, f.value, f?.inline ?? false);
+                foreach (Field f in Embed.Fields)
+                    builder.AddField(f.Name, f.Value, f?.Inline ?? false);
             }
 
             return builder.Build();
         }
     }
-
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-#pragma warning disable CA1819 // Properties should not return arrays
-#pragma warning disable CA1056 // Uri properties should not be strings
-    public class Embed
-    {
-        public string title { get; set; }
-        public string description { get; set; }
-        public string url { get; set; }
-        public int color { get; set; }
-        public DateTime timestamp { get; set; }
-        public Footer footer { get; set; }
-        public Thumbnail thumbnail { get; set; }
-        public Image image { get; set; }
-        public Author author { get; set; }
-        public Field[] fields { get; set; }
-    }
-
-    public class Footer
-    {
-        public string icon_url { get; set; }
-        public string text { get; set; }
-    }
-
-    public class Thumbnail
-    {
-        public string url { get; set; }
-    }
-
-    public class Image
-    {
-        public string url { get; set; }
-    }
-
-    public class Author
-    {
-        public string name { get; set; }
-        public string url { get; set; }
-        public string icon_url { get; set; }
-    }
-
-    public class Field
-    {
-        public string name { get; set; }
-        public string value { get; set; }
-        public bool inline { get; set; }
-    }
-#pragma warning restore CA1707 // Identifiers should not contain underscores
-#pragma warning restore CA1819 // Properties should not return arrays
-#pragma warning restore CA1056 // Uri properties should not be strings
 }

@@ -138,7 +138,7 @@ namespace DiscordCommands
                     }
 
                     embed = embedJson.BuildEmbed();
-                    dmessage.ModifyAsync(embedJson.content ?? default(Optional<string>), embed);
+                    dmessage.ModifyAsync(embedJson.Content ?? default(Optional<string>), embed);
 
                     return;
                 }
@@ -217,7 +217,7 @@ namespace DiscordCommands
                 }
 
                 embed = embedJson.BuildEmbed();
-                dchannel.SendMessageAsync(embedJson.content, false, embed);
+                dchannel.SendMessageAsync(embedJson.Content, false, embed);
             }
 #pragma warning disable CA1031 // Do not catch general exception types
             catch (Exception ex)
