@@ -217,7 +217,17 @@ namespace SkyBot.Discord.CommandSystem
 
                 DiscordMember member = null;
                 if (e.Guild != null)
-                    member = e.Guild.GetMemberAsync(e.Author.Id).ConfigureAwait(false).GetAwaiter().GetResult();
+                {
+                    try
+                    {
+                        member = e.Guild.GetMemberAsync(e.Author.Id).ConfigureAwait(false).GetAwaiter().GetResult();
+                    }
+                    catch (AggregateException ex)
+                    {
+                        if (!ex.InnerExceptions.Any(e => e is NotFoundException))
+                            throw;
+                    }
+                }
 
                 CommandEventArg arg = new CommandEventArg(e.Guild, e.Channel, e.Author, member,
                                                           e.Message, access, parameters, afterCmd, 

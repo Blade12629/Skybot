@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using SkyBot.Database.Models;
 using System.Linq;
+using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 
 namespace SkyBot.Discord
 {
@@ -165,6 +167,44 @@ namespace SkyBot.Discord
             GC.SuppressFinalize(this);
 
             IsDisposed = true;
+        }
+
+        public async Task<DiscordUser> GetUserAsync(ulong id)
+        {
+            return await RunWithNotFoundTryCatch(new Func<ulong, DiscordClient, Task<DiscordUser>>(async (u, c) =>
+            {
+                return await c.GetUserAsync(u).ConfigureAwait(false);
+            }), id, Client).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Runs code with a try catch designed to convert NotFoundExceptions to null
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+#pragma warning disable CA1715 // Identifiers should have correct prefix
+        public static async Task<O> RunWithNotFoundTryCatch<I, C, O>(Func<I, C, Task<O>> function, I input, C from)
+#pragma warning restore CA1715 // Identifiers should have correct prefix
+        {
+            if (function == null)
+                throw new ArgumentNullException(nameof(function));
+            else if (!input.GetType().IsValueType && input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            try
+            {
+                return await function(input, from).ConfigureAwait(false);
+            }
+            catch (AggregateException aex)
+            {
+                if (!aex.InnerExceptions.Any(e => e is NotFoundException))
+                    throw;
+            }
+            catch (NotFoundException)
+            {
+
+            }
+
+            return default;
         }
     }
 }
