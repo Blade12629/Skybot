@@ -44,20 +44,20 @@ namespace DiscordCommands
             switch(args.Parameters[0].ToLower(System.Globalization.CultureInfo.CurrentCulture))
             {
                 case "set":
-                    args.Parameters.RemoveAt(0);
                     args.ParameterString = args.ParameterString.Remove(0, args.Parameters[0].Length).TrimStart(' ');
+                    args.Parameters.RemoveAt(0);
                     Set(args, c);
                     break;
 
                 case "get":
-                    args.Parameters.RemoveAt(0);
                     args.ParameterString = args.ParameterString.Remove(0, args.Parameters[0].Length).TrimStart(' ');
+                    args.Parameters.RemoveAt(0);
                     Get(args);
                     break;
 
                 case "list":
-                    args.Parameters.RemoveAt(0);
                     args.ParameterString = args.ParameterString.Remove(0, args.Parameters[0].Length).TrimStart(' ');
+                    args.Parameters.RemoveAt(0);
                     List(args);
                     break;
 

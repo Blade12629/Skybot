@@ -116,8 +116,8 @@ namespace DiscordCommands {
         
         /// <summary>
         ///   Looks up a localized string similar to !accesslevel
-        ///!accesslevel &lt;userId&gt;\n
-        ///Admin:\n
+        ///!accesslevel &lt;userId&gt;
+        ///Admin:
         ///!accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;.
         /// </summary>
         internal static string AccessLevelCommandUsage {

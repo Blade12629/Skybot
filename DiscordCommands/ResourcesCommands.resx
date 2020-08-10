@@ -137,8 +137,8 @@
   </data>
   <data name="AccessLevelCommandUsage" xml:space="preserve">
     <value>!accesslevel
-!accesslevel &lt;userId&gt;\n
-Admin:\n
+!accesslevel &lt;userId&gt;
+Admin:
 !accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;</value>
   </data>
   <data name="AccessLevelCommandUser" xml:space="preserve">
