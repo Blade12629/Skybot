@@ -110,7 +110,7 @@ namespace DiscordCommands
             }
         }
 
-        private void OnPlayerTopList(CommandEventArg args, bool reverse = false)
+        private static void OnPlayerTopList(CommandEventArg args, bool reverse = false)
         {
             int page = 1;
 
@@ -129,7 +129,7 @@ namespace DiscordCommands
                                                                                        new Func<SeasonPlayerCardCache, double>(sp => sp.OverallRating)));
         }
 
-        private void OnTeamTopList(CommandEventArg args, bool reverse = false)
+        private static void OnTeamTopList(CommandEventArg args, bool reverse = false)
         {
             int page = 1;
 
@@ -148,7 +148,7 @@ namespace DiscordCommands
                                                                                        new Func<SeasonTeamCardCache, double>(sp => Math.Round(sp.TeamRating, 2, MidpointRounding.AwayFromZero))));
         }
 
-        private void OnPlayerProfile(CommandEventArg args)
+        private static void OnPlayerProfile(CommandEventArg args)
         {
             using DBContext c = new DBContext();
             (string, long) userParsed = TryParseIdOrUsernameString(args.Parameters);
@@ -178,7 +178,7 @@ namespace DiscordCommands
             args.Channel.SendMessageAsync(embed: GetPlayerEmbed(spcc.Username, spcc.TeamName, spcc.OsuUserId, spcc.AverageAccuracy, (int)spcc.AverageScore, spcc.AverageMisses, (int)spcc.AverageCombo, spcc.AveragePerformance, spcc.MatchMvps, spcc.OverallRating));
         }
 
-        private void OnTeamProfile(CommandEventArg args)
+        private static void OnTeamProfile(CommandEventArg args)
         {
             using DBContext c = new DBContext();
             (string, long) userParsed = TryParseIdOrUsernameString(args.Parameters);
@@ -237,7 +237,7 @@ namespace DiscordCommands
             args.Channel.SendMessageAsync(embed: GetMatchEmbedFromDB((int)matchId));
         }
 
-        private (string, long) TryParseIdOrUsernameString(List<string> parameters)
+        private static (string, long) TryParseIdOrUsernameString(List<string> parameters)
         {
             if (long.TryParse(parameters[0], out long id))
                 return (null, id);
@@ -252,38 +252,38 @@ namespace DiscordCommands
 
         }
 
-        private List<SeasonPlayerCardCache> GetPlayers(DiscordGuild guild)
+        private static List<SeasonPlayerCardCache> GetPlayers(DiscordGuild guild)
         {
             using DBContext c = new DBContext();
             return c.SeasonPlayerCardCache.Where(spcc => spcc.DiscordGuildId == (long)guild.Id).ToList();
         }
 
-        private List<SeasonTeamCardCache> GetTeams(DiscordGuild guild)
+        private static List<SeasonTeamCardCache> GetTeams(DiscordGuild guild)
         {
             using DBContext c = new DBContext();
             return c.SeasonTeamCardCache.Where(spcc => spcc.DiscordGuildId == (long)guild.Id).ToList();
         }
 
-        private SeasonPlayerCardCache GetPlayer(DiscordGuild guild, long osuId)
+        private static SeasonPlayerCardCache GetPlayer(DiscordGuild guild, long osuId)
         {
             using DBContext c = new DBContext();
             return c.SeasonPlayerCardCache.FirstOrDefault(spcc => spcc.DiscordGuildId == (long)guild.Id &&
                                                                   spcc.OsuUserId == osuId);
         }
 
-        private SeasonTeamCardCache GetTeam(DiscordGuild guild, string teamName)
+        private static SeasonTeamCardCache GetTeam(DiscordGuild guild, string teamName)
         {
             using DBContext c = new DBContext();
             return c.SeasonTeamCardCache.FirstOrDefault(stcc => stcc.DiscordGuildId == (long)guild.Id &&
                                                                 stcc.TeamName.Equals(teamName, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        private DiscordEmbed GetMatchEmbedFromDB(int matchId)
+        private static DiscordEmbed GetMatchEmbedFromDB(int matchId)
         {
             return SkyBot.Analyzer.OsuAnalyzer.GetMatchResultEmbed(matchId);
         }
 
-        private DiscordEmbed GetPlayerEmbed(string userName, string teamName, long osuUserId, double avgAcc, int avgScore, double avgMisses, int avgCombo, double avgGps, int matchMvps, double overallRating)
+        private static DiscordEmbed GetPlayerEmbed(string userName, string teamName, long osuUserId, double avgAcc, int avgScore, double avgMisses, int avgCombo, double avgGps, int matchMvps, double overallRating)
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
@@ -316,7 +316,7 @@ namespace DiscordCommands
             return builder.Build();
         }
 
-        private DiscordEmbed GetTeamEmbed(string teamName, double avgAcc, int avgScore, double avgMisses, int avgCombo, double avgGps, int totalMvps, double avgRating, double teamRating, string mvpName)
+        private static DiscordEmbed GetTeamEmbed(string teamName, double avgAcc, int avgScore, double avgMisses, int avgCombo, double avgGps, int totalMvps, double avgRating, double teamRating, string mvpName)
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
@@ -346,7 +346,7 @@ namespace DiscordCommands
             return builder.Build();
         }
 
-        private int GetPage(int start)
+        private static int GetPage(int start)
         {
             int page = 1;
 
@@ -362,7 +362,7 @@ namespace DiscordCommands
             return page;
         }
 
-        private int GetMaxPages(int count)
+        private static int GetMaxPages(int count)
         {
             double mp = count / 10.0;
             int maxPages = (int)mp;
@@ -373,7 +373,7 @@ namespace DiscordCommands
             return maxPages;
         }
 
-        private DiscordEmbed GetListAsEmbed<T>(List<T> input, int start, int count, string listTitle, Func<T, string> nameConverter, Func<T, double> ratingConverter)
+        private static DiscordEmbed GetListAsEmbed<T>(List<T> input, int start, int count, string listTitle, Func<T, string> nameConverter, Func<T, double> ratingConverter)
         {
             int page = GetPage(start);
             int maxPages = GetMaxPages(input.Count);

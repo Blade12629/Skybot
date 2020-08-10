@@ -30,6 +30,8 @@ namespace SkyBot.TicketSystem
         {
             List<Func<Ticket, bool>> filters = new List<Func<Ticket, bool>>();
 
+            if (discordGuildId.HasValue)
+                filters.Add(new Func<Ticket, bool>(b => b.DiscordGuildId == discordGuildId.Value));
             if (discordId.HasValue)
                 filters.Add(new Func<Ticket, bool>(b => b.DiscordId == discordId.Value));
             if (id.HasValue)

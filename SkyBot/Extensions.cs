@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
+#pragma warning disable CA1724 //The type name Extensions conflicts in whole or in part with the namespace name 'Microsoft.Extensions'. Change either name to eliminate the conflict
 public static class Extensions
+#pragma warning restore CA1724 //The type name Extensions conflicts in whole or in part with the namespace name 'Microsoft.Extensions'. Change either name to eliminate the conflict
 {
     public static bool TryParseEnum<T>(this string value, out T outp) where T : struct, Enum
     {

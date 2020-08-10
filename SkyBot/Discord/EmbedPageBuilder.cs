@@ -54,7 +54,7 @@ namespace SkyBot.Discord
                 if (_fields.ContainsKey(title))
                     return;
                 else if (_fields.Count == _maxRows)
-                    throw new InvalidOperationException("Cannot add an additional row, already at limit");
+                    throw new InvalidOperationException(ResourceExceptions.CannotAddAdditionalRow);
 
                 _fields.Add(title, values == null ? new EmbedFieldInfo() : new EmbedFieldInfo(values));
             }

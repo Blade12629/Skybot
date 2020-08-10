@@ -102,7 +102,7 @@ namespace DiscordCommands
             });
         }
 
-        private ulong GetTicketRoomId(DiscordGuild guild)
+        private static ulong GetTicketRoomId(DiscordGuild guild)
         {
             using DBContext c = new DBContext();
             DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)guild.Id);
@@ -439,7 +439,7 @@ namespace DiscordCommands
             e.Channel.SendMessageAsync(embed: embed);
         }
 
-        private int GetPageIndexStart(int page, int countPerPage = 10)
+        private static int GetPageIndexStart(int page, int countPerPage = 10)
         {
             if (page == 0)
                 return 0;
@@ -447,7 +447,7 @@ namespace DiscordCommands
             return page * countPerPage - 1;
         }
 
-        private int GetTotalPages(int count, int countPerPage = 10)
+        private static int GetTotalPages(int count, int countPerPage = 10)
         {
             if (count <= countPerPage)
                 return 1;

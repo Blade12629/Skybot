@@ -10,9 +10,11 @@ using System.Timers;
 
 namespace DiscordCommands
 {
-    public class MuteCommand : ICommand
+    public class MuteCommand : ICommand, IDisposable
     {
         public bool IsDisabled { get; set; }
+
+        public bool IsDisposed { get; private set; }
 
         public string Command => "mute";
 
@@ -39,6 +41,30 @@ namespace DiscordCommands
                 System.Threading.Tasks.Task.Delay(2500).Wait();
                 _muteTimer.Start();
             });
+        }
+
+        ~MuteCommand()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(false);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool dispose)
+        {
+            if (IsDisposed)
+                return;
+
+            _muteTimer?.Stop();
+            _muteTimer?.Dispose();
+
+            IsDisposed = true;
+
+            GC.Collect();
         }
 
         private void OnMuteTimerElapsed(object sender, ElapsedEventArgs e)
@@ -117,7 +143,7 @@ namespace DiscordCommands
                 {
                     member = args.Guild.GetMemberAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
                 }
-                catch (Exception)
+                catch (DSharpPlus.Exceptions.NotFoundException)
                 {
 
                 }

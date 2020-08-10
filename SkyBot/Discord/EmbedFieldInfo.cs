@@ -62,9 +62,9 @@ namespace SkyBot.Discord
                 lock (SyncRoot)
                 {
                     if (index < 0)
-                        throw new IndexOutOfRangeException($"{nameof(index)} cannot be less than 0");
+                        throw new IndexOutOfRangeException(ResourceExceptions.IndexLessThanZero);
                     else if (index >= _lines.Count)
-                        throw new IndexOutOfRangeException($"{nameof(index)} cannot be equal or higher than current count");
+                        throw new IndexOutOfRangeException($"{nameof(index)} {ResourceExceptions.IndexHigherOrEqualThanMax} current count");
                     else if (string.IsNullOrEmpty(value))
                         throw new ArgumentNullException(nameof(value));
 

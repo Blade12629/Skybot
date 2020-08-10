@@ -194,6 +194,8 @@ namespace SkyBot.Osu.IRC
 
             _client.Close();
             _qrl.Dispose();
+            _reconnectTimer.Stop();
+            _reconnectTimer.Dispose();
 
             IsDisposed = true;
         }

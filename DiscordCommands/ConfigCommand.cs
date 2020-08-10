@@ -50,12 +50,12 @@ namespace DiscordCommands
 
                 case "get":
                     args.Parameters.RemoveAt(0);
-                    Get(args, c);
+                    Get(args);
                     break;
 
                 case "list":
                     args.Parameters.RemoveAt(0);
-                    List(args, c);
+                    List(args);
                     break;
 
                 default:
@@ -65,7 +65,7 @@ namespace DiscordCommands
             }
         }
 
-        private void List(CommandEventArg args, DBContext c)
+        private void List(CommandEventArg args)
         {
             StringBuilder response = new StringBuilder();
 
@@ -99,7 +99,7 @@ namespace DiscordCommands
                 args.Channel.SendMessageAsync("Failed to set value");
         }
 
-        private void Get(CommandEventArg args, DBContext c)
+        private void Get(CommandEventArg args)
         {
             DiscordGuildConfig dgc = args.Config;
 
