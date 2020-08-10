@@ -57,8 +57,8 @@ namespace DiscordCommands
                     urlString = afterCMD.Remove(0, urlStart + 5);
                     if (!string.IsNullOrEmpty(urlString))
                     {
-                        using (WebClient wc = new WebClient())
-                            download = wc.DownloadString(urlString);
+                        using WebClient wc = new WebClient();
+                        download = wc.DownloadString(urlString);
                     }
                 }
 

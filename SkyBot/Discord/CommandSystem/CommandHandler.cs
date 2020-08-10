@@ -93,9 +93,8 @@ namespace SkyBot.Discord.CommandSystem
         /// <returns>Successfull registered</returns>
         public bool RegisterCommand(Type commandType)
         {
-            ICommand cmd = Activator.CreateInstance(commandType) as ICommand;
-
-            if (cmd == null || !_commandTypes.TryAdd(cmd.Command.ToLower(System.Globalization.CultureInfo.CurrentCulture), cmd))
+            if (!(Activator.CreateInstance(commandType) is ICommand cmd) || 
+                !_commandTypes.TryAdd(cmd.Command.ToLower(System.Globalization.CultureInfo.CurrentCulture), cmd))
                 return false;
 
             Logger.Log($"Registered command {cmd.Command}");
@@ -170,13 +169,11 @@ namespace SkyBot.Discord.CommandSystem
                 }
                 else if (e.Guild != null)
                 {
-                    using (DBContext c = new DBContext())
-                    {
-                        config = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
+                    using DBContext c = new DBContext();
+                    config = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
 
-                        if (config != null && access <= AccessLevel.VIP && config.CommandChannelId > 0 && config.CommandChannelId != (long)e.Channel.Id)
-                            return;
-                    }
+                    if (config != null && access <= AccessLevel.VIP && config.CommandChannelId > 0 && config.CommandChannelId != (long)e.Channel.Id)
+                        return;
                 }
 
                 switch (cmd.CommandType)
