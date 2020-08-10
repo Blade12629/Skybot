@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\OsuHistoryEndPoint\OsuHistoryEndPoint\OsuHistoryEndPoint.csproj" />
+    <ProjectReference Include="..\OsuHistoryEndPoint\OsuHistoryEndPoint.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkyBot", "SkyBot\SkyBot.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordCommands", "DiscordCommands\DiscordCommands.csproj", "{AFACDFAA-5FC9-40B1-A61E-C96F0ADD5E7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsuHistoryEndPoint", "..\OsuHistoryEndPoint\OsuHistoryEndPoint\OsuHistoryEndPoint.csproj", "{762344E1-83B0-444C-8E6F-77897F1664C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsuHistoryEndPoint", "OsuHistoryEndPoint\OsuHistoryEndPoint.csproj", "{762344E1-83B0-444C-8E6F-77897F1664C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

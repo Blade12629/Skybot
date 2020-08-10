@@ -14,6 +14,7 @@ Currently Features:
 - Bind bot permissions (like VIP, admin etc.) to discord roles!
 - Verification
 - API (WIP)
+- Server Management commands (like !mute)
 
 - And much more to come!
 
