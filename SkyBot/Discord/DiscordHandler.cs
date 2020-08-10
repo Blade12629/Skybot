@@ -203,5 +203,42 @@ namespace SkyBot.Discord
             return await RunWithNotFoundTryCatch(function, input, Client).ConfigureAwait(false);
         }
 #pragma warning restore CA1715 // Identifiers should have correct prefix
+
+        /// <summary>
+        /// Extracts the ID from a <paramref name="mention"/> <see cref="string"/>
+        /// </summary>
+        /// <param name="channel">Is channel or user</param>
+        /// <returns>Id or 0 if unable to parse</returns>
+        public static ulong ExtractMentionId(string mention, bool channel = false)
+        {
+            if (string.IsNullOrEmpty(mention))
+                throw new ArgumentNullException(nameof(mention));
+            else if ((channel && mention.Length < 4) ||
+                     (!channel && mention.Length < 5))
+                return 0;
+
+            if (channel)
+                mention = mention.Trim('<', '#', '>', ' ');
+            else
+                mention = mention.Trim('<', '@', '!', '>', ' ');
+
+            if (ulong.TryParse(mention, out ulong id))
+                return id;
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Parses the <paramref name="id"/> into a mention <see cref="string"/>
+        /// </summary>
+        /// <param name="channel">Is channel or user</param>
+        /// <returns></returns>
+        public static string ParseMentionId(ulong id, bool channel = false)
+        {
+            if (channel)
+                return $"<#{id}>";
+            else
+                return $"<@!{id}>";
+        }
     }
 }
