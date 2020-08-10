@@ -14,7 +14,7 @@ namespace SkyBot.Discord
 {
     public sealed class DiscordHandler : IDisposable
     {
-        public DiscordClient Client { get; private set; }
+        public DSharpPlus.DiscordClient Client { get; private set; }
         public CommandHandler CommandHandler { get; private set; }
         public bool IsDisposed { get; private set; }
         public bool IsReady { get; private set; }
@@ -24,7 +24,7 @@ namespace SkyBot.Discord
             if (string.IsNullOrEmpty(token) || token.Length < 10)
                 throw new ArgumentException(Resources.DiscordTokenEmptyNullShort, nameof(token));
 
-            Client = new DiscordClient(new DiscordConfiguration()
+            Client = new DSharpPlus.DiscordClient(new DiscordConfiguration()
             {
                 TokenType = TokenType.Bot,
                 Token = token,
@@ -169,21 +169,12 @@ namespace SkyBot.Discord
             IsDisposed = true;
         }
 
-        public async Task<DiscordUser> GetUserAsync(ulong id)
-        {
-            return await RunWithNotFoundTryCatch(new Func<ulong, DiscordClient, Task<DiscordUser>>(async (u, c) =>
-            {
-                return await c.GetUserAsync(u).ConfigureAwait(false);
-            }), id, Client).ConfigureAwait(false);
-        }
-
         /// <summary>
         /// Runs code with a try catch designed to convert NotFoundExceptions to null
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
 #pragma warning disable CA1715 // Identifiers should have correct prefix
         public static async Task<O> RunWithNotFoundTryCatch<I, C, O>(Func<I, C, Task<O>> function, I input, C from)
-#pragma warning restore CA1715 // Identifiers should have correct prefix
         {
             if (function == null)
                 throw new ArgumentNullException(nameof(function));
@@ -206,5 +197,11 @@ namespace SkyBot.Discord
 
             return default;
         }
+
+        public async Task<O> RunWithNotFoundTryCatch<I, O>(Func<I, DSharpPlus.DiscordClient, Task<O>> function, I input)
+        {
+            return await RunWithNotFoundTryCatch(function, input, Client).ConfigureAwait(false);
+        }
+#pragma warning restore CA1715 // Identifiers should have correct prefix
     }
 }
