@@ -8,7 +8,9 @@ namespace SkyBot.Discord.Data
     {
         public string Title { get; set; }
         public string Description { get; set; }
+#pragma warning disable CA1056 // Uri properties should not be strings
         public string Url { get; set; }
+#pragma warning restore CA1056 // Uri properties should not be strings
         public int Color { get; set; }
         public DateTime Timestamp { get; set; }
         public Footer Footer { get; set; }
