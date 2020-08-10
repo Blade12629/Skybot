@@ -168,13 +168,13 @@ namespace SkyBot.Discord.CommandSystem
                     e.Channel.SendMessageAsync("Command is currently disabled");
                     return;
                 }
-                else if (e.Guild != null && access <= AccessLevel.VIP)
+                else if (e.Guild != null)
                 {
                     using (DBContext c = new DBContext())
                     {
                         config = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
 
-                        if (config != null && config.CommandChannelId > 0 && config.CommandChannelId != (long)e.Channel.Id)
+                        if (config != null && access <= AccessLevel.VIP && config.CommandChannelId > 0 && config.CommandChannelId != (long)e.Channel.Id)
                             return;
                     }
                 }
@@ -371,7 +371,7 @@ namespace SkyBot.Discord.CommandSystem
         /// <summary>
         /// Binds an <see cref="AccessLevel"/> to a <see cref="DiscordRole"/>
         /// </summary>
-        /// <returns>Binded/Already binded true otherwise false</returns>
+        /// <returns></returns>
         public static bool BindPermssion(DiscordGuild guild, ulong roleId, AccessLevel access)
         {
             if (guild == null)
@@ -399,7 +399,7 @@ namespace SkyBot.Discord.CommandSystem
         /// Unbinds an/all <see cref="AccessLevel"/> from a <see cref="DiscordRole"/>
         /// </summary>
         /// <param name="access">Leave empty to unbind all permissions from a role</param>
-        /// <returns>Binded/Already binded true otherwise false</returns>
+        /// <returns></returns>
         public static bool UnbindPermission(DiscordGuild guild, ulong roleId, AccessLevel? access = null)
         {
             if (guild == null)

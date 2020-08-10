@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SkyBot.Database.Models
 {
-    public class Permission : IEquatable<Permission>
+    public class Permission
     {
         public long Id { get; set; }
         public long DiscordGuildId { get; set; }
@@ -25,34 +25,6 @@ namespace SkyBot.Database.Models
 
         public Permission()
         {
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Permission);
-        }
-
-        public bool Equals([AllowNull] Permission other)
-        {
-            return other != null &&
-                   Id == other.Id &&
-                   DiscordGuildId == other.DiscordGuildId &&
-                   DiscordUserId == other.DiscordUserId;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Id, DiscordGuildId, DiscordUserId);
-        }
-
-        public static bool operator ==(Permission left, Permission right)
-        {
-            return EqualityComparer<Permission>.Default.Equals(left, right);
-        }
-
-        public static bool operator !=(Permission left, Permission right)
-        {
-            return !(left == right);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SkyBot.Database.Models
 {
-    public class APIUser : IEquatable<APIUser>
+    public class APIUser
     {
         public long Id { get; set; }
         public long DiscordUserId { get; set; }
@@ -21,34 +21,6 @@ namespace SkyBot.Database.Models
 
         public APIUser()
         {
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as APIUser);
-        }
-
-        public bool Equals([AllowNull] APIUser other)
-        {
-            return other != null &&
-                   Id == other.Id &&
-                   DiscordUserId == other.DiscordUserId &&
-                   DiscordGuildId == other.DiscordGuildId;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Id, DiscordUserId, DiscordGuildId);
-        }
-
-        public static bool operator ==(APIUser left, APIUser right)
-        {
-            return EqualityComparer<APIUser>.Default.Equals(left, right);
-        }
-
-        public static bool operator !=(APIUser left, APIUser right)
-        {
-            return !(left == right);
         }
     }
 }

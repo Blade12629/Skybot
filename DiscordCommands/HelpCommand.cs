@@ -57,7 +57,7 @@ namespace DiscordCommands
 
         private void ListCommands(CommandHandler handler, CommandEventArg args, int page = 1)
         {
-            List<ICommand> commands = handler.Commands.Values.ToList();
+            List<ICommand> commands = handler.Commands.Values.Where(c => c.AccessLevel <= args.AccessLevel).ToList();
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {

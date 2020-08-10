@@ -82,11 +82,18 @@ namespace DiscordCommands
                         return;
                     }
 
-                    CommandHandler.BindPermssion(args.Guild, roleId, access.Value);
+                    if (CommandHandler.BindPermssion(args.Guild, roleId, access.Value))
+                        args.Channel.SendMessageAsync("Binded permission");
+                    else
+                        args.Channel.SendMessageAsync("Already binded or failed to bind");
+
                     break;
 
                 case "unbind":
-                    CommandHandler.UnbindPermission(args.Guild, roleId, access);
+                    if (CommandHandler.UnbindPermission(args.Guild, roleId, access))
+                        args.Channel.SendMessageAsync("Unbinded permission");
+                    else
+                        args.Channel.SendMessageAsync("Already unbinded or failed to unbind");
                     break;
             }
         }

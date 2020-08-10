@@ -45,16 +45,19 @@ namespace DiscordCommands
             {
                 case "set":
                     args.Parameters.RemoveAt(0);
+                    args.ParameterString = args.ParameterString.Remove(0, args.Parameters[0].Length).TrimStart(' ');
                     Set(args, c);
                     break;
 
                 case "get":
                     args.Parameters.RemoveAt(0);
+                    args.ParameterString = args.ParameterString.Remove(0, args.Parameters[0].Length).TrimStart(' ');
                     Get(args);
                     break;
 
                 case "list":
                     args.Parameters.RemoveAt(0);
+                    args.ParameterString = args.ParameterString.Remove(0, args.Parameters[0].Length).TrimStart(' ');
                     List(args);
                     break;
 
@@ -88,7 +91,9 @@ namespace DiscordCommands
                 c.SaveChanges();
             }
 
-            bool result = dgc.TrySetValue(args.Parameters[0], args.Parameters[1]);
+            string val = args.Parameters.Count == 2 ? args.Parameters[1] : args.ParameterString.Remove(0, args.Parameters[1].Length);
+
+            bool result = dgc.TrySetValue(args.Parameters[0], val);
 
             c.DiscordGuildConfig.Update(dgc);
             c.SaveChanges();

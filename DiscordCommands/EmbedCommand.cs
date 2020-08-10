@@ -35,7 +35,6 @@ namespace DiscordCommands
         {
             try
             {
-                HelpCommand.ShowHelp(args.Channel, this);
                 if (args.Guild == null)
                 {
                     args.Channel.SendMessageAsync("This command is only usable in a discord channel");

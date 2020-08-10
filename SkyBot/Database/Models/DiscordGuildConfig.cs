@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SkyBot.Database.Models
 {
-    public class DiscordGuildConfig : IEquatable<DiscordGuildConfig>
+    public class DiscordGuildConfig
     {
         public long Id { get; set; }
         public long GuildId { get; set; }
@@ -84,33 +84,6 @@ namespace SkyBot.Database.Models
         public static List<string> GetKeys()
         {
             return typeof(DiscordGuildConfig).GetProperties().Select(s => s.Name).ToList();
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as DiscordGuildConfig);
-        }
-
-        public bool Equals([AllowNull] DiscordGuildConfig other)
-        {
-            return other != null &&
-                   Id == other.Id &&
-                   GuildId == other.GuildId;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Id, GuildId);
-        }
-
-        public static bool operator ==(DiscordGuildConfig left, DiscordGuildConfig right)
-        {
-            return EqualityComparer<DiscordGuildConfig>.Default.Equals(left, right);
-        }
-
-        public static bool operator !=(DiscordGuildConfig left, DiscordGuildConfig right)
-        {
-            return !(left == right);
         }
     }
 }

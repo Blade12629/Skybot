@@ -30,7 +30,7 @@ namespace SkyBot
 
             if (ver != null)
             {
-                dmChannel.SendMessageAsync($"Your verification is already running, please send the following code to {Program.BotMention}: {ver.VerificationCode}").Wait();
+                dmChannel.SendMessageAsync($"Your verification is already running, please send the following to {Program.IRC.Nick} in osu via pm: !verify: {ver.VerificationCode}").Wait();
                 return;
             }
 
