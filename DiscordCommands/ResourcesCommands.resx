@@ -123,11 +123,11 @@
   <data name="AccessLevelCommandDescription" xml:space="preserve">
     <value>Shows or sets your accesslevel</value>
   </data>
-  <data name="AccessLevelCommandDevOnlyAddHost" xml:space="preserve">
-    <value>You need to be atleast Dev to set someone to host!</value>
-  </data>
   <data name="AccessLevelCommandHostOnlyAddAdmins" xml:space="preserve">
     <value>Only the host can add more admins!</value>
+  </data>
+  <data name="AccessLevelCommandHostOnlyAddHost" xml:space="preserve">
+    <value>You need to be atleast Host to set someone to host!</value>
   </data>
   <data name="AccessLevelCommandSetDevPermission" xml:space="preserve">
     <value>Dev permission can only be set via db</value>

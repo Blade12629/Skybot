@@ -79,20 +79,20 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You need to be atleast Dev to set someone to host!.
-        /// </summary>
-        internal static string AccessLevelCommandDevOnlyAddHost {
-            get {
-                return ResourceManager.GetString("AccessLevelCommandDevOnlyAddHost", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Only the host can add more admins!.
         /// </summary>
         internal static string AccessLevelCommandHostOnlyAddAdmins {
             get {
                 return ResourceManager.GetString("AccessLevelCommandHostOnlyAddAdmins", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You need to be atleast Host to set someone to host!.
+        /// </summary>
+        internal static string AccessLevelCommandHostOnlyAddHost {
+            get {
+                return ResourceManager.GetString("AccessLevelCommandHostOnlyAddHost", resourceCulture);
             }
         }
         

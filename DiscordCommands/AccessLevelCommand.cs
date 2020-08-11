@@ -66,9 +66,9 @@ namespace DiscordCommands
                     return;
 
                 case AccessLevel.Host:
-                    if (args.AccessLevel < AccessLevel.Dev)
+                    if (args.AccessLevel < AccessLevel.Host)
                     {
-                        args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelCommandDevOnlyAddHost);
+                        args.Channel.SendMessageAsync(ResourcesCommands.AccessLevelCommandHostOnlyAddHost);
                         return;
                     }
                     break;
