@@ -91,7 +91,7 @@ namespace DiscordCommands
                 c.SaveChanges();
             }
 
-            string val = args.Parameters.Count == 2 ? args.Parameters[1] : args.ParameterString.Remove(0, args.Parameters[1].Length);
+            string val = (args.Parameters.Count == 2 ? args.Parameters[1] : args.ParameterString.Remove(0, args.Parameters[0].Length)).TrimStart(' ').TrimEnd(' ');
 
             bool result = dgc.TrySetValue(args.Parameters[0], val);
 
