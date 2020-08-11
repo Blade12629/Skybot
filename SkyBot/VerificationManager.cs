@@ -65,52 +65,73 @@ namespace SkyBot
                 return false;
 
             foreach (DiscordGuildConfig dgc in cfgs)
-            {
-                DiscordGuild guild;
-                DiscordMember member;
-                try
-                {
-                    guild = await Program.DiscordHandler.Client.GetGuildAsync((ulong)dgc.GuildId).ConfigureAwait(false);
-
-                    if (guild == null)
-                        continue;
-
-                    member = await guild.GetMemberAsync(discordUserId).ConfigureAwait(false);
-
-                    if (member == null)
-                        continue;
-                }
-                catch (DSharpPlus.Exceptions.NotFoundException)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    if (dgc.VerifiedRoleId > 0)
-                    {
-                        DiscordRole role = guild.GetRole((ulong)dgc.VerifiedRoleId);
-
-                        if (!member.Roles.Contains(role))
-                            await member.GrantRoleAsync(role, "synchronized").ConfigureAwait(false);
-                    }
-
-                    if (dgc.VerifiedNameAutoSet)
-                    {
-                        string username = Osu.API.V1.OsuApi.GetUserName((int)u.OsuUserId).Result;
-
-                        member.ModifyAsync(username, reason: "synchronized name").Wait();
-                    }
-                }
-#pragma warning disable CA1031 // Do not catch general exception types
-                catch (Exception ex)
-#pragma warning restore CA1031 // Do not catch general exception types
-                {
-                    Logger.Log(ex, LogLevel.Error);
-                }
-            }
+                await SynchronizeVerification(discordUserId, (int)u.OsuUserId, (ulong)dgc.GuildId, (ulong)dgc.VerifiedRoleId, dgc.VerifiedNameAutoSet).ConfigureAwait(false);
 
             return true;
+        }
+
+        public static async Task<bool> SynchronizeVerification(ulong discordUserId, ulong discordGuildId, DiscordGuildConfig config = null)
+        {
+            using DBContext c = new DBContext();
+            DiscordGuildConfig dgc;
+
+            if (config == null)
+                dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)discordGuildId);
+            else
+                dgc = config;
+
+            if (dgc == null)
+                return false;
+
+            User u = c.User.FirstOrDefault(u => u.DiscordUserId == (long)discordUserId);
+
+            if (u == null)
+                return false;
+
+
+            return await SynchronizeVerification(discordUserId, (int)u.OsuUserId, discordGuildId, (ulong)dgc.VerifiedRoleId, dgc.VerifiedNameAutoSet).ConfigureAwait(false);
+        }
+
+        public static async Task<bool> SynchronizeVerification(ulong discordUserId, int osuUserId, ulong discordGuildId, ulong verifiedRoleId, bool verifiedNameAutoSet)
+        {
+            DiscordGuild guild;
+            DiscordMember member;
+            try
+            {
+                guild = await Program.DiscordHandler.Client.GetGuildAsync(discordGuildId).ConfigureAwait(false);
+                member = await guild.GetMemberAsync(discordUserId).ConfigureAwait(false);
+            }
+            catch (DSharpPlus.Exceptions.NotFoundException)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (verifiedRoleId > 0)
+                {
+                    DiscordRole role = guild.GetRole(verifiedRoleId);
+
+                    if (!member.Roles.Contains(role))
+                        await member.GrantRoleAsync(role, "synchronized").ConfigureAwait(false);
+                }
+
+                if (verifiedNameAutoSet)
+                {
+                    string username = Osu.API.V1.OsuApi.GetUserName(osuUserId).Result;
+
+                    member.ModifyAsync(username, reason: "synchronized name").Wait();
+                }
+
+                return true;
+            }
+#pragma warning disable CA1031 // Do not catch general exception types
+            catch (Exception ex)
+#pragma warning restore CA1031 // Do not catch general exception types
+            {
+                Logger.Log(ex, LogLevel.Error);
+                return false;
+            }
         }
 
         public static void FinishVerification(string code, string osuUserName)

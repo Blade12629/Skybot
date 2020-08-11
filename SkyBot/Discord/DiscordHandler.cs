@@ -69,7 +69,7 @@ namespace SkyBot.Discord
                 var dchannel = args.Guild.GetChannel((ulong)dgc.WelcomeChannel);
 
                 await dchannel.SendMessageAsync(parsedMessage).ConfigureAwait(false);
-                await VerificationManager.SynchronizeVerification(args.Member.Id).ConfigureAwait(false);
+                await VerificationManager.SynchronizeVerification(args.Member.Id, args.Guild.Id, dgc).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
