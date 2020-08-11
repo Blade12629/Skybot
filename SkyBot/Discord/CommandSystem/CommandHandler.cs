@@ -240,6 +240,13 @@ namespace SkyBot.Discord.CommandSystem
                     catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
                     {
+                        if (ex is UnauthorizedException)
+                        {
+                            OnException?.Invoke(e.Channel, cmd, "Unauthorized, please allow direct messages (if you have and this keeps happening, please report it)");
+                            Logger.Log($"Unauthorized: " + ex, LogLevel.Warning);
+
+                            return;
+                        }
                         Logger.Log($"Something went wrong while invoking command {cmd.Command}, message: {arg.Message.Content} from {arg.User.Username}#{arg.User.Discriminator} ({arg.User.Id}):\n {ex.ToString()}");
                         OnException?.Invoke(e.Channel, cmd, "Something went wrong executing this command");
                     }
