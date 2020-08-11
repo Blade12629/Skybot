@@ -599,7 +599,7 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Synchronizes you.
+        ///   Looks up a localized string similar to Synchronizes you/Mod: Force synchronize someone.
         /// </summary>
         internal static string SyncCommandDescription {
             get {
@@ -617,7 +617,10 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !sync.
+        ///   Looks up a localized string similar to !sync
+        ///
+        ///Moderator:
+        ///!sync [discordUserId/Mention].
         /// </summary>
         internal static string SyncCommandUsage {
             get {
