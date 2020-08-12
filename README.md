@@ -1,6 +1,7 @@
 # Skybot
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c94d4a76e98f4784bd9f25400419f3ec)](https://app.codacy.com/manual/Blade12629/Skybot?utm_source=github.com&utm_medium=referral&utm_content=Blade12629/Skybot&utm_campaign=Badge_Grade_Dashboard)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/Blade12629/Skybot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Blade12629/Skybot/alerts/)
 
 osu! tourney bot
 
