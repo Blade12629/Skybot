@@ -51,7 +51,7 @@ namespace DiscordCommands
 
 
             AccessLevel newAccess;
-            if (args.Parameters[0].TryParseEnum(out AccessLevel acc))
+            if (args.Parameters[1].TryParseEnum(out AccessLevel acc))
                 newAccess = acc;
             else
             {

@@ -8,7 +8,7 @@ public static class Extensions
 {
     public static bool TryParseEnum<T>(this string value, out T outp) where T : struct, Enum
     {
-        if (long.TryParse(value, out long lres) && Enum.IsDefined(typeof(T), lres))
+        if (int.TryParse(value, out int lres) && Enum.IsDefined(typeof(T), lres))
         {
             outp = (T)(object)lres;
             return true;
