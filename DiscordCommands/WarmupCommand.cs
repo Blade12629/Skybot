@@ -26,7 +26,7 @@ namespace DiscordCommands
         {
             if (args.Parameters.Count <= 1)
             {
-                HelpCommand.ShowHelp(handler, args);
+                HelpCommand.ShowHelp(args.Channel, this);
                 return;
             }
 

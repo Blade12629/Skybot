@@ -115,10 +115,10 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !accesslevel
-        ///!accesslevel &lt;userId&gt;
+        ///   Looks up a localized string similar to {prefix}accesslevel
+        ///{prefix}accesslevel &lt;userId&gt;
         ///Admin:
-        ///!accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;.
+        ///{prefix}accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;.
         /// </summary>
         internal static string AccessLevelCommandUsage {
             get {
@@ -190,7 +190,7 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !bws &lt;rank&gt; &lt;badgeCount&gt;.
+        ///   Looks up a localized string similar to {prefix}bws &lt;rank&gt; &lt;badgeCount&gt;.
         /// </summary>
         internal static string BWSCommandUsage {
             get {
@@ -310,8 +310,8 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !help [page]
-        ///!help &lt;command&gt;.
+        ///   Looks up a localized string similar to {prefix}help [page]
+        ///{prefix}help &lt;command&gt;.
         /// </summary>
         internal static string HelpCommandUsage {
             get {
@@ -356,7 +356,7 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !maintenance &lt;status&gt; &lt;message&gt;.
+        ///   Looks up a localized string similar to {prefix}maintenance &lt;status&gt; &lt;message&gt;.
         /// </summary>
         internal static string MaintenanceCommandUsage {
             get {
@@ -446,8 +446,8 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
-        ///!permission unbind &lt;discordRoleId&gt; [accessLevel].
+        ///   Looks up a localized string similar to {prefix}permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
+        ///{prefix}permission unbind &lt;discordRoleId&gt; [accessLevel].
         /// </summary>
         internal static string PermissionCommandUsage {
             get {
@@ -493,7 +493,7 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !privacy.
+        ///   Looks up a localized string similar to {prefix}privacy.
         /// </summary>
         internal static string PrivacyPolicyCommandUsage {
             get {
@@ -538,7 +538,7 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !removematch &lt;matchId&gt;.
+        ///   Looks up a localized string similar to {prefix}removematch &lt;matchId&gt;.
         /// </summary>
         internal static string RemoveMatchCommandUsage {
             get {
@@ -565,14 +565,14 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !stats p/player p/profile osuUserId/osuUsername
-        ///!stats p/player t/top [page]
+        ///   Looks up a localized string similar to {prefix}stats p/player p/profile osuUserId/osuUsername
+        ///{prefix}stats p/player t/top [page]
         ///
-        ///!stats t/team p/profile osuUserId/osuUsername
-        ///!stats t/team t/top [page]
+        ///{prefix}stats t/team p/profile osuUserId/osuUsername
+        ///{prefix}stats t/team t/top [page]
         ///
-        ///!stats m/match &lt;matchId&gt;
-        ///!stats m/match &lt;team a&gt; vs &lt;team b&gt;.
+        ///{prefix}stats m/match &lt;matchId&gt;
+        ///{prefix}stats m/match &lt;team a&gt; vs &lt;team b&gt;.
         /// </summary>
         internal static string StatsCommandUsage {
             get {
@@ -617,10 +617,10 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !sync
+        ///   Looks up a localized string similar to {prefix}sync
         ///
         ///Moderator:
-        ///!sync [discordUserId/Mention].
+        ///{prefix}sync [discordUserId/Mention].
         /// </summary>
         internal static string SyncCommandUsage {
             get {
@@ -656,12 +656,12 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !ticket ticket text
+        ///   Looks up a localized string similar to {prefix}ticket ticket text
         ///
         ///
         ///Moderator:
-        ///!ticket -get s/m(s/m, Single or Multisearch) page(value, Page Number) -id(+value, Ticket Id) -uid(+value, Discord User Id) -tag(+value, Ticket Tag) -status(+value, Ticket Status) -priority(+value, Ticket Priority) -sbn(value, Sort By Newest) -sbo(value, Sort By Oldest)
-        ///!ticket -set id(value, Ticket Id) -status(+value, Ticket status) -priority(+value, Ticket priority) -tag(+value, ticket tag)
+        ///{prefix}ticket -get s/m(s/m, Single or Multisearch) page(value, Page Number) -id(+value, Ticket Id) -uid(+value, Discord User Id) -tag(+value, Ticket Tag) -status(+value, Ticket Status) -priority(+value, Ticket Priority) -sbn(value, Sort By Newest) -sbo(value, Sort By Oldest)
+        ///{prefix}ticket -set id(value, Ticket Id) -status(+value, Ticket status) -priority(+value, Ticket priority) -tag(+value, ticket tag)
         ///
         ///
         ///Note:
@@ -693,7 +693,7 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !verify.
+        ///   Looks up a localized string similar to {prefix}verify.
         /// </summary>
         internal static string VerifyCommandUsage {
             get {
@@ -729,8 +729,8 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !warmup add &lt;beatmapId&gt; [beatmapId] [etc.]
-        ///!warmup remove &lt;beatmapId&gt; [beatmapId] [etc.].
+        ///   Looks up a localized string similar to {prefix}warmup add &lt;beatmapId&gt; [beatmapId] [etc.]
+        ///{prefix}warmup remove &lt;beatmapId&gt; [beatmapId] [etc.].
         /// </summary>
         internal static string WarmupCommandUsage {
             get {

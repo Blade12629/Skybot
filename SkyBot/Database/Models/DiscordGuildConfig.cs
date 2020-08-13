@@ -28,10 +28,12 @@ namespace SkyBot.Database.Models
 
         public long MutedRoleId { get; set; }
 
+        public char? Prefix { get; set; }
+
         public DiscordGuildConfig(long guildId, long analyzeChannelId, long commandChannelId, 
                                   bool verifiedNameAutoSet, long verifiedRoleId, short analyzeWarmupMatches,
                                   long ticketDiscordChannelId, string welcomeMessage, long welcomeChannel,
-                                  long mutedRoleId)
+                                  long mutedRoleId, char? prefix)
         {
             GuildId = guildId;
             AnalyzeChannelId = analyzeChannelId;
@@ -43,6 +45,7 @@ namespace SkyBot.Database.Models
             WelcomeMessage = welcomeMessage;
             WelcomeChannel = welcomeChannel;
             MutedRoleId = mutedRoleId;
+            Prefix = prefix;
         }
 
         public DiscordGuildConfig()
@@ -57,6 +60,13 @@ namespace SkyBot.Database.Models
                     return false;
 
                 PropertyInfo prop = typeof(DiscordGuildConfig).GetProperties().FirstOrDefault(pr => pr.Name.Equals(key, StringComparison.CurrentCulture));
+
+                if (prop.PropertyType.Equals(typeof(char?)))
+                {
+                    prop.SetValue(this, new char?(value[0]));
+                    return true;
+                }
+
                 prop.SetValue(this, Convert.ChangeType(value, prop.PropertyType, System.Globalization.CultureInfo.CurrentCulture));
             }
             catch (Exception)

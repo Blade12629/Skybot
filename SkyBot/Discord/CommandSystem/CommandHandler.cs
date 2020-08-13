@@ -141,7 +141,21 @@ namespace SkyBot.Discord.CommandSystem
         {
             try
             {
-                if (e == null || !e.Message.Content[0].Equals(CommandPrefix))
+                if (e == null)
+                    return;
+
+                DiscordGuildConfig config = null;
+                char guildPrefix = CommandPrefix;
+                if (e.Guild != null)
+                {
+                    using DBContext c = new DBContext();
+                    config = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
+
+                    if (config != null && config.Prefix.HasValue)
+                        guildPrefix = config.Prefix.Value;
+                }
+
+                if (!e.Message.Content[0].Equals(guildPrefix))
                     return;
 
                 List<string> parameters = e.Message.Content.Split(' ').Skip(0).ToList();
@@ -155,10 +169,9 @@ namespace SkyBot.Discord.CommandSystem
                 else
                     command = parameters[0];
 
-                command = command.TrimStart(CommandPrefix);
+                command = command.TrimStart(guildPrefix);
 
                 AccessLevel access = GetAccessLevel(e.Author.Id, e.Guild?.Id ?? 0);
-                DiscordGuildConfig config = null;
 
                 if (!_commandTypes.TryGetValue(command.ToLower(System.Globalization.CultureInfo.CurrentCulture), out ICommand cmd))
                     return;
@@ -167,14 +180,8 @@ namespace SkyBot.Discord.CommandSystem
                     e.Channel.SendMessageAsync("Command is currently disabled");
                     return;
                 }
-                else if (e.Guild != null)
-                {
-                    using DBContext c = new DBContext();
-                    config = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
-
-                    if (config != null && access <= AccessLevel.VIP && config.CommandChannelId > 0 && config.CommandChannelId != (long)e.Channel.Id)
-                        return;
-                }
+                else if (config != null && access <= AccessLevel.VIP && config.CommandChannelId > 0 && config.CommandChannelId != (long)e.Channel.Id)
+                    return;
 
                 switch (cmd.CommandType)
                 {

@@ -136,10 +136,10 @@
     <value>Set {0} from {1} to {2}</value>
   </data>
   <data name="AccessLevelCommandUsage" xml:space="preserve">
-    <value>!accesslevel
-!accesslevel &lt;userId&gt;
+    <value>{prefix}accesslevel
+{prefix}accesslevel &lt;userId&gt;
 Admin:
-!accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;</value>
+{prefix}accesslevel &lt;userId&gt; &lt;new level (User, VIP, Moderator, Admin, Host, Dev)&gt;</value>
   </data>
   <data name="AccessLevelCommandUser" xml:space="preserve">
     <value>{0} your access level is {1}</value>
@@ -163,7 +163,7 @@ Admin:
     <value>{0} BWS: {1}</value>
   </data>
   <data name="BWSCommandUsage" xml:space="preserve">
-    <value>!bws &lt;rank&gt; &lt;badgeCount&gt;</value>
+    <value>{prefix}bws &lt;rank&gt; &lt;badgeCount&gt;</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>Command</value>
@@ -205,8 +205,8 @@ Admin:
     <value>Page</value>
   </data>
   <data name="HelpCommandUsage" xml:space="preserve">
-    <value>!help [page]
-!help &lt;command&gt;</value>
+    <value>{prefix}help [page]
+{prefix}help &lt;command&gt;</value>
   </data>
   <data name="MaintenanceCommand" xml:space="preserve">
     <value>maintenance</value>
@@ -221,7 +221,7 @@ Admin:
     <value>Set status to: {0} and message to: {1}</value>
   </data>
   <data name="MaintenanceCommandUsage" xml:space="preserve">
-    <value>!maintenance &lt;status&gt; &lt;message&gt;</value>
+    <value>{prefix}maintenance &lt;status&gt; &lt;message&gt;</value>
   </data>
   <data name="PermissionCommand" xml:space="preserve">
     <value>permission</value>
@@ -251,8 +251,8 @@ Admin:
     <value>Unbinded {0} permissions from role {1}</value>
   </data>
   <data name="PermissionCommandUsage" xml:space="preserve">
-    <value>!permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
-!permission unbind &lt;discordRoleId&gt; [accessLevel]</value>
+    <value>{prefix}permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
+{prefix}permission unbind &lt;discordRoleId&gt; [accessLevel]</value>
   </data>
   <data name="PrivacyPolicyCommand" xml:space="preserve">
     <value>privacy</value>
@@ -275,7 +275,7 @@ I will try to answer withing 48 hours
 ```</value>
   </data>
   <data name="PrivacyPolicyCommandUsage" xml:space="preserve">
-    <value>!privacy</value>
+    <value>{prefix}privacy</value>
   </data>
   <data name="RegisteredCommand" xml:space="preserve">
     <value>Registered {0} for discord command exceptions</value>
@@ -291,7 +291,7 @@ I will try to answer withing 48 hours
     <comment>Removed match &lt;matchId&gt;</comment>
   </data>
   <data name="RemoveMatchCommandUsage" xml:space="preserve">
-    <value>!removematch &lt;matchId&gt;</value>
+    <value>{prefix}removematch &lt;matchId&gt;</value>
   </data>
   <data name="StatsCommand" xml:space="preserve">
     <value>stats</value>
@@ -300,14 +300,14 @@ I will try to answer withing 48 hours
     <value>Displays stats for players/teams/matches</value>
   </data>
   <data name="StatsCommandUsage" xml:space="preserve">
-    <value>!stats p/player p/profile osuUserId/osuUsername
-!stats p/player t/top [page]
+    <value>{prefix}stats p/player p/profile osuUserId/osuUsername
+{prefix}stats p/player t/top [page]
 
-!stats t/team p/profile osuUserId/osuUsername
-!stats t/team t/top [page]
+{prefix}stats t/team p/profile osuUserId/osuUsername
+{prefix}stats t/team t/top [page]
 
-!stats m/match &lt;matchId&gt;
-!stats m/match &lt;team a&gt; vs &lt;team b&gt;</value>
+{prefix}stats m/match &lt;matchId&gt;
+{prefix}stats m/match &lt;team a&gt; vs &lt;team b&gt;</value>
   </data>
   <data name="SyncCommand" xml:space="preserve">
     <value>sync</value>
@@ -323,10 +323,10 @@ I will try to answer withing 48 hours
     <comment>Synchronized &lt;userMention&gt;</comment>
   </data>
   <data name="SyncCommandUsage" xml:space="preserve">
-    <value>!sync
+    <value>{prefix}sync
 
 Moderator:
-!sync [discordUserId/Mention]</value>
+{prefix}sync [discordUserId/Mention]</value>
   </data>
   <data name="SyncCommandVerifySelfFirst" xml:space="preserve">
     <value>You need to verify yourself first!</value>
@@ -338,12 +338,12 @@ Moderator:
     <value>Used to write or manage tickets</value>
   </data>
   <data name="TicketCommandUsage" xml:space="preserve">
-    <value>!ticket ticket text
+    <value>{prefix}ticket ticket text
 
 
 Moderator:
-!ticket -get s/m(s/m, Single or Multisearch) page(value, Page Number) -id(+value, Ticket Id) -uid(+value, Discord User Id) -tag(+value, Ticket Tag) -status(+value, Ticket Status) -priority(+value, Ticket Priority) -sbn(value, Sort By Newest) -sbo(value, Sort By Oldest)
-!ticket -set id(value, Ticket Id) -status(+value, Ticket status) -priority(+value, Ticket priority) -tag(+value, ticket tag)
+{prefix}ticket -get s/m(s/m, Single or Multisearch) page(value, Page Number) -id(+value, Ticket Id) -uid(+value, Discord User Id) -tag(+value, Ticket Tag) -status(+value, Ticket Status) -priority(+value, Ticket Priority) -sbn(value, Sort By Newest) -sbo(value, Sort By Oldest)
+{prefix}ticket -set id(value, Ticket Id) -status(+value, Ticket status) -priority(+value, Ticket priority) -tag(+value, ticket tag)
 
 
 Note:
@@ -357,7 +357,7 @@ value = valueItself</value>
     <value>Verify yourself</value>
   </data>
   <data name="VerifyCommandUsage" xml:space="preserve">
-    <value>!verify</value>
+    <value>{prefix}verify</value>
   </data>
   <data name="WarmupCommand" xml:space="preserve">
     <value>warmup</value>
@@ -369,7 +369,7 @@ value = valueItself</value>
     <value>Add or remove warmup maps</value>
   </data>
   <data name="WarmupCommandUsage" xml:space="preserve">
-    <value>!warmup add &lt;beatmapId&gt; [beatmapId] [etc.]
-!warmup remove &lt;beatmapId&gt; [beatmapId] [etc.]</value>
+    <value>{prefix}warmup add &lt;beatmapId&gt; [beatmapId] [etc.]
+{prefix}warmup remove &lt;beatmapId&gt; [beatmapId] [etc.]</value>
   </data>
 </root>

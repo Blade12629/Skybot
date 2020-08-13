@@ -29,7 +29,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OsuHistoryEndPoint\OsuHistoryEndPoint.csproj" />
+    <Reference Include="OsuHistoryEndPoint">
+      <HintPath>..\compiled\netcoreapp3.1\OsuHistoryEndPoint.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

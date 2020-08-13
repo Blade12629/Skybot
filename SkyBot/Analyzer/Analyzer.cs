@@ -448,7 +448,7 @@ namespace SkyBot.Analyzer
 
             using DBContext c = new DBContext();
 
-            SeasonResult sr = c.SeasonResult.FirstOrDefault(sr => sr.MatchId == ar.MatchId);
+            SeasonResult sr = c.SeasonResult.FirstOrDefault(sr => sr.MatchId == ar.MatchId && sr.DiscordGuildId == (long)guild.Id);
 
             if (sr != null)
             {

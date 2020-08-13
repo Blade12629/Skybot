@@ -404,6 +404,10 @@ public class DBContext : DbContext
                 .HasColumnName("muted_role_id")
                 .HasColumnType("bigint(20)");
 
+            entity.Property(e => e.Prefix)
+                .HasColumnName("prefix")
+                .HasColumnType("char(1)");
+
         });
 
         modelBuilder.Entity<SeasonPlayer>(entity =>
