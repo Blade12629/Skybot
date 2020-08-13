@@ -153,6 +153,10 @@
   <data name="HighestScore" xml:space="preserve">
     <value>Highest Score</value>
   </data>
+  <data name="InvisibleCharacter" xml:space="preserve">
+    <value>‎</value>
+    <comment>Invisible character, can be used for embeds etc.</comment>
+  </data>
   <data name="MVP" xml:space="preserve">
     <value>Most Valuable Player</value>
   </data>

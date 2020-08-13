@@ -169,6 +169,15 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ‎.
+        /// </summary>
+        public static string InvisibleCharacter {
+            get {
+                return ResourceManager.GetString("InvisibleCharacter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Most Valuable Player.
         /// </summary>
         public static string MVP {
