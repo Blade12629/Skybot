@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace SkyBot.Discord
 {
-    public class WebSocketEmbedHandler : IDisposable
+    /// <summary>
+    /// Used to send embeds or messages via a webhook
+    /// </summary>
+    public class WebSocketHandler : IDisposable
     {
         public bool IsDisposed { get; private set; }
         public DiscordChannel Channel { get; private set; }
@@ -15,7 +18,10 @@ namespace SkyBot.Discord
         private Uri _avatarUrl;
         private string _username;
 
-        public WebSocketEmbedHandler(DiscordChannel channel, string username, string avatarUrl = null)
+        /// <summary>
+        /// Used to send embeds or messages via a webhook
+        /// </summary>
+        public WebSocketHandler(DiscordChannel channel, string username, string avatarUrl = null)
         {
             if (channel == null)
                 throw new ArgumentNullException(nameof(channel));
