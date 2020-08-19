@@ -604,7 +604,7 @@ namespace SkyBot.Analyzer
                 }
             }
 
-            CalculateGPS(ref scores);
+            CalculateGPSNew(ref scores);
 
             SeasonScore teamAHighestGPS = scores[0];
             SeasonScore teamBHighestGPS = null;
@@ -806,11 +806,13 @@ namespace SkyBot.Analyzer
         private static double GetOverallRating(SeasonPlayer player, DBContext c)
         {
             List<SeasonScore> scores = c.SeasonScore.Where(s => s.SeasonPlayerId == player.Id).ToList();
-
             double result = 0;
 
+            List<double> gpsValues = new List<double>();
+            List<double> accValues = new List<double>();
+
             int n = scores.Count;
-            float x, y, z, acc, gps, miss;
+            double x, y, z, acc, gps, miss;
             double accMax = 0;
             double gpsMax = 0;
 
@@ -819,39 +821,39 @@ namespace SkyBot.Analyzer
                 SeasonScore score = scores[i];
 
                 x = score.Accuracy;
-                z = (float)score.CountMiss;
+                y = score.GeneralPerformanceScore;
+                z = score.CountMiss;
 
-                acc = ((x + x) * x) / (x * 3.0f);
-                miss = z * 10 / x * 3;
+                if (x <= 0 || y <= 0)
+                {
+                    continue;
+                }
+
+                acc = ((x + x) * x) / (x * 3.0);
+                gps = (y * y * y) / (y * 0.5);
+                miss = z * 10.0 / x * 3.0;
 
                 accMax += acc - miss;
-                Logger.Log("acc: " + acc + " | acc Max: " + accMax + " | acc calculated: " + (acc - miss));
+                gpsMax += gps - miss;
 
-                if (score.GeneralPerformanceScore > 0)
-                {
-                    y = (float)score.GeneralPerformanceScore;
-                    gps = (y * y * y) / y;
-                    gpsMax += gps - miss;
-                    Logger.Log("GPS: " + gps + " | GPS Max: " + gpsMax + " | gps calculated: " + (gps - miss));
-                }
+                accValues.Add(acc);
+                gpsValues.Add(gps);
             }
             double accAvg = 0;
             double gpsAvg = 0;
 
             if (accMax > 0)
-                accAvg = accMax / n;
-
-            if (gpsMax > 0)
-                gpsAvg = gpsMax / n;
-
-            if (accAvg != 0 && gpsAvg != 0)
             {
-                double overallRating = ((gpsAvg * gpsAvg) * (accAvg * accAvg)) / (gpsAvg * accAvg) / 100 / 2.5;
+                accAvg = accMax / n;
+                gpsAvg = gpsMax / n;
+            }
+
+            if (accAvg != 0 || gpsAvg != 0)
+            {
+                double overallRating = ((gpsAvg * gpsAvg) * (accAvg * accAvg)) / (gpsAvg * accAvg) / 100.0 / 30.0 / 2.5;
 
                 result = Math.Round(overallRating, 2, MidpointRounding.AwayFromZero);
             }
-
-            Logger.Log("Rating: " + result);
 
             return result;
         }
@@ -941,6 +943,65 @@ namespace SkyBot.Analyzer
                     Debugger.Break();
 
                 score.GeneralPerformanceScore = kvp.Value;
+            }
+        }
+
+        private static void CalculateGPSNew(ref List<SeasonScore> scores)
+        {
+            const double ACC_MULTI = 0.8;
+            const double SCORE_MULTI = 0.9;
+            const double MISSES_MULTI = 0.1;
+            const double COMBO_MULTI = 1.0;
+            const double _300_MULTI = 1.0;
+
+            Dictionary<long, double> gpsValues = new Dictionary<long, double>();
+
+            for (int i = 0; i < scores.Count; i++)
+            {
+                if (gpsValues.ContainsKey(scores[i].SeasonPlayerId))
+                    continue;
+
+                gpsValues.Add(scores[i].SeasonPlayerId, 0);
+            }
+
+            CalculateMultiValue(scores, gpsValues, ACC_MULTI, s => s.Accuracy, (s1, s2) => s1.Accuracy == s2.Accuracy);
+            CalculateMultiValue(scores, gpsValues, SCORE_MULTI, s => s.Score, (s1, s2) => s1.Score == s2.Score);
+            CalculateMultiValue(scores, gpsValues, MISSES_MULTI, s => s.CountMiss, (s1, s2) => s1.CountMiss == s2.CountMiss, false);
+            CalculateMultiValue(scores, gpsValues, COMBO_MULTI, s => s.MaxCombo, (s1, s2) => s1.MaxCombo == s2.MaxCombo);
+            CalculateMultiValue(scores, gpsValues, _300_MULTI, s => s.Count300, (s1, s2) => s1.Count300 == s2.Count300);
+
+            KeyValuePair<long, double> highestGPS = gpsValues.Aggregate((i1, i2) => i1.Value > i2.Value ? i1 : i2);
+            SeasonScore highestGPSscore = scores.Find(s => s.SeasonPlayerId == highestGPS.Key);
+
+            highestGPSscore.HighestGeneralPerformanceScore = true;
+            highestGPSscore.GeneralPerformanceScore = highestGPS.Value;
+
+            gpsValues.Remove(highestGPS.Key);
+
+            foreach (var pair in gpsValues)
+                scores.Find(s => s.SeasonPlayerId == pair.Key).GeneralPerformanceScore = pair.Value;
+        }
+
+        private static void CalculateMultiValue<T>(List<SeasonScore> scores, Dictionary<long, double> gpsValues, double multi, Func<SeasonScore, T> sort, Func<SeasonScore, SeasonScore, bool> equality, bool sortByAscending = true, bool subtract = false)
+        {
+            scores = (sortByAscending ? scores.OrderBy(sort) : scores.OrderByDescending(sort)).ToList();
+
+            int x;
+            for (int i = scores.Count - 1; i >= 0; i--)
+            {
+                x = i + 1;
+                int oldIndex = i;
+
+                while (oldIndex > 0 && equality(scores[oldIndex], scores[oldIndex - 1]))
+                {
+                    x++;
+                    oldIndex--;
+                }
+
+                if (subtract)
+                    gpsValues[scores[i].SeasonPlayerId] -= x * multi / 2;
+                else
+                    gpsValues[scores[i].SeasonPlayerId] += x * multi / 2;
             }
         }
     }

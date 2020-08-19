@@ -104,7 +104,7 @@ namespace SkyBot.Discord
 
                     if (dgc != null && dgc.AnalyzeChannelId != 0 && dgc.AnalyzeChannelId == (long)e.Channel.Id)
                     {
-                        await Task.Run(() => InvokeAnalyzer(e, dgc, c)).ConfigureAwait(false);
+                        Task.Run(() => InvokeAnalyzer(e, dgc)).ConfigureAwait(false);
                         return;
                     }
                 }
@@ -118,10 +118,12 @@ namespace SkyBot.Discord
             }
         }
 
-        private static void InvokeAnalyzer(MessageCreateEventArgs e, DiscordGuildConfig dgc, DBContext c)
+        private static void InvokeAnalyzer(MessageCreateEventArgs e, DiscordGuildConfig dgc)
         {
             try
             {
+                using DBContext c = new DBContext();
+
                 string[] lines = e.Message.Content.Split('\n');
 
                 string stage = lines[0].Split('-')[1].Trim(' ');
