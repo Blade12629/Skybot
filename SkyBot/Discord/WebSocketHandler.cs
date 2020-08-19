@@ -51,12 +51,13 @@ namespace SkyBot.Discord
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool dispose)
+        protected virtual void Dispose(bool disposing)
         {
             if (IsDisposed)
                 return;
 
-            _webhook?.DeleteAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            if (disposing)
+                _webhook?.DeleteAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             IsDisposed = true;
         }
