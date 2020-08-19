@@ -1,4 +1,5 @@
 ﻿using SkyBot;
+using SkyBot.Analyzer;
 using SkyBot.Discord.CommandSystem;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,9 @@ namespace DiscordCommands
                 return;
             }
 
-            c.SeasonResult.RemoveRange(matches);
+            for (int i = 0; i < matches.Count; i++)
+                OsuAnalyzer.RemoveMatch(matches[i], c);
+
             c.SaveChanges();
 
             args.Channel.SendMessageAsync("All matches removed");

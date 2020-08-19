@@ -144,11 +144,38 @@ namespace SkyBot.Analyzer
             return result;
         }
 
+        public static void RemoveMatch(SeasonResult result, DBContext c)
+        {
+            if (c == null)
+                throw new ArgumentNullException(nameof(c));
+            else if (result == null)
+                throw new ArgumentNullException(nameof(result));
+
+            RemoveScores(result.Id, c);
+
+            c.SeasonResult.Remove(result);
+            c.SaveChanges();
+        }
+
+        public static void RemoveScores(long seasonResultId, DBContext c)
+        {
+            if (c == null)
+                throw new ArgumentNullException(nameof(c));
+
+            List<SeasonScore> scores = c.SeasonScore.Where(sc => sc.SeasonResultId == seasonResultId).ToList();
+            c.SeasonScore.RemoveRange(scores);
+
+            c.SaveChanges();
+        }
+
         /// <summary>
         /// Removes a match from the DB
         /// </summary>
         public static void RemoveMatch(long matchId, DiscordGuild guild)
         {
+            if (guild == null)
+                throw new ArgumentNullException(nameof(guild));
+
             using DBContext c = new DBContext();
             SeasonResult sr = c.SeasonResult.FirstOrDefault(sr => sr.MatchId == matchId &&
                                                                   sr.DiscordGuildId == (long)guild.Id);
@@ -156,8 +183,9 @@ namespace SkyBot.Analyzer
             if (sr == null)
                 return;
 
-            c.SeasonScore.Where(sc => sc.SeasonResultId == sr.Id).ToList().ForEach(sr => c.SeasonScore.Remove(sr));
+            RemoveScores(sr.Id, c);
 
+            c.SeasonResult.Remove(sr);
             c.SaveChanges();
         }
 
@@ -391,8 +419,8 @@ namespace SkyBot.Analyzer
                                                                                       string.Format(CultureInfo.CurrentCulture, "{0:n0}", highestAcc.Score),
                                                                                       Math.Round(highestAcc.Accuracy, 2, MidpointRounding.AwayFromZero)));
 
-            discordEmbedBuilder.AddField("——————————————————", result.WinningTeam, true);
-            discordEmbedBuilder.AddField("——————————————————", result.LosingTeam, true);
+            discordEmbedBuilder.AddField("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", result.WinningTeam, true);
+            discordEmbedBuilder.AddField("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", result.LosingTeam, true);
 
 
             discordEmbedBuilder.AddField(Resources.InvisibleCharacter, ResourceStats.MVP);
@@ -425,13 +453,13 @@ namespace SkyBot.Analyzer
 
             if (playerTeamAHighestAcc.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
             {
-                discordEmbedBuilder.AddField($"{playerTeamAHighestAcc.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "——————————————————", true);
-                discordEmbedBuilder.AddField($"{playerTeamBHighestAcc.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "——————————————————", true);
+                discordEmbedBuilder.AddField($"{playerTeamAHighestAcc.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestAcc.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true);
             }
             else
             {
-                discordEmbedBuilder.AddField($"{playerTeamBHighestAcc.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "——————————————————", true);
-                discordEmbedBuilder.AddField($"{playerTeamAHighestAcc.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "——————————————————", true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestAcc.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true);
+                discordEmbedBuilder.AddField($"{playerTeamAHighestAcc.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true);
             }
 
             return discordEmbedBuilder.Build();
