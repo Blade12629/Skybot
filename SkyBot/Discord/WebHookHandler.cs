@@ -9,7 +9,7 @@ namespace SkyBot.Discord
     /// <summary>
     /// Used to send embeds or messages via a webhook
     /// </summary>
-    public class WebSocketHandler : IDisposable
+    public class WebHookHandler : IDisposable
     {
         public bool IsDisposed { get; private set; }
         public DiscordChannel Channel { get; private set; }
@@ -21,7 +21,7 @@ namespace SkyBot.Discord
         /// <summary>
         /// Used to send embeds or messages via a webhook
         /// </summary>
-        public WebSocketHandler(DiscordChannel channel, string username, string avatarUrl = null)
+        public WebHookHandler(DiscordChannel channel, string username, string avatarUrl = null)
         {
             if (channel == null)
                 throw new ArgumentNullException(nameof(channel));
