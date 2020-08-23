@@ -1,4 +1,5 @@
 ﻿using SkyBot;
+using SkyBot.Analyzer;
 using SkyBot.Discord.CommandSystem;
 using System;
 using System.Collections.Generic;
@@ -25,9 +26,13 @@ namespace DiscordCommands
             if (args.Parameters.Count == 0 || !long.TryParse(args.Parameters[0], out long matchId))
                 return;
 
-            SkyBot.Analyzer.OsuAnalyzer.RemoveMatch(matchId, args.Guild);
+            OsuAnalyzer.RemoveMatch(matchId, args.Guild);
 
-            args.Channel.SendMessageAsync(ResourcesCommands.RemoveMatchCommandSuccess + matchId);
+            args.Channel.SendMessageAsync(ResourcesCommands.RemoveMatchCommandSuccess + matchId + '\n' + ResourceStats.CacheUpdating).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            OsuAnalyzer.UpdateCaches(args.Guild);
+
+            args.Channel.SendMessageAsync(ResourceStats.CacheUpdated);
         }
     }
 }

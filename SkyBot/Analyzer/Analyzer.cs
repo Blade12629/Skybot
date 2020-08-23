@@ -176,17 +176,19 @@ namespace SkyBot.Analyzer
             if (guild == null)
                 throw new ArgumentNullException(nameof(guild));
 
-            using DBContext c = new DBContext();
-            SeasonResult sr = c.SeasonResult.FirstOrDefault(sr => sr.MatchId == matchId &&
-                                                                  sr.DiscordGuildId == (long)guild.Id);
+            using (DBContext c = new DBContext())
+            {
+                SeasonResult sr = c.SeasonResult.FirstOrDefault(sr => sr.MatchId == matchId &&
+                                                                      sr.DiscordGuildId == (long)guild.Id);
 
-            if (sr == null)
-                return;
+                if (sr == null)
+                    return;
 
-            RemoveScores(sr.Id, c);
+                RemoveScores(sr.Id, c);
 
-            c.SeasonResult.Remove(sr);
-            c.SaveChanges();
+                c.SeasonResult.Remove(sr);
+                c.SaveChanges();
+            }
         }
 
         public static DiscordEmbed GetMatchResultEmbed(long matchId)
@@ -637,6 +639,11 @@ namespace SkyBot.Analyzer
 
             for (int i = 0; i < sp.Count; i++)
                 StatisticCache.ForceRefreshPlayerCache(sp[i].OsuUserId, c, (long)guild.Id, GetOverallRating);
+
+            List<SeasonTeamCardCache> stcc = c.SeasonTeamCardCache.Where(stcc => stcc.DiscordGuildId == (long)guild.Id).ToList();
+
+            for (int i = 0; i < stcc.Count; i++)
+                StatisticCache.ForceRefreshTeamCache(stcc[i].TeamName, c, (long)guild.Id);
         }
 
         private static void SetProperty(object instance, string propertyName, object newValue, StringComparison nameComparer = StringComparison.CurrentCultureIgnoreCase)

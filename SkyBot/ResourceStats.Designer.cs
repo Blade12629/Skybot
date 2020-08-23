@@ -115,6 +115,24 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cache was updated.
+        /// </summary>
+        public static string CacheUpdated {
+            get {
+                return ResourceManager.GetString("CacheUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cache is getting updated, this might take a moment.
+        /// </summary>
+        public static string CacheUpdating {
+            get {
+                return ResourceManager.GetString("CacheUpdating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to GPS.
         /// </summary>
         public static string GPS {
@@ -205,6 +223,15 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find any stats.
+        /// </summary>
+        public static string NoStatsFound {
+            get {
+                return ResourceManager.GetString("NoStatsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Overall Rating.
         /// </summary>
         public static string OverallRating {
@@ -273,6 +300,15 @@ namespace SkyBot {
         public static string StatsFor {
             get {
                 return ResourceManager.GetString("StatsFor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stats Unavailable.
+        /// </summary>
+        public static string StatsUnavailable {
+            get {
+                return ResourceManager.GetString("StatsUnavailable", resourceCulture);
             }
         }
         

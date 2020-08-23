@@ -81,7 +81,19 @@ namespace SkyBot.Analyzer
             SeasonPlayerCardCache cardCache = ClearPlayerCache(osuUserId, c, guildId);
 
             SeasonPlayer player = c.SeasonPlayer.FirstOrDefault(p => p.OsuUserId == osuUserId && p.DiscordGuildId == guildId);
+
+            if (player == null)
+                return;
+
             List<SeasonResult> results = c.SeasonResult.Where(sr => sr.DiscordGuildId == guildId).ToList();
+
+            if (results.Count == 0)
+            {
+                c.SeasonPlayerCardCache.Remove(cardCache);
+                c.SaveChanges();
+                return;
+            }
+            
             List<long> resultIds = results.Select(r => r.Id).ToList();
 
             List<SeasonScore> scores = c.SeasonScore.Where(s => s.SeasonPlayerId == player.Id).ToList();
@@ -200,6 +212,13 @@ namespace SkyBot.Analyzer
             List<SeasonResult> results = c.SeasonResult.Where(r => r.DiscordGuildId == guildId &&
                                                                    r.LosingTeam.Equals(teamName, StringComparison.CurrentCultureIgnoreCase) ||
                                                                    r.WinningTeam.Equals(teamName, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (results.Count == 0)
+            {
+                c.SeasonTeamCardCache.Remove(stcc);
+                c.SaveChanges();
+                return;
+            }
 
             Dictionary<long, int> userMvps = new Dictionary<long, int>();
 

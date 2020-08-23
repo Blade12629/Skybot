@@ -30,21 +30,27 @@ namespace DiscordCommands
                 return;
             }
 
-            using DBContext c = new DBContext();
-            var matches = c.SeasonResult.Where(sr => sr.DiscordGuildId == (long)args.Guild.Id).ToList();
-
-            if (matches.Count == 0)
+            using (DBContext c = new DBContext())
             {
-                args.Channel.SendMessageAsync("No matches found");
-                return;
+                var matches = c.SeasonResult.Where(sr => sr.DiscordGuildId == (long)args.Guild.Id).ToList();
+
+                if (matches.Count == 0)
+                {
+                    args.Channel.SendMessageAsync("No matches found");
+                    return;
+                }
+
+                for (int i = 0; i < matches.Count; i++)
+                    OsuAnalyzer.RemoveMatch(matches[i], c);
+
+                c.SaveChanges();
+
+                args.Channel.SendMessageAsync("All matches removed\n" + ResourceStats.CacheUpdating);
             }
 
-            for (int i = 0; i < matches.Count; i++)
-                OsuAnalyzer.RemoveMatch(matches[i], c);
+            OsuAnalyzer.UpdateCaches(args.Guild);
 
-            c.SaveChanges();
-
-            args.Channel.SendMessageAsync("All matches removed");
+            args.Channel.SendMessageAsync(ResourceStats.CacheUpdated);
         }
     }
 }

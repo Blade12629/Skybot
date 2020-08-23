@@ -404,9 +404,18 @@ namespace DiscordCommands
                 ratingsb.AppendLine(ratingConverter(input[i]).ToString(CultureInfo.CurrentCulture));
             }
 
-            builder.AddField(ResourceStats.Rank, ranksb.ToString(), true)
-                   .AddField(listTitle, namesb.ToString(), true)
-                   .AddField(ResourceStats.Rating, ratingsb.ToString(), true);
+            if (ranksb.Length == 0 ||
+                namesb.Length == 0 ||
+                ratingsb.Length == 0)
+            {
+                builder.AddField(ResourceStats.StatsUnavailable, ResourceStats.NoStatsFound);
+            }
+            else
+            {
+                builder.AddField(ResourceStats.Rank, ranksb.ToString(), true)
+                       .AddField(listTitle, namesb.ToString(), true)
+                       .AddField(ResourceStats.Rating, ratingsb.ToString(), true);
+            }
 
             return builder.Build();
         }

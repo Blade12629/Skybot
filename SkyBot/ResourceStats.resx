@@ -135,6 +135,12 @@
   <data name="AverageScore" xml:space="preserve">
     <value>Average Score</value>
   </data>
+  <data name="CacheUpdated" xml:space="preserve">
+    <value>Cache was updated</value>
+  </data>
+  <data name="CacheUpdating" xml:space="preserve">
+    <value>Cache is getting updated, this might take a moment</value>
+  </data>
   <data name="GPS" xml:space="preserve">
     <value>GPS</value>
   </data>
@@ -165,6 +171,9 @@
   <data name="MVP" xml:space="preserve">
     <value>Most Valuable Player</value>
   </data>
+  <data name="NoStatsFound" xml:space="preserve">
+    <value>Could not find any stats</value>
+  </data>
   <data name="OverallRating" xml:space="preserve">
     <value>Overall Rating</value>
   </data>
@@ -188,6 +197,9 @@
   </data>
   <data name="StatsFor" xml:space="preserve">
     <value>Stats For</value>
+  </data>
+  <data name="StatsUnavailable" xml:space="preserve">
+    <value>Stats Unavailable</value>
   </data>
   <data name="Team" xml:space="preserve">
     <value>Team</value>
