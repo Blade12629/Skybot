@@ -47,12 +47,12 @@ namespace SkyBot
 
         private static string GenerateVerificationCode()
         {
-            string code = "";
+            StringBuilder codeBuilder = new StringBuilder();
 
             for (int i = 0; i < 8; i++)
-                code += Program.Random.Next(0, 9);
+                codeBuilder.Append(Program.Random.Next(0, 9));
 
-            return code;
+            return codeBuilder.ToString();
         }
 
         public static async Task<bool> SynchronizeVerification(ulong discordUserId)

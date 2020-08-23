@@ -165,7 +165,6 @@ namespace SkyBot.Discord
             CommandHandler?.Dispose();
             CommandHandler = null;
 
-            GC.Collect();
             GC.SuppressFinalize(this);
 
             IsDisposed = true;

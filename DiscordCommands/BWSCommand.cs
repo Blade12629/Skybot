@@ -46,7 +46,7 @@ namespace DiscordCommands
 
         private double CalculateBWS(int rank, int badgeCount)
         {
-            return Math.Round(Math.Pow(rank, Math.Pow(0.9921, badgeCount * (badgeCount + 1) / 2)), 4, MidpointRounding.AwayFromZero);
+            return Math.Round(Math.Pow(rank, Math.Pow(0.9921, badgeCount * (badgeCount + 1.0) / 2.0)), 4, MidpointRounding.AwayFromZero);
         }
     }
 }

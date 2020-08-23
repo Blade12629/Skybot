@@ -139,7 +139,7 @@ namespace DiscordCommands
             var reminders = c.Reminder.Where(r => r.DiscordUserId == (long)args.User.Id &&
                                                   r.EndDate > DateTime.UtcNow).ToList();
 
-            double maxPages_ = reminders.Count / 10;
+            double maxPages_ = reminders.Count / 10.0;
             int maxPages = (int)maxPages_;
 
             if (maxPages_ > maxPages)
@@ -151,7 +151,6 @@ namespace DiscordCommands
                 Title = "Reminder list",
                 Description = $"Page {page}/{maxPages + 1}"
             };
-            page--;
 
             StringBuilder mb = new StringBuilder();
             StringBuilder idb = new StringBuilder();

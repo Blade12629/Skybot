@@ -157,7 +157,7 @@ namespace SkyBot.Discord
             {
                 EmbedFieldInfo efi = _fields.Values.ElementAt(0);
 
-                double pagesD = efi.Count / 10;
+                double pagesD = efi.Count / 10.0;
                 int pages = (int)pagesD;
 
                 if (pages < pagesD)

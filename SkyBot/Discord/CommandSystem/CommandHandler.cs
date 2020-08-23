@@ -70,7 +70,7 @@ namespace SkyBot.Discord.CommandSystem
             _commandTypes.Clear();
             _commandTypes = null;
 
-            GC.Collect();
+            GC.Collect(); //lgtm [cs/call-to-gc]
 
             bool result = _commandAssemblyLoadContext.Unload();
             _commandAssemblyLoadContext = null;
@@ -128,7 +128,6 @@ namespace SkyBot.Discord.CommandSystem
 
             DiscordHandler = null;
 
-            GC.Collect();
             GC.SuppressFinalize(this);
 
             IsDisposed = true;
@@ -305,7 +304,6 @@ namespace SkyBot.Discord.CommandSystem
                     DiscordMember member = guild.GetMemberAsync(discordUserId).Result;
 
                     //Check if we have any roles binded
-                    List<DiscordRoleBind> binds = new List<DiscordRoleBind>();
                     List<DiscordRole> roles = member.Roles.ToList();
 
                     for (int i = 0; i < roles.Count; i++)
@@ -421,6 +419,9 @@ namespace SkyBot.Discord.CommandSystem
             using DBContext c = new DBContext();
             List<DiscordRoleBind> drb = c.DiscordRoleBind.Where(drb => drb.GuildId == (long)guild.Id &&
                                                                        drb.RoleId == (long)roleId).ToList();
+
+            if (drb.Count == 0)
+                return false;
 
             if (access.HasValue)
                 drb = drb.Where(d => d.AccessLevel == (short)access.Value).ToList();

@@ -97,8 +97,8 @@ namespace DiscordCommands
 
             System.Threading.Tasks.Task.Run(() =>
             {
-                var privChannel = e.Member.CreateDmChannelAsync().ConfigureAwait(false).GetAwaiter().GetResult()
-                                          .SendMessageAsync($"Submitted your ticket");
+                e.Member.CreateDmChannelAsync().ConfigureAwait(false).GetAwaiter().GetResult()
+                        .SendMessageAsync($"Submitted your ticket");
             });
         }
 
@@ -391,7 +391,6 @@ namespace DiscordCommands
                 page = page_;
             
             int pageStart = GetPageIndexStart(page);
-            int totalPages = GetTotalPages(tickets.Count);
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
