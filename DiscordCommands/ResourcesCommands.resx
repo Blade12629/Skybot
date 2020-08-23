@@ -186,6 +186,37 @@ Admin:
   <data name="CommandUsage" xml:space="preserve">
     <value>Usage</value>
   </data>
+  <data name="EmbedCommand" xml:space="preserve">
+    <value>embed</value>
+  </data>
+  <data name="EmbedCommandChannelNotFound" xml:space="preserve">
+    <value>Could not find the discord channel</value>
+  </data>
+  <data name="EmbedCommandDescription" xml:space="preserve">
+    <value>Create or edit embeds</value>
+  </data>
+  <data name="EmbedCommandInvalidUri" xml:space="preserve">
+    <value>Invalid link</value>
+  </data>
+  <data name="EmbedCommandJsonNotFound" xml:space="preserve">
+    <value>Embed json not found</value>
+  </data>
+  <data name="EmbedCommandJsonNotParsable" xml:space="preserve">
+    <value>Failed to parse embed json</value>
+  </data>
+  <data name="EmbedCommandModified" xml:space="preserve">
+    <value>Embed modified</value>
+  </data>
+  <data name="EmbedCommandSent" xml:space="preserve">
+    <value>Sent Embed</value>
+  </data>
+  <data name="EmbedCommandUsage" xml:space="preserve">
+    <value>!embed create &lt;channel&gt; &lt;urlToEmbedJson&gt;
+!embed edit &lt;messageLink&gt; &lt;urlToEmbedJson&gt;
+!embed webhook &lt;channel&gt; &lt;urlToEmbedJson&gt; &lt;username&gt; [avatarLink]
+
+Embed Visualizer: &lt;https://leovoel.github.io/embed-visualizer/&gt;</value>
+  </data>
   <data name="HelpCommand" xml:space="preserve">
     <value>help</value>
   </data>

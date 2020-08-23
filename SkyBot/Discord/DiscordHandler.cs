@@ -242,5 +242,37 @@ namespace SkyBot.Discord
             else
                 return $"<@!{id}>";
         }
+
+        /// <summary>
+        /// Parses a discord message link into their ids
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns>GuildId (0 if private chat), ChannelId, MessageId</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="FormatException"></exception>
+        public static (ulong, ulong, ulong) ParseMessageLink(string message)
+        {
+            const string CH_START = "channels/";
+
+            if (string.IsNullOrEmpty(message))
+                throw new ArgumentNullException(nameof(message));
+
+            int startIndex = message.IndexOf(CH_START, StringComparison.CurrentCultureIgnoreCase);
+
+            if (startIndex == -1)
+                throw new FormatException(ResourceExceptions.CannotParseMessageLink);
+
+            message = message.Remove(0, startIndex + 1 + CH_START.Length);
+
+            string[] split = message.Split('/');
+
+            ulong[] parsed = new ulong[3];
+
+            for (int i = 0; i < 3; i++)
+                if (ulong.TryParse(split[i], out ulong id))
+                    parsed[i] = id;
+
+            return (parsed[0], parsed[1], parsed[2]);
+        }
     }
 }

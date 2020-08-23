@@ -22,7 +22,7 @@ namespace SkyBot {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ResourceExceptions {
+    public class ResourceExceptions {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace SkyBot {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SkyBot.ResourceExceptions", typeof(ResourceExceptions).Assembly);
@@ -51,7 +51,7 @@ namespace SkyBot {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,16 +63,34 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Cannot add an additional row, already at limit.
         /// </summary>
-        internal static string CannotAddAdditionalRow {
+        public static string CannotAddAdditionalRow {
             get {
                 return ResourceManager.GetString("CannotAddAdditionalRow", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to parse .
+        /// </summary>
+        public static string CannotParseDiscordId {
+            get {
+                return ResourceManager.GetString("CannotParseDiscordId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not parse the message link.
+        /// </summary>
+        public static string CannotParseMessageLink {
+            get {
+                return ResourceManager.GetString("CannotParseMessageLink", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to cannot be equal or higher than .
         /// </summary>
-        internal static string IndexHigherOrEqualThanMax {
+        public static string IndexHigherOrEqualThanMax {
             get {
                 return ResourceManager.GetString("IndexHigherOrEqualThanMax", resourceCulture);
             }
@@ -81,7 +99,7 @@ namespace SkyBot {
         /// <summary>
         ///   Looks up a localized string similar to Index cannot be less than Zero.
         /// </summary>
-        internal static string IndexLessThanZero {
+        public static string IndexLessThanZero {
             get {
                 return ResourceManager.GetString("IndexLessThanZero", resourceCulture);
             }

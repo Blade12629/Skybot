@@ -262,6 +262,91 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to embed.
+        /// </summary>
+        internal static string EmbedCommand {
+            get {
+                return ResourceManager.GetString("EmbedCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find the discord channel.
+        /// </summary>
+        internal static string EmbedCommandChannelNotFound {
+            get {
+                return ResourceManager.GetString("EmbedCommandChannelNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Create or edit embeds.
+        /// </summary>
+        internal static string EmbedCommandDescription {
+            get {
+                return ResourceManager.GetString("EmbedCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid link.
+        /// </summary>
+        internal static string EmbedCommandInvalidUri {
+            get {
+                return ResourceManager.GetString("EmbedCommandInvalidUri", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Embed json not found.
+        /// </summary>
+        internal static string EmbedCommandJsonNotFound {
+            get {
+                return ResourceManager.GetString("EmbedCommandJsonNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse embed json.
+        /// </summary>
+        internal static string EmbedCommandJsonNotParsable {
+            get {
+                return ResourceManager.GetString("EmbedCommandJsonNotParsable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Embed modified.
+        /// </summary>
+        internal static string EmbedCommandModified {
+            get {
+                return ResourceManager.GetString("EmbedCommandModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sent Embed.
+        /// </summary>
+        internal static string EmbedCommandSent {
+            get {
+                return ResourceManager.GetString("EmbedCommandSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to !embed create &lt;channel&gt; &lt;urlToEmbedJson&gt;
+        ///!embed edit &lt;messageLink&gt; &lt;urlToEmbedJson&gt;
+        ///!embed webhook &lt;channel&gt; &lt;urlToEmbedJson&gt; &lt;username&gt; [avatarLink]
+        ///
+        ///Embed Visualizer: &lt;https://leovoel.github.io/embed-visualizer/&gt;.
+        /// </summary>
+        internal static string EmbedCommandUsage {
+            get {
+                return ResourceManager.GetString("EmbedCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to help.
         /// </summary>
         internal static string HelpCommand {

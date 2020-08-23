@@ -95,13 +95,19 @@ namespace SkyBot.Discord.Data
             Author author = Embed.Author;
             Footer footer = Embed.Footer;
 
+            DateTimeOffset? offset = null;
+
+            if (!Embed.Timestamp.Equals(DateTime.MinValue) &&
+                !Embed.Timestamp.Equals(DateTime.MaxValue))
+                offset = Embed.Timestamp;
+
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
                 Title = Embed.Title,
                 Description = Embed.Description,
                 Url = Embed.Url,
                 Color = new DiscordColor(Embed.Color),
-                Timestamp = Embed.Timestamp,
+                Timestamp = offset,
                 ThumbnailUrl = thumbnail?.Url ?? null,
                 ImageUrl = image?.Url ?? null,
             };
@@ -128,7 +134,7 @@ namespace SkyBot.Discord.Data
             if (Embed.Fields != null)
             {
                 foreach (Field f in Embed.Fields)
-                    builder.AddField(f.Name, f.Value, f?.Inline ?? false);
+                    builder.AddField(f.Name, f.Value, f.Inline);
             }
 
             return builder.Build();

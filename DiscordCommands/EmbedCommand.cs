@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using SkyBot;
+using SkyBot.Discord;
 using SkyBot.Discord.CommandSystem;
 using SkyBot.Discord.Data;
 using System;
@@ -12,252 +13,185 @@ namespace DiscordCommands
 {
     public class EmbedCommand : ICommand
     {
-
-
         public bool IsDisabled { get; set; }
 
-        public string Command => "embed";
+        public string Command => ResourcesCommands.EmbedCommand;
 
         public AccessLevel AccessLevel => AccessLevel.Admin;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => "Create, edit or reverse embeds";
+        public string Description => ResourcesCommands.EmbedCommandDescription;
 
-        public string Usage =>  "```" + Environment.NewLine +
-                                "!embed create channelId embedCode/-url:www.example.com/raw/text" + Environment.NewLine +
-                                "!embed edit channelId messageId embedCode/-url:www.example.com/raw/text" + Environment.NewLine +
-                                "!embed reverse channelId messageId" + Environment.NewLine +
-                                "```";
+        public string Usage => ResourcesCommands.EmbedCommandUsage;
 
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
+            if (args.Parameters.Count < 3)
+            {
+                HelpCommand.ShowHelp(args.Channel, this);
+                return;
+            }
+
+            using WebClient wc = new WebClient();
+
+            Uri downloadUri;
             try
             {
-                if (args.Guild == null)
-                {
-                    args.Channel.SendMessageAsync("This command is only usable in a discord channel");
-                    return;
-                }
-                else if (args.Parameters.Count == 0)
-                {
-                    HelpCommand.ShowHelp(args.Channel, this);
-                    return;
-                }
-
-                string afterCMD = args.ParameterString;
-
-                string download = null;
-
-                int urlStart = afterCMD.IndexOf("-url:", StringComparison.CurrentCultureIgnoreCase);
-                string urlString = null;
-                if (urlStart > 0)
-                {
-                    urlString = afterCMD.Remove(0, urlStart + 5);
-                    if (!string.IsNullOrEmpty(urlString))
-                    {
-                        using WebClient wc = new WebClient();
-                        download = wc.DownloadString(urlString);
-                    }
-                }
-
-
-                string @params = afterCMD;
-
-                if (urlString != null && download != null)
-                    @params = @params.Replace("-url:" + urlString, download, StringComparison.CurrentCultureIgnoreCase);
-
-                int index = @params.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                if (index <= 1)
-                {
-                    HelpCommand.ShowHelp(args.Channel, this);
-                    return;
-                }
-
-                string cmdType = @params.Substring(0, index).TrimStart(' ').TrimEnd(' ').ToLower(CultureInfo.CurrentCulture);
-                @params = @params.Remove(0, index + 1);
-
-                string channelIdStr;
-                ulong channelId;
-                ulong messageId;
-                DiscordChannel dchannel;
-                DiscordMessage dmessage;
-                EmbedJson embedJson;
-                DiscordEmbed embed;
-                if (cmdType.Equals("edit", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    index = @params.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                    if (index <= 1)
-                    {
-                        HelpCommand.ShowHelp(args.Channel, this);
-                        return;
-                    }
-
-                    channelIdStr = @params.Substring(0, index);
-
-                    @params = @params.Remove(0, index + 1);
-
-                    if (!ulong.TryParse(channelIdStr, out channelId))
-                    {
-                        args.Channel.SendMessageAsync("Could not parse channel id: " + channelIdStr);
-                        return;
-                    }
-
-                    index = @params.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                    if (index <= 1)
-                    {
-                        HelpCommand.ShowHelp(args.Channel, this);
-                        return;
-                    }
-
-                    string messageIdStr = @params.Substring(0, index);
-                    @params = @params.Remove(0, index + 1);
-
-                    if (!ulong.TryParse(messageIdStr, out messageId))
-                    {
-                        args.Channel.SendMessageAsync("Could not parse message id: " + messageIdStr);
-                        return;
-                    }
-
-                    dchannel = Program.DiscordHandler.Client.GetChannelAsync(channelId).ConfigureAwait(false).GetAwaiter().GetResult();
-                    dmessage = dchannel.GetMessageAsync(messageId).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                    if (dmessage == null)
-                    {
-                        args.Channel.SendMessageAsync("Could not find message " + messageId);
-                        return;
-                    }
-
-                    embedJson = Newtonsoft.Json.JsonConvert.DeserializeObject<EmbedJson>(@params);
-
-                    if (embedJson == null)
-                    {
-                        args.Channel.SendMessageAsync("Failed to parse your embed json");
-                        return;
-                    }
-
-                    embed = embedJson.BuildEmbed();
-                    dmessage.ModifyAsync(embedJson.Content ?? default(Optional<string>), embed);
-
-                    return;
-                }
-                else if (cmdType.Equals("reverse", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    index = @params.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                    if (index <= 1)
-                    {
-                        HelpCommand.ShowHelp(args.Channel, this);
-                        return;
-                    }
-
-                    channelIdStr = @params.Substring(0, index);
-                    @params = @params.Remove(0, index + 1);
-
-                    if (!ulong.TryParse(channelIdStr, out channelId))
-                    {
-                        args.Channel.SendMessageAsync("Could not parse channel id: " + channelIdStr);
-                        return;
-                    }
-
-                    string messageIdStr = @params;
-
-                    if (!ulong.TryParse(messageIdStr, out messageId))
-                    {
-                        args.Channel.SendMessageAsync("Could not parse message id: " + messageIdStr);
-                        return;
-                    }
-                    dchannel = Program.DiscordHandler.Client.GetChannelAsync(channelId).ConfigureAwait(false).GetAwaiter().GetResult();
-                    dmessage = dchannel.GetMessageAsync(messageId).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                    if (dmessage == null)
-                    {
-                        args.Channel.SendMessageAsync("Could not find message " + messageId);
-                        return;
-                    }
-
-                    var reversed = EmbedJson.ReverseEmbed(dmessage);
-                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(reversed, Newtonsoft.Json.Formatting.Indented);
-
-                    args.Channel.SendMessageAsync("```js" + Environment.NewLine + json + Environment.NewLine + "```");
-                    return;
-                }
-
-                index = @params.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                if (index <= 1)
-                {
-                    HelpCommand.ShowHelp(args.Channel, this);
-                    return;
-                }
-
-                channelIdStr = @params.Substring(0, index);
-                @params = @params.Remove(0, index + 1);
-
-                if (@params.Length <= 1)
-                {
-                    HelpCommand.ShowHelp(args.Channel, this);
-                    return;
-                }
-
-                if (!ulong.TryParse(channelIdStr, out channelId))
-                {
-                    args.Channel.SendMessageAsync("Could not parse channel id: " + channelIdStr);
-                    return;
-                }
-
-                Logger.Log(channelIdStr + " : " + channelId);
-
-                dchannel = Program.DiscordHandler.Client.GetChannelAsync(channelId).ConfigureAwait(false).GetAwaiter().GetResult();
-                embedJson = Newtonsoft.Json.JsonConvert.DeserializeObject<EmbedJson>(@params);
-
-                if (embedJson == null)
-                {
-                    args.Channel.SendMessageAsync("Failed to parse your embed json");
-                    return;
-                }
-
-                embed = embedJson.BuildEmbed();
-                dchannel.SendMessageAsync(embedJson.Content, false, embed);
+                downloadUri = new Uri(args.Parameters[2].TrimStart('<').TrimEnd('>'));
             }
-#pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception ex)
-#pragma warning restore CA1031 // Do not catch general exception types
+            catch (UriFormatException)
             {
-                Logger.Log(ex.ToString(), LogLevel.Error);
+                HelpCommand.ShowHelp(args.Channel, this, ResourcesCommands.EmbedCommandInvalidUri);
+                return;
+            }
+
+            string json = wc.DownloadString(downloadUri);
+
+            if (string.IsNullOrEmpty(json))
+            {
+                HelpCommand.ShowHelp(args.Channel, this, ResourcesCommands.EmbedCommandJsonNotFound);
+                return;
+            }
+
+            EmbedJson ej = Newtonsoft.Json.JsonConvert.DeserializeObject<EmbedJson>(json);
+
+            if (ej == null ||
+                (string.IsNullOrEmpty(ej.Content) && ej.Embed == null))
+            {
+                HelpCommand.ShowHelp(args.Channel, this, ResourcesCommands.EmbedCommandJsonNotParsable);
+                return;
+            }
+
+            DiscordEmbed embed = ej.BuildEmbed();
+
+            if (embed == null)
+            {
+                HelpCommand.ShowHelp(args.Channel, this, ResourcesCommands.EmbedCommandJsonNotParsable);
+                return;
+            }
+
+            bool webhook = false;
+
+            try
+            {
+                switch (args.Parameters[0].ToLower(CultureInfo.CurrentCulture))
+                {
+                    case "webhook":
+                        {
+                            if (args.Parameters.Count < 4)
+                            {
+                                HelpCommand.ShowHelp(args.Channel, this);
+                                return;
+                            }
+
+                            ulong chId = DiscordHandler.ExtractMentionId(args.Parameters[1], true);
+
+                            if (chId == 0)
+                            {
+                                HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.CannotParseDiscordId + "channel id");
+                                return;
+                            }
+
+                            string avatarUri = null;
+
+                            if (args.Parameters.Count > 4)
+                                avatarUri = args.Parameters[4].TrimStart('<').TrimEnd('>');
+
+                            SendEmbed(this, args, embed, ej.Content, chId, args.Guild, true, args.Parameters[3], avatarUri);
+                        }
+                        break;
+
+                    default:
+                    case "create":
+                        {
+                            ulong chId = DiscordHandler.ExtractMentionId(args.Parameters[1], true);
+
+                            if (chId == 0)
+                            {
+                                HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.CannotParseDiscordId + "channel id");
+                                return;
+                            }
+
+                            SendEmbed(this, args, embed, ej.Content, chId, args.Guild, false, null, null);
+                        }
+                        break;
+
+                    case "edit":
+                        (ulong, ulong, ulong) msgUriParsed = DiscordHandler.ParseMessageLink(args.Parameters[1]);
+
+                        if (msgUriParsed.Item1 == 0 ||
+                            msgUriParsed.Item2 == 0 ||
+                            msgUriParsed.Item3 == 0)
+                        {
+                            HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.CannotParseDiscordId + "message uri");
+                            return;
+                        }
+
+                        EditEmbed(args, embed, ej.Content, msgUriParsed.Item2, msgUriParsed.Item3, args.Guild);
+                        break;
+                }
+            }
+            catch (ReadableCmdException rce)
+            {
+                HelpCommand.ShowHelp(args.Channel, this, rce.Message);
             }
         }
 
-        private ulong GetChannelId(string channel)
+
+        private static void EditEmbed(CommandEventArg args, DiscordEmbed embed, string content, ulong channelId, ulong messageId, DiscordGuild guild)
         {
-            int indexStart = channel.IndexOf('<', StringComparison.CurrentCulture);
-
-            if (indexStart == -1)
-                return 0;
-
-            string id = channel.Remove(0, indexStart + 1);
-
-            if (!id[0].Equals('#'))
-                return 0;
-
-            id = id.Remove(0, 1);
-            indexStart = channel.IndexOf('>', StringComparison.CurrentCulture);
-            if (indexStart == -1)
-                return 0;
+            DiscordChannel channel;
+            DiscordMessage message;
             try
             {
-                id = id.Substring(0, indexStart - 1);
+                channel = guild.GetChannel(channelId);
+                message = channel.GetMessageAsync(messageId).ConfigureAwait(false).GetAwaiter().GetResult();
             }
-#pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception)
-#pragma warning restore CA1031 // Do not catch general exception types
+            catch (DSharpPlus.Exceptions.NotFoundException)
             {
-                id = id.Substring(0, indexStart - 2);
+                throw new ReadableCmdException(ResourcesCommands.EmbedCommandChannelNotFound);
             }
 
-            if (ulong.TryParse(id, out ulong result))
-                return result;
+            message.ModifyAsync(string.IsNullOrEmpty(content) ? default : content, embed).ConfigureAwait(false).GetAwaiter().GetResult();
 
-            return 0;
+            args.Channel.SendMessageAsync(ResourcesCommands.EmbedCommandModified);
+        }
+
+        private static void SendEmbed(ICommand cmd, CommandEventArg args, DiscordEmbed embed, string content, ulong channelId, DiscordGuild guild, bool webhook, string webhookUser, string webhookAvatar = null)
+        {
+            DiscordChannel channel;
+            try
+            {
+                channel = guild.GetChannel(channelId);
+            }
+            catch (DSharpPlus.Exceptions.NotFoundException)
+            {
+                throw new ReadableCmdException(ResourcesCommands.EmbedCommandChannelNotFound);
+            }
+
+            if (webhook)
+            {
+                try
+                {
+                    using (WebHookHandler whh = new WebHookHandler(channel, webhookUser, webhookAvatar))
+                    {
+                        whh.SendEmbed(content, new DiscordEmbed[] { embed }).ConfigureAwait(false).GetAwaiter().GetResult();
+                    }
+                }
+                catch (UriFormatException)
+                {
+                    HelpCommand.ShowHelp(args.Channel, cmd, ResourcesCommands.EmbedCommandInvalidUri);
+                    return;
+                }
+            }
+            else
+            {
+                channel.SendMessageAsync(content: content, embed: embed).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+
+            args.Channel.SendMessageAsync(ResourcesCommands.EmbedCommandSent).ConfigureAwait(false);
         }
     }
 }

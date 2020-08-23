@@ -120,6 +120,13 @@
   <data name="CannotAddAdditionalRow" xml:space="preserve">
     <value>Cannot add an additional row, already at limit</value>
   </data>
+  <data name="CannotParseDiscordId" xml:space="preserve">
+    <value>Failed to parse </value>
+    <comment>Failed to parse {0}</comment>
+  </data>
+  <data name="CannotParseMessageLink" xml:space="preserve">
+    <value>Could not parse the message link</value>
+  </data>
   <data name="IndexHigherOrEqualThanMax" xml:space="preserve">
     <value>cannot be equal or higher than </value>
     <comment>{0} cannot be equal or higher than {1}</comment>
