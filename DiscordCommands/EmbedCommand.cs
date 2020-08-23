@@ -72,8 +72,6 @@ namespace DiscordCommands
                 return;
             }
 
-            bool webhook = false;
-
             try
             {
                 switch (args.Parameters[0].ToLower(CultureInfo.CurrentCulture))
