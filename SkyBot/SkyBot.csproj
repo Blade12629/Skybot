@@ -29,12 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="OsuHistoryEndPoint">
-      <HintPath>..\compiled\netcoreapp3.1\OsuHistoryEndPoint.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="ResourceExceptions.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
