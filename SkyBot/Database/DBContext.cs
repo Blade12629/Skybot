@@ -674,6 +674,10 @@ public class DBContext : DbContext
             entity.Property(e => e.VerificationCode)
                 .HasColumnName("verification_code")
                 .HasColumnType("longtext");
+
+            entity.Property(e => e.InvalidatesAt)
+                .HasColumnName("invalidates_at")
+                .HasColumnType("datetime");
         });
     }
 

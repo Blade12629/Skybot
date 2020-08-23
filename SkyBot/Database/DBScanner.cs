@@ -21,7 +21,7 @@ namespace SkyBot.Database
             _delay = scanDelay;
         }
 
-        public void Start()
+        public virtual void Start()
         {
             lock(SyncRoot)
             {

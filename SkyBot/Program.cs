@@ -26,6 +26,8 @@ namespace SkyBot
         public static string BotMention => DiscordHandler.Client.CurrentUser.Mention;
         public static MaintenanceScanner MaintenanceScanner { get; private set; }
 
+        private static VerificationScanner _verificationScanner;
+
         private static void Main(string[] args)
             => MainTask(args).ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -54,6 +56,9 @@ namespace SkyBot
 
                 await LoadDiscord().ConfigureAwait(false);
                 await LoadIrc().ConfigureAwait(false);
+
+                _verificationScanner = new VerificationScanner();
+                _verificationScanner.Start();
 
                 Logger.Log("Skybot started", LogLevel.Info);
             }
