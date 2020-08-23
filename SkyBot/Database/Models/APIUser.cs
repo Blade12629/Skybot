@@ -9,14 +9,14 @@ namespace SkyBot.Database.Models
     {
         public long Id { get; set; }
         public long DiscordUserId { get; set; }
-        public long DiscordGuildId { get; set; }
         public string APIKeyMD5 { get; set; }
+        public bool IsValid { get; set; }
 
-        public APIUser(long discordUserId, long discordGuildId, string aPIKeyMD5)
+        public APIUser(long discordUserId, string apiKeyMD5)
         {
             DiscordUserId = discordUserId;
-            DiscordGuildId = discordGuildId;
-            APIKeyMD5 = aPIKeyMD5;
+            APIKeyMD5 = apiKeyMD5;
+            IsValid = true;
         }
 
         public APIUser()

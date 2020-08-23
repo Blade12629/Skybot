@@ -54,11 +54,14 @@ namespace SkyBot
                     }
                 }
 
+                LoadAPI();
+
                 await LoadDiscord().ConfigureAwait(false);
                 await LoadIrc().ConfigureAwait(false);
 
                 _verificationScanner = new VerificationScanner();
                 _verificationScanner.Start();
+
 
                 Logger.Log("Skybot started", LogLevel.Info);
             }
@@ -73,6 +76,15 @@ namespace SkyBot
             }
 
             await Task.Delay(-1).ConfigureAwait(false);
+        }
+
+        private static void LoadAPI()
+        {
+            Logger.Log("Loading API", LogLevel.Info);
+
+            API.APIListener.Listener.Start(40005, System.Net.IPAddress.Any.ToString());
+
+            Logger.Log("Loaded API", LogLevel.Info);
         }
 
         /// <summary>

@@ -186,6 +186,31 @@ Admin:
   <data name="CommandUsage" xml:space="preserve">
     <value>Usage</value>
   </data>
+  <data name="CreateAPIUserCommand" xml:space="preserve">
+    <value>createapiuser</value>
+  </data>
+  <data name="CreateAPIUserCommandAlreadyCreated" xml:space="preserve">
+    <value>API user and key already exists</value>
+  </data>
+  <data name="CreateAPIUserCommandCreated" xml:space="preserve">
+    <value>API user and key created</value>
+  </data>
+  <data name="CreateAPIUserCommandDescription" xml:space="preserve">
+    <value>Creates an API user and key</value>
+  </data>
+  <data name="CreateAPIUserCommandKey" xml:space="preserve">
+    <value>Your key is:</value>
+  </data>
+  <data name="CreateAPIUserCommandNeverShare" xml:space="preserve">
+    <value>API Uri is: http://dra-gon.wtf:40005/
+(you need to include the port!)
+Never share your key in public!
+You can share this key with trustworthy people, if it happens to get public or you need to revoke/change it, contact ??????#0284
+Incase of **abuse** or **willingly** sharing it in public, you might get blacklisted from the API (permanently) (trying to bypass this will result in a complete ban from using the bot!)</value>
+  </data>
+  <data name="CreateAPIUserCommandUsage" xml:space="preserve">
+    <value>{prefix}createapiuser</value>
+  </data>
   <data name="EmbedCommand" xml:space="preserve">
     <value>embed</value>
   </data>
@@ -211,9 +236,9 @@ Admin:
     <value>Sent Embed</value>
   </data>
   <data name="EmbedCommandUsage" xml:space="preserve">
-    <value>!embed create &lt;channel&gt; &lt;urlToEmbedJson&gt;
-!embed edit &lt;messageLink&gt; &lt;urlToEmbedJson&gt;
-!embed webhook &lt;channel&gt; &lt;urlToEmbedJson&gt; &lt;username&gt; [avatarLink]
+    <value>{prefix}embed create &lt;channel&gt; &lt;urlToEmbedJson&gt;
+{prefix}embed edit &lt;messageLink&gt; &lt;urlToEmbedJson&gt;
+{prefix}embed webhook &lt;channel&gt; &lt;urlToEmbedJson&gt; &lt;username&gt; [avatarLink]
 
 Embed Visualizer: &lt;https://leovoel.github.io/embed-visualizer/&gt;</value>
   </data>

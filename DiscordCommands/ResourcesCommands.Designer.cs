@@ -262,6 +262,73 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to createapiuser.
+        /// </summary>
+        internal static string CreateAPIUserCommand {
+            get {
+                return ResourceManager.GetString("CreateAPIUserCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API user and key already exists.
+        /// </summary>
+        internal static string CreateAPIUserCommandAlreadyCreated {
+            get {
+                return ResourceManager.GetString("CreateAPIUserCommandAlreadyCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API user and key created.
+        /// </summary>
+        internal static string CreateAPIUserCommandCreated {
+            get {
+                return ResourceManager.GetString("CreateAPIUserCommandCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Creates an API user and key.
+        /// </summary>
+        internal static string CreateAPIUserCommandDescription {
+            get {
+                return ResourceManager.GetString("CreateAPIUserCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your key is:.
+        /// </summary>
+        internal static string CreateAPIUserCommandKey {
+            get {
+                return ResourceManager.GetString("CreateAPIUserCommandKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to API Uri is: http://dra-gon.wtf:40005/
+        ///(you need to include the port!)
+        ///Never share your key in public!
+        ///You can share this key with trustworthy people, if it happens to get public or you need to revoke/change it, contact ??????#0284
+        ///Incase of **abuse** or **willingly** sharing it in public, you might get blacklisted from the API (permanently) (trying to bypass this will result in a complete ban from using the bot!).
+        /// </summary>
+        internal static string CreateAPIUserCommandNeverShare {
+            get {
+                return ResourceManager.GetString("CreateAPIUserCommandNeverShare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {prefix}createapiuser.
+        /// </summary>
+        internal static string CreateAPIUserCommandUsage {
+            get {
+                return ResourceManager.GetString("CreateAPIUserCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to embed.
         /// </summary>
         internal static string EmbedCommand {
@@ -334,9 +401,9 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to !embed create &lt;channel&gt; &lt;urlToEmbedJson&gt;
-        ///!embed edit &lt;messageLink&gt; &lt;urlToEmbedJson&gt;
-        ///!embed webhook &lt;channel&gt; &lt;urlToEmbedJson&gt; &lt;username&gt; [avatarLink]
+        ///   Looks up a localized string similar to {prefix}embed create &lt;channel&gt; &lt;urlToEmbedJson&gt;
+        ///{prefix}embed edit &lt;messageLink&gt; &lt;urlToEmbedJson&gt;
+        ///{prefix}embed webhook &lt;channel&gt; &lt;urlToEmbedJson&gt; &lt;username&gt; [avatarLink]
         ///
         ///Embed Visualizer: &lt;https://leovoel.github.io/embed-visualizer/&gt;.
         /// </summary>

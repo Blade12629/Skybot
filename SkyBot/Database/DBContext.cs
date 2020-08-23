@@ -82,7 +82,7 @@ public class DBContext : DbContext
                 .HasColumnName("reason")
                 .HasColumnType("longtext");
         });
-            
+
         modelBuilder.Entity<Ticket>(entity =>
         {
             entity.ToTable("ticket");
@@ -144,7 +144,7 @@ public class DBContext : DbContext
                 .HasColumnName("end_date")
                 .HasColumnType("datetime");
         });
-        
+
         modelBuilder.Entity<SeasonTeamCardCache>(entity =>
         {
             entity.ToTable("season_team_card_cache");
@@ -214,13 +214,17 @@ public class DBContext : DbContext
             .HasColumnName("discord_user_id")
             .HasColumnType("bigint(20)");
 
-        entity.Property(e => e.DiscordGuildId)
-            .HasColumnName("discord_guild_id")
+        entity.Property(e => e.DiscordUserId)
+            .HasColumnName("discord_user_id")
             .HasColumnType("bigint(20)");
 
         entity.Property(e => e.APIKeyMD5)
             .HasColumnName("api_key_md5")
             .HasColumnType("longtext");
+
+        entity.Property(e => e.IsValid)
+            .HasColumnName("is_valid")
+            .HasColumnType("tinyint(1)");
 
     });
 
@@ -387,7 +391,7 @@ public class DBContext : DbContext
             entity.Property(e => e.VerifiedRoleId)
                 .HasColumnName("verified_role_id")
                 .HasColumnType("bigint(20)");
-            
+
             entity.Property(e => e.WelcomeMessage)
                 .HasColumnName("welcome_message")
                 .HasColumnType("longtext");
