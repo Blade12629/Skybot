@@ -25,6 +25,7 @@ namespace SkyBot
         /// </summary>
         public static string BotMention => DiscordHandler.Client.CurrentUser.Mention;
         public static MaintenanceScanner MaintenanceScanner { get; private set; }
+        public static DateTime StartedOn { get; private set; }
 
         private static VerificationScanner _verificationScanner;
 
@@ -36,6 +37,7 @@ namespace SkyBot
             try
             {
                 Logger.Log("Starting Skybot", LogLevel.Info);
+                StartedOn = DateTime.UtcNow;
 
                 LoadSettings();
 
