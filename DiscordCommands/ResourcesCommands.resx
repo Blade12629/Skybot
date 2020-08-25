@@ -372,7 +372,9 @@ I will try to answer withing 48 hours
     <value>Please setup a config first</value>
   </data>
   <data name="SyncCommandDescription" xml:space="preserve">
-    <value>Synchronizes you/Mod: Force synchronize someone</value>
+    <value>Synchronizes you
+Mod: Force synchronize someone
+Host: synchronize all users</value>
   </data>
   <data name="SyncCommandSyncSuccess" xml:space="preserve">
     <value>Synchronized </value>
@@ -382,7 +384,10 @@ I will try to answer withing 48 hours
     <value>{prefix}sync
 
 Moderator:
-{prefix}sync [discordUserId/Mention]</value>
+{prefix}sync [discordUserId/Mention]
+
+Host:
+{prefix}sync @@all</value>
   </data>
   <data name="SyncCommandVerifySelfFirst" xml:space="preserve">
     <value>You need to verify yourself first!</value>

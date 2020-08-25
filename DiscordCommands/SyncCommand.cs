@@ -28,6 +28,19 @@ namespace DiscordCommands
         {
             if (args.Parameters.Count > 0 && args.Guild != null && args.AccessLevel >= AccessLevel.Moderator)
             {
+                if (args.Guild != null && args.AccessLevel >= AccessLevel.Host && 
+                    args.Parameters[0].Equals("@@all", StringComparison.CurrentCultureIgnoreCase))
+                {
+
+                    args.Channel.SendMessageAsync("Started synchronizing all users").ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    foreach (var member in args.Guild.GetAllMembersAsync().ConfigureAwait(false).GetAwaiter().GetResult())
+                        VerificationManager.SynchronizeVerification(member.Id).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    args.Channel.SendMessageAsync("Synchronized all users");
+                    return;
+                }
+
                 ulong mentionId;
                 if ((mentionId = DiscordHandler.ExtractMentionId(args.ParameterString)) > 0)
                 {
