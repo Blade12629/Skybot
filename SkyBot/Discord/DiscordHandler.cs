@@ -126,7 +126,10 @@ namespace SkyBot.Discord
 
                 string[] lines = e.Message.Content.Split('\n');
 
-                string stage = lines.First(l => l.StartsWith("Stage -", StringComparison.CurrentCultureIgnoreCase)).Split('-')[1].Trim(' ');
+                string stageLine = lines.First(l => l.StartsWith("Stage -", StringComparison.CurrentCultureIgnoreCase));
+                int stageIndex = stageLine.IndexOf("Stage -", StringComparison.CurrentCultureIgnoreCase);
+
+                string stage = stageLine.Substring(0, stageIndex + 1).Trim(' ');
                 string mpLink = lines.First(l => l.StartsWith("MP link:", StringComparison.CurrentCultureIgnoreCase)).Split(' ')[2].Trim('>').Trim('<');
 
                 var history = OsuHistoryEndPoint.GetData.FromUrl(mpLink, null);
