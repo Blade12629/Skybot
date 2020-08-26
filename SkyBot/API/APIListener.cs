@@ -29,8 +29,16 @@ namespace SkyBot.API
         {
             _server = new RestServer(CreateSettings(port, host));
             _server.EnableThrowingExceptions = false;
+            _server.Router.SendExceptionMessages = false;
             _server.LogToConsole(Grapevine.Interfaces.Shared.LogLevel.Error);
+            _server.Router.BeforeRouting += Router_BeforeRouting;
             _server.Start();
+        }
+
+        private void Router_BeforeRouting(Grapevine.Interfaces.Server.IHttpContext context)
+        {
+            context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            context.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
         }
 
         ~APIListener()

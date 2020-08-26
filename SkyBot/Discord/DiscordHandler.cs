@@ -104,7 +104,9 @@ namespace SkyBot.Discord
 
                     if (dgc != null && dgc.AnalyzeChannelId != 0 && dgc.AnalyzeChannelId == (long)e.Channel.Id)
                     {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         Task.Run(() => InvokeAnalyzer(e, dgc)).ConfigureAwait(false);
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                         return;
                     }
                 }
