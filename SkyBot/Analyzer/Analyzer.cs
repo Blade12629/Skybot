@@ -224,20 +224,12 @@ namespace SkyBot.Analyzer
         public static DiscordEmbed GetMatchResultEmbed(long matchId)
         {
             using DBContext c = new DBContext();
-            Func<int, bool> intToBool = new Func<int, bool>(i =>
-            {
-                if (i == 0)
-                    return false;
-
-                return true;
-            });
-
             SeasonResult result = c.SeasonResult.FirstOrDefault(r => r.MatchId == matchId);
 
             if (result == null)
                 return null;
 
-            SeasonPlayer highestGpsWinningPlayer, highestGpsLosingPlayer;
+            SeasonPlayer highestGpsWinningPlayer;
 
             List<SeasonScore> scores = c.SeasonScore.Where(s => s.SeasonResultId == result.Id).ToList();
 
@@ -245,10 +237,8 @@ namespace SkyBot.Analyzer
             SeasonScore highestScore = scores.OrderByDescending(s => s.Score).ElementAt(0);
 
             SeasonBeatmap highestAccMap = c.SeasonBeatmap.FirstOrDefault(b => b.BeatmapId == highestAcc.BeatmapId);
-            SeasonBeatmap highestScoreMap = c.SeasonBeatmap.FirstOrDefault(b => b.BeatmapId == highestScore.BeatmapId);
 
             SeasonPlayer highestAccPlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestAcc.SeasonPlayerId);
-            SeasonPlayer highestScorePlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestScore.SeasonPlayerId);
 
             List<SeasonScore> highestGpsScores = scores.Where(s => s.HighestGeneralPerformanceScore).ToList();
 
@@ -256,7 +246,6 @@ namespace SkyBot.Analyzer
             SeasonScore highestGpsLosingScore = highestGpsScores.FirstOrDefault(s => s.TeamName.Equals(result.LosingTeam, StringComparison.CurrentCultureIgnoreCase));
 
             highestGpsWinningPlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestGpsWinningScore.SeasonPlayerId);
-            highestGpsLosingPlayer = c.SeasonPlayer.FirstOrDefault(b => b.Id == highestGpsLosingScore.SeasonPlayerId);
 
             int rnd = Program.Random.Next(0, 8);
             DiscordColor color;
@@ -460,11 +449,11 @@ namespace SkyBot.Analyzer
             if (playerTeamAHighestGps.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
             {
                 discordEmbedBuilder.AddField($"{playerTeamAHighestGps.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true);
-                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
             }
             else
             {
-                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
                 discordEmbedBuilder.AddField($"{playerTeamAHighestGps.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true);
             }
 
@@ -473,11 +462,11 @@ namespace SkyBot.Analyzer
             if (playerTeamAHighestScore.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
             {
                 discordEmbedBuilder.AddField($"{playerTeamAHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamAHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true);
-                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
             }
             else
             {
-                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
                 discordEmbedBuilder.AddField($"{playerTeamAHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamAHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true);
             }
 
@@ -486,12 +475,12 @@ namespace SkyBot.Analyzer
             if (playerTeamAHighestAcc.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
             {
                 discordEmbedBuilder.AddField($"{playerTeamAHighestAcc.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true);
-                discordEmbedBuilder.AddField($"{playerTeamBHighestAcc.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestAcc.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true); //lgtm [cs/dereferenced-value-may-be-null]
             }
             else
             {
                 discordEmbedBuilder.AddField($"{playerTeamBHighestAcc.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true);
-                discordEmbedBuilder.AddField($"{playerTeamAHighestAcc.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true);
+                discordEmbedBuilder.AddField($"{playerTeamAHighestAcc.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgAcc.Value.Item1, 2, MidpointRounding.AwayFromZero)} %", "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", true); //lgtm [cs/dereferenced-value-may-be-null]
             }
 
             return discordEmbedBuilder.Build();
@@ -655,7 +644,7 @@ namespace SkyBot.Analyzer
             }
 
             teamAHighestGPS.HighestGeneralPerformanceScore = true;
-            teamBHighestGPS.HighestGeneralPerformanceScore = true;
+            teamBHighestGPS.HighestGeneralPerformanceScore = true; //lgtm [cs/dereferenced-value-may-be-null]
 
             c.SeasonScore.AddRange(scores);
 
@@ -688,19 +677,23 @@ namespace SkyBot.Analyzer
         private static (string, string) GetVersusTeamNames(string matchName)
         {
             string[] MatchNameSplit = matchName.Split(' ');
-            string teamRed = MatchNameSplit[1].TrimStart('(');
+
+            StringBuilder teamRedBuilder = new StringBuilder(MatchNameSplit[1].TrimStart('('));
+
+            //string teamRed = MatchNameSplit[1].TrimStart('(');
             int teamVsIndex = MatchNameSplit.ToList().FindIndex(str => str.ToLower(CultureInfo.CurrentCulture).Equals("vs", StringComparison.CurrentCulture));
 
             for (int i = 2; i < teamVsIndex; i++)
-                teamRed += string.Format(CultureInfo.CurrentCulture, " {0}", MatchNameSplit[i]);
+                teamRedBuilder.Append(string.Format(CultureInfo.CurrentCulture, " {0}", MatchNameSplit[i]));
 
-            string teamBlue = MatchNameSplit[teamVsIndex + 1].TrimStart('(');
-            teamRed = teamRed.TrimEnd(')');
+            StringBuilder teamBlueBuilder = new StringBuilder(MatchNameSplit[teamVsIndex + 1].TrimStart('('));
+            //string teamBlue = MatchNameSplit[teamVsIndex + 1].TrimStart('(');
+            string teamRed = teamRedBuilder.ToString().TrimEnd(')');
 
             for (int i = teamVsIndex + 2; i < MatchNameSplit.Length; i++)
-                teamBlue += string.Format(CultureInfo.CurrentCulture, " {0}", MatchNameSplit[i]);
+                teamBlueBuilder.Append(string.Format(CultureInfo.CurrentCulture, " {0}", MatchNameSplit[i]));
 
-            teamBlue = teamBlue.TrimEnd(')');
+            string teamBlue = teamBlueBuilder.ToString().TrimEnd(')');
 
             return (teamRed, teamBlue);
         }
@@ -721,9 +714,6 @@ namespace SkyBot.Analyzer
             HistoryBeatmap highestAccuracyBeatmap = null;
             List<Rank> sortedRanksAccuracy = new List<Rank>();
 
-            StringComparer curCultIgnore = StringComparer.CurrentCultureIgnoreCase;
-
-            List<HistoryScore> scores = new List<HistoryScore>();
             List<BeatmapPlayCount> playCounts = new List<BeatmapPlayCount>();
 
             int warmupCounter = 0;
@@ -834,9 +824,6 @@ namespace SkyBot.Analyzer
             List<SeasonScore> scores = c.SeasonScore.Where(s => s.SeasonPlayerId == player.Id).ToList();
             double result = 0;
 
-            List<double> gpsValues = new List<double>();
-            List<double> accValues = new List<double>();
-
             int n = scores.Count;
             double x, y, z, acc, gps, miss;
             double accMax = 0;
@@ -861,9 +848,6 @@ namespace SkyBot.Analyzer
 
                 accMax += acc - miss;
                 gpsMax += gps - miss;
-
-                accValues.Add(acc);
-                gpsValues.Add(gps);
             }
             double accAvg = 0;
             double gpsAvg = 0;

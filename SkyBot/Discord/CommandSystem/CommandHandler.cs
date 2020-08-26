@@ -432,7 +432,7 @@ namespace SkyBot.Discord.CommandSystem
                 return false;
 
             if (access.HasValue)
-                drb = drb.Where(d => d.AccessLevel == (short)access.Value).ToList();
+                drb = drb.Where(d => d.AccessLevel == (short)access.Value).ToList(); //lgtm [cs/dereferenced-value-may-be-null]
 
             if (drb.Count == 0)
                 return false;

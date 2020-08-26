@@ -48,7 +48,7 @@ namespace SkyBot.Discord.CommandSystem
 
             base.Unload();
 
-            GC.Collect();
+            GC.Collect(); //lgtm [cs/call-to-gc]
             GC.SuppressFinalize(this);
 
             int waitCounter = 0;

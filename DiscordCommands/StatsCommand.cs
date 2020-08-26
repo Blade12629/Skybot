@@ -192,7 +192,6 @@ namespace DiscordCommands
 
         private static void OnTeamProfile(CommandEventArg args)
         {
-            using DBContext c = new DBContext();
             (string, long) userParsed = TryParseIdOrUsernameString(args.Parameters);
 
             string teamName = userParsed.Item1;

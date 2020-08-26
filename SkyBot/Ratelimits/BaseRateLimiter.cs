@@ -132,7 +132,6 @@ namespace SkyBot.Ratelimits
                 _max = 0;
                 _current = 0;
 
-                GC.Collect();
                 GC.SuppressFinalize(this);
 
                 IsDisposed = true;

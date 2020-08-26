@@ -35,7 +35,7 @@ namespace SkyBot.Osu.API.V1
             {
                 DataTransmitter<T> dt = new DataTransmitter<T>();
 
-                bool result = _qrl.Increment(new Action(() =>
+                _ = _qrl.Increment(new Action(() =>
                 {
                     string jsonInput = "";
 
@@ -48,8 +48,6 @@ namespace SkyBot.Osu.API.V1
                 }),
                     new Action<object>(o =>
                     {
-                        DataTransmitter<T> dt = (DataTransmitter<T>)o;
-
                     }),
                     dt);
 

@@ -197,7 +197,7 @@ namespace SkyBot.Discord
                 if (!aex.InnerExceptions.Any(e => e is NotFoundException))
                     throw;
             }
-            catch (NotFoundException)
+            catch (NotFoundException) //lgtm [cs/empty-catch-block]
             {
 
             }
