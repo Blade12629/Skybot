@@ -123,7 +123,18 @@ namespace DiscordCommands
 
             List<SeasonPlayerCardCache> players = GetPlayers(args.Guild).OrderByDescending(sp => sp.OverallRating).ToList();
 
-            if (reverse)
+            if (players.Count == 0)
+            {
+                DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
+                {
+                    Title = ResourceStats.NoStatsFound,
+                    Description = Resources.InvisibleCharacter
+                };
+
+                args.Channel.SendMessageAsync(embed: builder.Build());
+                return;
+            }
+            else if (reverse)
                 players.Reverse();
 
             args.Channel.SendMessageAsync(embed: GetListAsEmbed<SeasonPlayerCardCache>(players, page * 10, 10, ResourceStats.Players,
@@ -141,7 +152,17 @@ namespace DiscordCommands
             page--;
 
             List<SeasonTeamCardCache> teams = GetTeams(args.Guild).OrderByDescending(sp => sp.TeamRating).ToList();
+            if (teams.Count == 0)
+            {
+                DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
+                {
+                    Title = ResourceStats.NoStatsFound,
+                    Description = Resources.InvisibleCharacter
+                };
 
+                args.Channel.SendMessageAsync(embed: builder.Build());
+                return;
+            }
             if (reverse)
                 teams.Reverse();
 
@@ -236,7 +257,20 @@ namespace DiscordCommands
                 }
             }
 
-            args.Channel.SendMessageAsync(embed: GetMatchEmbedFromDB((int)matchId));
+            DiscordEmbed embed = GetMatchEmbedFromDB((int)matchId);
+
+            if (embed == null)
+            {
+                DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
+                {
+                    Title = ResourceStats.MatchNotFound,
+                    Description = Resources.InvisibleCharacter
+                };
+
+                embed = builder.Build();
+            }
+
+            args.Channel.SendMessageAsync(embed: embed);
         }
 
         private static (string, long) TryParseIdOrUsernameString(List<string> parameters)
