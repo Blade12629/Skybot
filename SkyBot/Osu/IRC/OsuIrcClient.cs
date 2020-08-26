@@ -79,7 +79,7 @@ namespace SkyBot.Osu.IRC
 
                 if (nick[0] == '#')
                     Task.Run(() => OnChannelMessage?.Invoke(this, e));
-                else if (nick.Equals(Resources.OsuIrcBotName, StringComparison.CurrentCultureIgnoreCase))
+                else if (nick.Equals(Resources.OsuIrcBancho, StringComparison.CurrentCultureIgnoreCase))
                     Task.Run(() => OnBanchoMessage?.Invoke(this, e));
                 else
                 {

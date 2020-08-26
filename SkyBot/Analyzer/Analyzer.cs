@@ -624,7 +624,7 @@ namespace SkyBot.Analyzer
                 }
             }
 
-            CalculateGPSNew(ref scores);
+            CalculateGPS(scores);
 
             SeasonScore teamAHighestGPS = scores[0];
             SeasonScore teamBHighestGPS = null;
@@ -875,7 +875,7 @@ namespace SkyBot.Analyzer
 
             if (accAvg != 0 || gpsAvg != 0)
             {
-                double overallRating = ((gpsAvg * gpsAvg) * (accAvg * accAvg)) / (gpsAvg * accAvg) / 100.0 / 30.0 / 2.5;
+                double overallRating = ((gpsAvg * gpsAvg) * (accAvg * accAvg)) / (gpsAvg * accAvg) / 100.0 / 30.0 / 8.5;
 
                 result = Math.Round(overallRating, 2, MidpointRounding.AwayFromZero);
             }
@@ -883,99 +883,11 @@ namespace SkyBot.Analyzer
             return result;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="scores">Map Scores</param>
-        /// <returns>bot_season_player_id, gps</returns>
-        private static void CalculateGPS(ref List<SeasonScore> scores)
+        private static void CalculateGPS(List<SeasonScore> scores)
         {
-            const double ACC_MULTI = 3.8;
-            const double SCORE_MULTI = 1.2;
-            const double COMBO_MULTI = 0.8;
-            const double HITS300_MULTI = 1.0;
-            const double MISSES_MULTI = 0.15;
-
-            if (scores.Count == 0)
-                throw new ArgumentOutOfRangeException(nameof(scores));
-
-            Dictionary<long, List<double>> results = new Dictionary<long, List<double>>();
-
-            List<SeasonScore> scoresByAcc = scores.OrderBy(s => s.Accuracy).ToList();
-            List<SeasonScore> scoresByScore = scores.OrderBy(s => s.Score).ToList();
-            List<SeasonScore> scoresByMisses = scores.OrderBy(s => s.CountMiss).ToList();
-            List<SeasonScore> scoresByCombo = scores.OrderBy(s => s.MaxCombo).ToList();
-            List<SeasonScore> scoresByHits300 = scores.OrderBy(s => s.Count300).ToList();
-
-            Dictionary<long, List<double>> resultMisses = new Dictionary<long, List<double>>();
-
-            Action<List<SeasonScore>, double, Func<SeasonScore, SeasonScore, bool>, Dictionary<long, List<double>>, bool> calculator = new Action<List<SeasonScore>, double, Func<SeasonScore, SeasonScore, bool>, Dictionary<long, List<double>>, bool>((scores, multi, equalityCheck, ranking, subtract) =>
-            {
-                int x;
-                for (int i = scores.Count - 1; i > 0; i--)
-                {
-                    x = i + 1;
-
-                    while ((x < scores.Count && equalityCheck(scores[i], scores[x])))
-                        x++;
-
-                    float value = (float)(x * multi);
-
-                    if (subtract && value > 0)
-                        value *= -1;
-
-                    if (ranking.ContainsKey(scores[i].SeasonPlayerId))
-                        ranking[scores[i].SeasonPlayerId].Add(value);
-                    else
-                        ranking.Add(scores[i].SeasonPlayerId, new List<double>() { value });
-                }
-            });
-
-            calculator(scoresByAcc, ACC_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => ss1.Accuracy == ss2.Accuracy), results, false);
-            calculator(scoresByScore, SCORE_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => ss1.Score == ss2.Score), results, false);
-            calculator(scoresByCombo, COMBO_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => ss1.MaxCombo == ss2.MaxCombo), results, false);
-            calculator(scoresByHits300, HITS300_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => ss1.Count300 == ss2.Count300), results, false);
-            calculator(scoresByMisses, MISSES_MULTI, new Func<SeasonScore, SeasonScore, bool>((ss1, ss2) => false), resultMisses, false);
-
-            Dictionary<long, double> averagePerformances = new Dictionary<long, double>();
-
-            foreach(var pair in results)
-            {
-                double total = 0;
-                for (int i = 0; i < pair.Value.Count; i++)
-                    total += pair.Value[i];
-
-                total /= pair.Value.Count;
-
-                List<double> misses = resultMisses[pair.Key];
-
-                double missTotal = 0;
-                for (int i = 0; i < misses.Count; i++)
-                    missTotal += misses[i];
-
-                missTotal /= misses.Count;
-
-                averagePerformances.Add(pair.Key, total - missTotal);
-            }
-
-            for (int i = 0; i < averagePerformances.Count; i++)
-            {
-                var kvp = averagePerformances.ElementAt(i);
-
-                var score = scores.FirstOrDefault(s => s.SeasonPlayerId == kvp.Key);
-
-                if (scores == null || scores.Count == 0 || kvp.Value <= 0)
-                    Debugger.Break();
-
-                score.GeneralPerformanceScore = kvp.Value;
-            }
-        }
-
-        private static void CalculateGPSNew(ref List<SeasonScore> scores)
-        {
-            const double ACC_MULTI = 0.8;
+            const double ACC_MULTI = 1.1;
             const double SCORE_MULTI = 0.9;
-            const double MISSES_MULTI = 0.1;
+            const double MISSES_MULTI = 0.15;
             const double COMBO_MULTI = 1.0;
             const double _300_MULTI = 1.0;
 
@@ -1004,7 +916,7 @@ namespace SkyBot.Analyzer
             gpsValues.Remove(highestGPS.Key);
 
             foreach (var pair in gpsValues)
-                scores.Find(s => s.SeasonPlayerId == pair.Key).GeneralPerformanceScore = pair.Value;
+                scores.Find(s => s.SeasonPlayerId == pair.Key).GeneralPerformanceScore = pair.Value * 100;
         }
 
         private static void CalculateMultiValue<T>(List<SeasonScore> scores, Dictionary<long, double> gpsValues, double multi, Func<SeasonScore, T> sort, Func<SeasonScore, SeasonScore, bool> equality, bool sortByAscending = true, bool subtract = false)
@@ -1024,9 +936,9 @@ namespace SkyBot.Analyzer
                 }
 
                 if (subtract)
-                    gpsValues[scores[i].SeasonPlayerId] -= x * multi / 2;
+                    gpsValues[scores[i].SeasonPlayerId] -= x * multi / scores.Count;
                 else
-                    gpsValues[scores[i].SeasonPlayerId] += x * multi / 2;
+                    gpsValues[scores[i].SeasonPlayerId] += x * multi / scores.Count;
             }
         }
     }
