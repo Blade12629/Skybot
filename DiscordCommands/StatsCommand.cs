@@ -9,6 +9,7 @@ using System.Text;
 using DSharpPlus.Entities;
 using System.Globalization;
 using System.Linq;
+using SkyBot.Discord;
 
 namespace DiscordCommands
 {
@@ -125,13 +126,7 @@ namespace DiscordCommands
 
             if (players.Count == 0)
             {
-                DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
-                {
-                    Title = ResourceStats.NoStatsFound,
-                    Description = Resources.InvisibleCharacter
-                };
-
-                args.Channel.SendMessageAsync(embed: builder.Build());
+                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.NoStatsFound).ConfigureAwait(false);
                 return;
             }
             else if (reverse)
@@ -154,13 +149,7 @@ namespace DiscordCommands
             List<SeasonTeamCardCache> teams = GetTeams(args.Guild).OrderByDescending(sp => sp.TeamRating).ToList();
             if (teams.Count == 0)
             {
-                DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
-                {
-                    Title = ResourceStats.NoStatsFound,
-                    Description = Resources.InvisibleCharacter
-                };
-
-                args.Channel.SendMessageAsync(embed: builder.Build());
+                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.NoStatsFound).ConfigureAwait(false);
                 return;
             }
             if (reverse)
@@ -186,7 +175,7 @@ namespace DiscordCommands
 
             if (osuUserId == -1)
             {
-                args.Channel.SendMessageAsync(ResourceStats.PlayerNotFound + osuUserId);
+                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
                 return;
             }
 
@@ -194,7 +183,7 @@ namespace DiscordCommands
 
             if (spcc == null)
             {
-                args.Channel.SendMessageAsync(ResourceStats.PlayerNotFound + osuUserId);
+                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
                 return;
             }
 
@@ -212,7 +201,7 @@ namespace DiscordCommands
 
             if (stcc == null)
             {
-                args.Channel.SendMessageAsync(ResourceStats.TeamNotFound + teamName);
+                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.TeamNotFound + teamName).ConfigureAwait(false);
                 return;
             }
 
@@ -252,7 +241,7 @@ namespace DiscordCommands
                 if (!c.SeasonResult.Any(sr => sr.MatchId == matchId &&
                                               sr.DiscordGuildId == (long)args.Guild.Id))
                 {
-                    args.Channel.SendMessageAsync(ResourceStats.MatchNotFound + matchId);
+                    DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.MatchNotFound + matchId).ConfigureAwait(false);
                     return;
                 }
             }

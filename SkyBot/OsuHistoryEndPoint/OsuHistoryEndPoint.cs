@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,11 @@ namespace OsuHistoryEndPoint
         /// </summary>
         public static HistoryUser GetUser(int userID, History history)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+            else if (userID <= 0)
+                throw new ArgumentOutOfRangeException(nameof(userID));
+
             return history.Users.FirstOrDefault(hu => hu.UserId == userID);
         }
         
@@ -26,6 +32,9 @@ namespace OsuHistoryEndPoint
         /// </summary>
         public static HistoryUser GetUser(HistoryScore score, History history)
         {
+            if (score == null)
+                throw new ArgumentNullException(nameof(score));
+
             return GetUser(score.UserId, history);
         }
 
@@ -35,6 +44,9 @@ namespace OsuHistoryEndPoint
         /// <returns>Array</returns>
         public static List<HistoryGame> GetMatches(History history)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
             return history.Events.Where(he => he.Detail.Type.Equals("other", StringComparison.CurrentCultureIgnoreCase))
                                  .Select(he => he.Game)
                                  .ToList();
@@ -45,6 +57,9 @@ namespace OsuHistoryEndPoint
         /// </summary>
         public static List<string> GetMatchNames(History history)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
             return history.Events.Where(he => he.Detail.Type.Equals("other", StringComparison.CurrentCultureIgnoreCase))
                                  .Select(he => he.Detail.MatchName)
                                  .ToList();
@@ -54,13 +69,23 @@ namespace OsuHistoryEndPoint
         /// Gets the Event when the Match was created
         /// </summary>
         public static HistoryEvent GetMatchCreatedEvent(History history)
-            => history.Events[0];
+        {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
+            return history.Events[0];
+        }
 
         /// <summary>
         /// Gets the Event when the Match was disbanded (Last event)
         /// </summary>
         public static HistoryEvent GetMatchDisbandedEvents(History history)
-            => history.Events[history.Events.Count() - 1];
+        {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
+            return history.Events[history.Events.Length - 1];
+        }
 
         /// <summary>
         /// Gets the wins for both teams
@@ -68,6 +93,9 @@ namespace OsuHistoryEndPoint
         /// <returns>KeyValuePair TeamBlue TeamRed</returns>
         public static KeyValuePair<int, int> GetWins(History history)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
             int teamRedWins = 0;
             int teamBlueWins = 0;
 
@@ -86,7 +114,7 @@ namespace OsuHistoryEndPoint
 
                 foreach(HistoryScore CurScore in curGame.Scores)
                 {
-                    switch(CurScore.Match.Team.ToLower())
+                    switch(CurScore.Match.Team.ToLower(CultureInfo.CurrentCulture))
                     {
                         case "red":
                             teamRedCurrent++;
@@ -113,6 +141,9 @@ namespace OsuHistoryEndPoint
         /// <returns>team1, team2</returns>
         public static KeyValuePair<string, string> GetTeamNames(History history)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
             string[] matchName = history.Events.First(CurEvent => CurEvent.Detail.Type == "other").Detail.MatchName.Split(' ');
 
             int vsIndex = 0;
@@ -120,20 +151,20 @@ namespace OsuHistoryEndPoint
             string teamRed = "";
             string teamBlue = "";
 
-            for (int i = 1; i < matchName.Count(); i++)
+            for (int i = 1; i < matchName.Length; i++)
             {
                 string matchPart = matchName[i];
 
-                if (matchPart.ToLower().Equals("vs"))
+                if (matchPart.ToLower(CultureInfo.CurrentCulture).StartsWith("vs", StringComparison.CurrentCultureIgnoreCase))
                 {
                     vsIndex = i;
                     continue;
                 }
 
                 if (vsIndex == 0)
-                    teamRed += string.Format(" {0}", matchPart);
+                    teamRed += string.Format(CultureInfo.CurrentCulture, " {0}", matchPart);
                 else
-                    teamBlue += string.Format(" {0}", matchPart);
+                    teamBlue += string.Format(CultureInfo.CurrentCulture, " {0}", matchPart);
             }
             teamRed = teamRed.TrimStart('(').TrimEnd(')');
             teamBlue = teamBlue.TrimStart('(').TrimEnd(')');
@@ -148,6 +179,9 @@ namespace OsuHistoryEndPoint
         /// <returns></returns>
         public static List<HistoryBeatmap> GetAllBeatMaps(History history)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
             return history.Events.Where(ev => ev.Game != null && ev.Game.Beatmap != null)
                                  .Select(ev => ev.Game.Beatmap)
                                  .ToList();
@@ -159,7 +193,12 @@ namespace OsuHistoryEndPoint
         /// <param name="history"></param>
         /// <returns></returns>
         public static int PlayerCount(History history)
-            => history.Users.Length;
+        {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+            
+            return history.Users.Length;
+        }
 
         /// <summary>
         /// Gets the amount of games played
@@ -168,6 +207,9 @@ namespace OsuHistoryEndPoint
         /// <returns></returns>
         public static int GamesPlayed(History history)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
             return history.Events.Count(he => he.Game != null && he.Game.Scores != null && he.Game.Scores.Length > 0);
         }
 
@@ -176,6 +218,9 @@ namespace OsuHistoryEndPoint
         /// </summary>
         public static int CountPlayerLeft(History history)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
             return history.Events.Count(he => he.Detail.Type.Equals("player-left", StringComparison.CurrentCultureIgnoreCase));
         }
 
@@ -184,14 +229,20 @@ namespace OsuHistoryEndPoint
         /// </summary>
         public static int CountPlayerJoined(History history)
         {
+            if (history == null)
+                throw new ArgumentNullException(nameof(history));
+
             return history.Events.Count(he => he.Detail.Type.Equals("player-joined", StringComparison.CurrentCultureIgnoreCase));
         }
 
         /// <summary>
         /// Parses the Json from a Url ex.: 000000/history
         /// </summary>
-        public static History FromUrl(string Url, System.Net.WebClient wc)
+        public static History FromUrl(string url, System.Net.WebClient wc)
         {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException(nameof(url));
+
             bool dispose = false;
             if (wc == null)
             {
@@ -200,17 +251,17 @@ namespace OsuHistoryEndPoint
                 dispose = true;
             }
 
-            string[] urlSplit = Url.Split('/');
-
-            History history;
-            string json;
             try
             {
-                if (!long.TryParse(urlSplit[urlSplit.Length - 1], out long mId))
-                    throw new ArgumentException("Could not parse match id from url", nameof(Url));
+                string[] urlSplit = url.Split('/');
 
-                Url = Url.TrimEnd('/') + "/history";
-                json = wc.DownloadString(Url);
+                History history;
+                string json;
+                if (!long.TryParse(urlSplit[urlSplit.Length - 1], out long mId))
+                    throw new ArgumentException(SkyBot.Resources.HistoryEPCouldNotParseMatchIdUrl, nameof(url));
+
+                url = url.TrimEnd('/') + "/history";
+                json = wc.DownloadString(url);
                 history = JsonConvert.DeserializeObject<History>(json);
 
                 List<History> histories = new List<History>(2);
@@ -218,7 +269,7 @@ namespace OsuHistoryEndPoint
                 HistoryEvent firstEvent = history.Events[0];
                 while(firstEvent.Detail == null || !firstEvent.Detail.Type.Equals("match-created", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    json = wc.DownloadString($"{Url}?before={firstEvent.EventId}");
+                    json = wc.DownloadString($"{url}?before={firstEvent.EventId}");
                     histories.Add(JsonConvert.DeserializeObject<History>(json));
                     firstEvent = histories[histories.Count - 1].Events[0];
                 }
@@ -248,14 +299,13 @@ namespace OsuHistoryEndPoint
                 }
 
                 history.CurrentGameId = mId;
+                return history;
             }
             finally
             {
                 if (dispose)
                     wc.Dispose();
             }
-
-            return history;
         }
     }
 }

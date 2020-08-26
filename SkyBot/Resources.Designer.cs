@@ -88,6 +88,15 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid API Key.
+        /// </summary>
+        public static string APIInvalidKey {
+            get {
+                return ResourceManager.GetString("APIInvalidKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to blue.
         /// </summary>
         public static string BlueLower {
@@ -192,6 +201,15 @@ namespace SkyBot {
         public static string HighestScore {
             get {
                 return ResourceManager.GetString("HighestScore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not parse the match id from url.
+        /// </summary>
+        public static string HistoryEPCouldNotParseMatchIdUrl {
+            get {
+                return ResourceManager.GetString("HistoryEPCouldNotParseMatchIdUrl", resourceCulture);
             }
         }
         

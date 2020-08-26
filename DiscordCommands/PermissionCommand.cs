@@ -1,5 +1,6 @@
 ﻿using SkyBot;
 using SkyBot.Database.Models;
+using SkyBot.Discord;
 using SkyBot.Discord.CommandSystem;
 using System;
 using System.Collections.Generic;
@@ -23,10 +24,49 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.PermissionCommandUsage;
 
-        public int MinParameters => 2;
+        public int MinParameters => 1;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
+            if (args.Parameters[0].Equals("list", StringComparison.CurrentCultureIgnoreCase))
+            {
+                int page = 1;
+
+                if (args.Parameters.Count > 1 && int.TryParse(args.Parameters[1], out int newPage))
+                    page = newPage;
+
+                using DBContext c = new DBContext();
+
+                List<DiscordRoleBind> drbs = c.DiscordRoleBind.Where(drb => drb.GuildId == (long)args.Guild.Id).ToList();
+
+                if (drbs.Count == 0)
+                {
+                    DiscordHandler.SendSimpleEmbed(args.Channel, ResourcesCommands.PermissionCommandNoBindsFound).ConfigureAwait(false);
+                    return;
+                }
+
+                StringBuilder roleIdBuilder = new StringBuilder();
+                StringBuilder accessBuilder = new StringBuilder();
+
+                for (int i = 0; i < drbs.Count; i++)
+                {
+                    roleIdBuilder.AppendLine(((ulong)drbs[i].RoleId).ToString(CultureInfo.CurrentCulture));
+                    accessBuilder.AppendLine(drbs[i].AccessLevel.ToString(CultureInfo.CurrentCulture));
+                }
+
+                EmbedPageBuilder epb = new EmbedPageBuilder(2);
+                epb.AddColumn("RoleId", accessBuilder.ToString());
+                epb.AddColumn("Access Level", accessBuilder.ToString());
+
+                args.Channel.SendMessageAsync(embed: epb.BuildPage(page));
+                return;
+            }
+            else if (args.Parameters.Count < 2)
+            {
+                HelpCommand.ShowHelp(args.Channel, this, Resources.NotEnoughParameters);
+                return;
+            }
+
             if (!ulong.TryParse(args.Parameters[1], out ulong roleId))
             {
                 HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, Resources.FailedParseException, args.Parameters[1]));

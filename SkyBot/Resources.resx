@@ -126,6 +126,9 @@
   <data name="AccessTooLow" xml:space="preserve">
     <value>You do not have enough permissions to use this command</value>
   </data>
+  <data name="APIInvalidKey" xml:space="preserve">
+    <value>Invalid API Key</value>
+  </data>
   <data name="BlueLower" xml:space="preserve">
     <value>blue</value>
   </data>
@@ -162,6 +165,9 @@
   </data>
   <data name="HighestScore" xml:space="preserve">
     <value>Highest Score</value>
+  </data>
+  <data name="HistoryEPCouldNotParseMatchIdUrl" xml:space="preserve">
+    <value>Could not parse the match id from url</value>
   </data>
   <data name="InvisibleCharacter" xml:space="preserve">
     <value>‎</value>

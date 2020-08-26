@@ -7,9 +7,12 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using SkyBot.Database.Models;
+using Grapevine.Server;
 
 namespace SkyBot.API
 {
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable CA1062 // Validate arguments of public methods
     [RestResource]
     public class APIRoutes
     {
@@ -18,7 +21,7 @@ namespace SkyBot.API
             if (!APIAuth.CheckApiKey(c.Request.Headers.Get("apikey")) &&
                 !APIAuth.CheckApiKey(c.Request.QueryString["apikey"]))
             {
-                Respond(HttpStatusCode.Unauthorized, "Invalid API Key", c);
+                Respond(HttpStatusCode.Unauthorized, Resources.APIInvalidKey, c);
                 return false;
             }
 
@@ -28,7 +31,7 @@ namespace SkyBot.API
         public static void Respond(HttpStatusCode code, string message, IHttpContext context)
         {
             context.Response.ContentType = ContentType.JSON;
-            context.Response.SendResponse(Encoding.UTF8.GetBytes(message));
+            context.Response.SendResponse(code, message);
         }
 
         public static void RespondAsJson(HttpStatusCode code, object jsonObject, IHttpContext context)
@@ -140,4 +143,6 @@ namespace SkyBot.API
             }
         }
     }
+#pragma warning restore CA1062 // Validate arguments of public methods
+#pragma warning restore CA1822 // Mark members as static
 }

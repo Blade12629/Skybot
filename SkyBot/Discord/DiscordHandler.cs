@@ -296,5 +296,21 @@ namespace SkyBot.Discord
 
             return builder.Build();
         }
+
+        public static async Task<DiscordMessage> SendSimpleEmbed(DiscordChannel channel, string title, string description = null)
+        {
+            if (channel == null)
+                throw new ArgumentNullException(nameof(channel));
+            else if (string.IsNullOrEmpty(title))
+                throw new ArgumentNullException(nameof(title));
+
+            DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
+            {
+                Title = title,
+                Description = string.IsNullOrEmpty(description) ? Resources.InvisibleCharacter : description
+            };
+
+            return await channel.SendMessageAsync(embed: builder.Build()).ConfigureAwait(false);
+        }
     }
 }

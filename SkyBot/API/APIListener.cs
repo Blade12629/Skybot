@@ -46,7 +46,7 @@ namespace SkyBot.API
             Dispose(false);
         }
 
-        private IServerSettings CreateSettings(int port, string host)
+        private static IServerSettings CreateSettings(int port, string host)
         {
             ServerSettings settings = new ServerSettings()
             {

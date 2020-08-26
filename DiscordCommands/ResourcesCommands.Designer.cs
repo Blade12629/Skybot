@@ -643,6 +643,15 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find any role binds.
+        /// </summary>
+        internal static string PermissionCommandNoBindsFound {
+            get {
+                return ResourceManager.GetString("PermissionCommandNoBindsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No permission binds found.
         /// </summary>
         internal static string PermissionCommandNoPermissionsFound {

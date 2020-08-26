@@ -65,8 +65,6 @@ namespace DiscordCommands
             _muteTimer?.Dispose();
 
             IsDisposed = true;
-
-            GC.SuppressFinalize(this);
         }
 
         private void OnMuteTimerElapsed(object sender, ElapsedEventArgs e)

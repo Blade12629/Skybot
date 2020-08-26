@@ -321,6 +321,9 @@ Embed Visualizer: &lt;https://leovoel.github.io/embed-visualizer/&gt;</value>
   <data name="PermissionCommandInsufficientPermission" xml:space="preserve">
     <value>You do not have enough permissions</value>
   </data>
+  <data name="PermissionCommandNoBindsFound" xml:space="preserve">
+    <value>Could not find any role binds</value>
+  </data>
   <data name="PermissionCommandNoPermissionsFound" xml:space="preserve">
     <value>No permission binds found</value>
   </data>

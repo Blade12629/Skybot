@@ -150,7 +150,7 @@ namespace DiscordCommands
 
             message.ModifyAsync(string.IsNullOrEmpty(content) ? default : content, embed).ConfigureAwait(false).GetAwaiter().GetResult();
 
-            args.Channel.SendMessageAsync(ResourcesCommands.EmbedCommandModified);
+            DiscordHandler.SendSimpleEmbed(args.Channel, ResourcesCommands.EmbedCommandModified).ConfigureAwait(false);
         }
 
         private static void SendEmbed(ICommand cmd, CommandEventArg args, DiscordEmbed embed, string content, ulong channelId, DiscordGuild guild, bool webhook, string webhookUser, string webhookAvatar = null)
@@ -185,7 +185,7 @@ namespace DiscordCommands
                 channel.SendMessageAsync(content: content, embed: embed).ConfigureAwait(false).GetAwaiter().GetResult();
             }
 
-            args.Channel.SendMessageAsync(ResourcesCommands.EmbedCommandSent).ConfigureAwait(false);
+            DiscordHandler.SendSimpleEmbed(args.Channel, ResourcesCommands.EmbedCommandSent).ConfigureAwait(false);
         }
     }
 }
