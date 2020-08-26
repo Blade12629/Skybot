@@ -147,6 +147,15 @@ Admin:
   <data name="AccessLevelCommandUserOther" xml:space="preserve">
     <value>Access level of user {0} is {1}</value>
   </data>
+  <data name="BotInfoCommand" xml:space="preserve">
+    <value>botinfo</value>
+  </data>
+  <data name="BotInfoCommandDescription" xml:space="preserve">
+    <value>Displays general infos about the bot</value>
+  </data>
+  <data name="BotInfoCommandUsage" xml:space="preserve">
+    <value>{prefix}botinfo</value>
+  </data>
   <data name="BWSCommand" xml:space="preserve">
     <value>bws</value>
   </data>
@@ -164,6 +173,21 @@ Admin:
   </data>
   <data name="BWSCommandUsage" xml:space="preserve">
     <value>{prefix}bws &lt;rank&gt; &lt;badgeCount&gt;</value>
+  </data>
+  <data name="ClearMatchesCommand" xml:space="preserve">
+    <value>clearmatches</value>
+  </data>
+  <data name="ClearMatchesCommandDescription" xml:space="preserve">
+    <value>Clears all matches that are linked to the current server</value>
+  </data>
+  <data name="ClearMatchesCommandMatchesNotFound" xml:space="preserve">
+    <value>No matches found</value>
+  </data>
+  <data name="ClearMatchesCommandMatchesRemoved" xml:space="preserve">
+    <value>All matches removed</value>
+  </data>
+  <data name="ClearMatchesCommandUsage" xml:space="preserve">
+    <value>{prefix}clearmatches</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>Command</value>

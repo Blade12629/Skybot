@@ -79,11 +79,29 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You do not have enough permissions to use this command.
+        /// </summary>
+        public static string AccessTooLow {
+            get {
+                return ResourceManager.GetString("AccessTooLow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to blue.
         /// </summary>
         public static string BlueLower {
             get {
                 return ResourceManager.GetString("BlueLower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bot info for .
+        /// </summary>
+        public static string BotInfoFor {
+            get {
+                return ResourceManager.GetString("BotInfoFor", resourceCulture);
             }
         }
         
@@ -102,6 +120,15 @@ namespace SkyBot {
         public static string CannotBeNullOrEmptyException {
             get {
                 return ResourceManager.GetString("CannotBeNullOrEmptyException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Discord Servers.
+        /// </summary>
+        public static string DiscordGuilds {
+            get {
+                return ResourceManager.GetString("DiscordGuilds", resourceCulture);
             }
         }
         
@@ -196,11 +223,20 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Not enough parameters, please recheck the command.
+        /// </summary>
+        public static string NotEnoughParameters {
+            get {
+                return ResourceManager.GetString("NotEnoughParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to BanchoBot.
         /// </summary>
-        public static string OsuIrcBotName {
+        public static string OsuIrcBancho {
             get {
-                return ResourceManager.GetString("OsuIrcBotName", resourceCulture);
+                return ResourceManager.GetString("OsuIrcBancho", resourceCulture);
             }
         }
         
@@ -277,11 +313,29 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Uptime.
+        /// </summary>
+        public static string Uptime {
+            get {
+                return ResourceManager.GetString("Uptime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid verification code or verification not found.
         /// </summary>
         public static string VerCodeInvalidNotFound {
             get {
                 return ResourceManager.GetString("VerCodeInvalidNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verified Users.
+        /// </summary>
+        public static string VerifiedUsers {
+            get {
+                return ResourceManager.GetString("VerifiedUsers", resourceCulture);
             }
         }
         

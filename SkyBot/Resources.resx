@@ -123,14 +123,24 @@
   <data name="AccessLevel" xml:space="preserve">
     <value>Access Level</value>
   </data>
+  <data name="AccessTooLow" xml:space="preserve">
+    <value>You do not have enough permissions to use this command</value>
+  </data>
   <data name="BlueLower" xml:space="preserve">
     <value>blue</value>
+  </data>
+  <data name="BotInfoFor" xml:space="preserve">
+    <value>Bot info for </value>
+    <comment>Bot info for {0}</comment>
   </data>
   <data name="CannotBeNullEmptyException" xml:space="preserve">
     <value>{0} cannnot be null or empty</value>
   </data>
   <data name="CannotBeNullOrEmptyException" xml:space="preserve">
     <value>Cannot be null or empty</value>
+  </data>
+  <data name="DiscordGuilds" xml:space="preserve">
+    <value>Discord Servers</value>
   </data>
   <data name="DiscordTokenEmptyNullShort" xml:space="preserve">
     <value>Discord Bot Token cannot be null, empty or less than 10 long</value>
@@ -163,7 +173,10 @@
   <data name="Nickname" xml:space="preserve">
     <value>Nickname</value>
   </data>
-  <data name="OsuIrcBotName" xml:space="preserve">
+  <data name="NotEnoughParameters" xml:space="preserve">
+    <value>Not enough parameters, please recheck the command</value>
+  </data>
+  <data name="OsuIrcBancho" xml:space="preserve">
     <value>BanchoBot</value>
   </data>
   <data name="Password" xml:space="preserve">
@@ -190,8 +203,14 @@
   <data name="TrueLower" xml:space="preserve">
     <value>true</value>
   </data>
+  <data name="Uptime" xml:space="preserve">
+    <value>Uptime</value>
+  </data>
   <data name="VerCodeInvalidNotFound" xml:space="preserve">
     <value>Invalid verification code or verification not found</value>
+  </data>
+  <data name="VerifiedUsers" xml:space="preserve">
+    <value>Verified Users</value>
   </data>
   <data name="VerSuccess" xml:space="preserve">
     <value>Successfully verified</value>

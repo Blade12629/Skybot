@@ -172,15 +172,14 @@ namespace SkyBot.Discord.CommandSystem
 
                 AccessLevel access = GetAccessLevel(e.Author.Id, e.Guild?.Id ?? 0);
 
-                if (!_commandTypes.TryGetValue(command.ToLower(System.Globalization.CultureInfo.CurrentCulture), out ICommand cmd))
+                if (!_commandTypes.TryGetValue(command.ToLower(System.Globalization.CultureInfo.CurrentCulture), out ICommand cmd) ||
+                    config != null && access <= AccessLevel.VIP && config.CommandChannelId > 0 && config.CommandChannelId != (long)e.Channel.Id)
                     return;
                 else if (cmd.IsDisabled)
                 {
                     e.Channel.SendMessageAsync("Command is currently disabled");
                     return;
                 }
-                else if (config != null && access <= AccessLevel.VIP && config.CommandChannelId > 0 && config.CommandChannelId != (long)e.Channel.Id)
-                    return;
 
                 switch (cmd.CommandType)
                 {
@@ -206,10 +205,19 @@ namespace SkyBot.Discord.CommandSystem
                 }
 
                 if (access < cmd.AccessLevel)
+                {
+                    OnException(e.Channel, cmd, Resources.AccessTooLow);
                     return;
+                }
 
                 if (parameters.Count > 0)
                     parameters.RemoveAt(0);
+
+                if (cmd.MinParameters > 0 && parameters.Count < cmd.MinParameters)
+                {
+                    OnException(e.Channel, cmd, Resources.NotEnoughParameters);
+                    return;
+                }
 
                 string afterCmd = e.Message.Content;
 

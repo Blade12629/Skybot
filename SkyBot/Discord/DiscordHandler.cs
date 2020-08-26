@@ -9,6 +9,7 @@ using SkyBot.Database.Models;
 using System.Linq;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using System.Globalization;
 
 namespace SkyBot.Discord
 {
@@ -254,7 +255,7 @@ namespace SkyBot.Discord
         /// <returns>GuildId (0 if private chat), ChannelId, MessageId</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="FormatException"></exception>
-        public static (ulong, ulong, ulong) ParseMessageLink(string message)
+        public static DiscordMessageLink ExtractMessageLink(string message)
         {
             const string CH_START = "channels/";
 
@@ -276,7 +277,24 @@ namespace SkyBot.Discord
                 if (ulong.TryParse(split[i], out ulong id))
                     parsed[i] = id;
 
-            return (parsed[0], parsed[1], parsed[2]);
+            return new DiscordMessageLink(parsed[0], parsed[1], parsed[2]);
+        }
+
+        public DiscordEmbed GetBotInfo()
+        {
+            DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
+            {
+                Title = $"{Resources.BotInfoFor} Skybot",
+                Description = "‎"
+            };
+
+            using DBContext c = new DBContext();
+
+            builder.AddField(Resources.DiscordGuilds, Client.Guilds.Count.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField(Resources.VerifiedUsers, c.User.Count().ToString(CultureInfo.CurrentCulture), true)
+                   .AddField(Resources.Uptime, DateTime.UtcNow.Subtract(Program.StartedOn).ToString());
+
+            return builder.Build();
         }
     }
 }

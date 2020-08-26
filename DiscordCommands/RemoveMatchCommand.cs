@@ -21,9 +21,11 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.RemoveMatchCommandUsage;
 
+        public int MinParameters => 1;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count == 0 || !long.TryParse(args.Parameters[0], out long matchId))
+            if (!long.TryParse(args.Parameters[0], out long matchId))
                 return;
 
             OsuAnalyzer.RemoveMatch(matchId, args.Guild);

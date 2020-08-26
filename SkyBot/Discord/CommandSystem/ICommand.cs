@@ -21,6 +21,10 @@ namespace SkyBot.Discord.CommandSystem
         /// How to use the command
         /// </summary>
         string Usage { get; }
+        /// <summary>
+        /// Amount of parameters atleast required
+        /// </summary>
+        int MinParameters { get; }
 
         void Invoke(CommandHandler handler, CommandEventArg args);
     }

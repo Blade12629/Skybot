@@ -24,6 +24,8 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.SyncCommandUsage;
 
+        public int MinParameters => 0;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
             if (args.Parameters.Count > 0 && args.Guild != null && args.AccessLevel >= AccessLevel.Moderator)

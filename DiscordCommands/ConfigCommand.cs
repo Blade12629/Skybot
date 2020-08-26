@@ -22,14 +22,11 @@ namespace DiscordCommands
 
         public string Usage => "!config set <key> <value>\n!config get <key>\n!config list";
 
+        public int MinParameters => 1;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count < 1)
-            {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
-            }
-            else if (args.Parameters.Count > 1)
+            if (args.Parameters.Count > 1)
             {
                 switch(args.Parameters[1].ToLower(System.Globalization.CultureInfo.CurrentCulture))
                 {

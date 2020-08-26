@@ -24,14 +24,10 @@ namespace DiscordCommands
 
         public string Usage => "!userinfo <discordId/mention>";
 
+        public int MinParameters => 1;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count == 0)
-            {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
-            }
-
             args.Parameters[0] = args.Parameters[0].Trim('<', '>', '@', '!');
 
             DiscordUser user = null;

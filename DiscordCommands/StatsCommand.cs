@@ -26,6 +26,8 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.StatsCommandUsage;
 
+        public int MinParameters => 2;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
             string param = args.Parameters[0].ToLower(CultureInfo.CurrentCulture);

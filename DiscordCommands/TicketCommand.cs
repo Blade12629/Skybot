@@ -25,6 +25,8 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.TicketCommandUsage;
 
+        public int MinParameters => 1;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
             switch (args.Parameters[0].ToLower(CultureInfo.CurrentCulture))

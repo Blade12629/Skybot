@@ -19,6 +19,8 @@ namespace DiscordCommands
 
         public CommandType CommandType => CommandType.None;
 
+        public int MinParameters => 1;
+
         private static Timer _remindMeTimer;
 
         public RemindMeCommand()
@@ -80,12 +82,6 @@ namespace DiscordCommands
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count == 0)
-            {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
-            }
-
             switch (args.Parameters[0].ToLower(System.Globalization.CultureInfo.CurrentCulture))
             {
                 case "list":

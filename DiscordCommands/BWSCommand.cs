@@ -21,14 +21,10 @@ namespace DiscordCommands
 
         public CommandType CommandType => CommandType.None;
 
+        public int MinParameters => 2;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count < 2)
-            {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
-            }
-
             if (!int.TryParse(args.Parameters[0], out int rank))
             {
                 HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandFailedParseRank, args.Parameters[0]));

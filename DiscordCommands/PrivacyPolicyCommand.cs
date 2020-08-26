@@ -30,6 +30,8 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.PrivacyPolicyCommandUsage;
 
+        public int MinParameters => 0;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
             args.Channel.SendMessageAsync(GetPrivacyPolicy()).Wait();

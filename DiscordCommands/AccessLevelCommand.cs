@@ -21,6 +21,8 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.AccessLevelCommandUsage;
 
+        public int MinParameters => 0;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
             if (args.Parameters.Count == 0)

@@ -26,6 +26,8 @@ namespace DiscordCommands
 
         public string Usage => "!mute <mention/id> <duration in minutes> <reason>";
 
+        public int MinParameters => 2;
+
         private Timer _muteTimer;
 
         public MuteCommand()
@@ -119,12 +121,6 @@ namespace DiscordCommands
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count < 2)
-            {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
-            }
-
             using DBContext c = new DBContext();
             DiscordGuildConfig dgc = args.Config;
 

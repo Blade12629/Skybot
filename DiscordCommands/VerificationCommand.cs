@@ -21,6 +21,8 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.VerifyCommandUsage;
 
+        public int MinParameters => 0;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
             VerificationManager.StartVerification(args.User);

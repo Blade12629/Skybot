@@ -191,6 +191,24 @@ namespace SkyBot.Analyzer
             }
         }
 
+        public static bool ClearMatches(DiscordGuild guild)
+        {
+            using (DBContext c = new DBContext())
+            {
+                var matches = c.SeasonResult.Where(sr => sr.DiscordGuildId == (long)guild.Id).ToList();
+
+                if (matches.Count == 0)
+                    return false;
+
+                for (int i = 0; i < matches.Count; i++)
+                    OsuAnalyzer.RemoveMatch(matches[i], c);
+
+                c.SaveChanges();
+
+                return true;
+            }
+        }
+
         public static DiscordEmbed GetMatchResultEmbed(long matchId)
         {
             using DBContext c = new DBContext();

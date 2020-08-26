@@ -25,15 +25,11 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.EmbedCommandUsage;
 
+        public int MinParameters => 3;
+
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count < 3)
-            {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
-            }
-
             using WebClient wc = new WebClient();
 
             Uri downloadUri;
@@ -117,17 +113,17 @@ namespace DiscordCommands
                         break;
 
                     case "edit":
-                        (ulong, ulong, ulong) msgUriParsed = DiscordHandler.ParseMessageLink(args.Parameters[1]);
+                        DiscordMessageLink msgLink = DiscordHandler.ExtractMessageLink(args.Parameters[1]);
 
-                        if (msgUriParsed.Item1 == 0 ||
-                            msgUriParsed.Item2 == 0 ||
-                            msgUriParsed.Item3 == 0)
+                        if (msgLink.DiscordGuildId == 0 ||
+                            msgLink.DiscordChannelId == 0 ||
+                            msgLink.DiscordMessageId == 0)
                         {
                             HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.CannotParseDiscordId + "message uri");
                             return;
                         }
 
-                        EditEmbed(args, embed, ej.Content, msgUriParsed.Item2, msgUriParsed.Item3, args.Guild);
+                        EditEmbed(args, embed, ej.Content, msgLink.DiscordChannelId, msgLink.DiscordMessageId, args.Guild);
                         break;
                 }
             }

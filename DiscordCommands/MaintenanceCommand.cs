@@ -20,14 +20,10 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.MaintenanceCommandUsage;
 
+        public int MinParameters => 2;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count < 2)
-            {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
-            }
-            
             if (!bool.TryParse(args.Parameters[0], out bool status))
             {
                 HelpCommand.ShowHelp(args.Channel, this, ResourcesCommands.MaintenanceCommandFailedParseStatus);

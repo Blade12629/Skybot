@@ -145,6 +145,33 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to botinfo.
+        /// </summary>
+        internal static string BotInfoCommand {
+            get {
+                return ResourceManager.GetString("BotInfoCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Displays general infos about the bot.
+        /// </summary>
+        internal static string BotInfoCommandDescription {
+            get {
+                return ResourceManager.GetString("BotInfoCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {prefix}botinfo.
+        /// </summary>
+        internal static string BotInfoCommandUsage {
+            get {
+                return ResourceManager.GetString("BotInfoCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to bws.
         /// </summary>
         internal static string BWSCommand {
@@ -195,6 +222,51 @@ namespace DiscordCommands {
         internal static string BWSCommandUsage {
             get {
                 return ResourceManager.GetString("BWSCommandUsage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to clearmatches.
+        /// </summary>
+        internal static string ClearMatchesCommand {
+            get {
+                return ResourceManager.GetString("ClearMatchesCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clears all matches that are linked to the current server.
+        /// </summary>
+        internal static string ClearMatchesCommandDescription {
+            get {
+                return ResourceManager.GetString("ClearMatchesCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No matches found.
+        /// </summary>
+        internal static string ClearMatchesCommandMatchesNotFound {
+            get {
+                return ResourceManager.GetString("ClearMatchesCommandMatchesNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All matches removed.
+        /// </summary>
+        internal static string ClearMatchesCommandMatchesRemoved {
+            get {
+                return ResourceManager.GetString("ClearMatchesCommandMatchesRemoved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {prefix}clearmatches.
+        /// </summary>
+        internal static string ClearMatchesCommandUsage {
+            get {
+                return ResourceManager.GetString("ClearMatchesCommandUsage", resourceCulture);
             }
         }
         

@@ -22,14 +22,10 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.WarmupCommandUsage;
 
+        public int MinParameters => 1;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count <= 1)
-            {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
-            }
-
             using DBContext c = new DBContext();
 
             Action<long> ac;

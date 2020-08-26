@@ -26,6 +26,8 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.HelpCommandUsage;
 
+        public int MinParameters => 0;
+
 
         public HelpCommand()
         {

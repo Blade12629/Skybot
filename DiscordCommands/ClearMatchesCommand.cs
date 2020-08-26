@@ -12,45 +12,28 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => "clearmatches";
+        public string Command => ResourcesCommands.ClearMatchesCommand;
 
         public AccessLevel AccessLevel => AccessLevel.Admin;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => "Clears all matches that are linked to the current server";
+        public string Description => ResourcesCommands.ClearMatchesCommandDescription;
 
-        public string Usage => "!clearmatches";
+        public string Usage => ResourcesCommands.ClearMatchesCommandUsage;
+
+        public int MinParameters => 0;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Guild == null)
+            if (OsuAnalyzer.ClearMatches(args.Guild)) 
             {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
+                args.Channel.SendMessageAsync($"{ResourcesCommands.ClearMatchesCommandMatchesRemoved}\n" + ResourceStats.CacheUpdating);
+                OsuAnalyzer.UpdateCaches(args.Guild);
+                args.Channel.SendMessageAsync(ResourceStats.CacheUpdated);
             }
-
-            using (DBContext c = new DBContext())
-            {
-                var matches = c.SeasonResult.Where(sr => sr.DiscordGuildId == (long)args.Guild.Id).ToList();
-
-                if (matches.Count == 0)
-                {
-                    args.Channel.SendMessageAsync("No matches found");
-                    return;
-                }
-
-                for (int i = 0; i < matches.Count; i++)
-                    OsuAnalyzer.RemoveMatch(matches[i], c);
-
-                c.SaveChanges();
-
-                args.Channel.SendMessageAsync("All matches removed\n" + ResourceStats.CacheUpdating);
-            }
-
-            OsuAnalyzer.UpdateCaches(args.Guild);
-
-            args.Channel.SendMessageAsync(ResourceStats.CacheUpdated);
+            else
+                args.Channel.SendMessageAsync(ResourcesCommands.ClearMatchesCommandMatchesNotFound);
         }
     }
 }

@@ -23,14 +23,10 @@ namespace DiscordCommands
 
         public string Usage => ResourcesCommands.PermissionCommandUsage;
 
+        public int MinParameters => 2;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count < 2)
-            {
-                HelpCommand.ShowHelp(args.Channel, this);
-                return;
-            }
-
             if (!ulong.TryParse(args.Parameters[1], out ulong roleId))
             {
                 HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, Resources.FailedParseException, args.Parameters[1]));

@@ -20,11 +20,10 @@ namespace DiscordCommands
 
         public string Usage => "!notifyhosts <message>";
 
+        public int MinParameters => 1;
+
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {
-            if (args.Parameters.Count == 0)
-                return;
-
             foreach(var guild in Program.DiscordHandler.Client.Guilds)
                 guild.Value.Owner.SendMessageAsync(args.ParameterString).Wait();
         }
