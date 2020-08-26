@@ -127,7 +127,7 @@ namespace SkyBot
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {
-                return false;
+                return true;
             }
 
             try
