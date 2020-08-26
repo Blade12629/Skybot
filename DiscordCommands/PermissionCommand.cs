@@ -55,7 +55,7 @@ namespace DiscordCommands
                 }
 
                 EmbedPageBuilder epb = new EmbedPageBuilder(2);
-                epb.AddColumn("RoleId", accessBuilder.ToString());
+                epb.AddColumn("RoleId", roleIdBuilder.ToString());
                 epb.AddColumn("Access Level", accessBuilder.ToString());
 
                 args.Channel.SendMessageAsync(embed: epb.BuildPage(page));

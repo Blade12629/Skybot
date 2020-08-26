@@ -16,6 +16,9 @@ namespace SkyBot.API
     [RestResource]
     public class APIRoutes
     {
+        /// <summary>
+        /// Checks for the api key, if invalid sends a respond and returns false
+        /// </summary>
         public static bool CheckApiKey(IHttpContext c)
         {
             if (!APIAuth.CheckApiKey(c.Request.Headers.Get("apikey")) &&
@@ -28,19 +31,32 @@ namespace SkyBot.API
             return true;
         }
 
-        public static void Respond(HttpStatusCode code, string message, IHttpContext context)
+        /// <summary>
+        /// Sends a response
+        /// </summary>
+        public static void Respond(HttpStatusCode code, string message, IHttpContext context, ContentType? content = null)
         {
-            context.Response.ContentType = ContentType.JSON;
+            if (content.HasValue)
+                context.Response.ContentType = content.Value;
+
             context.Response.SendResponse(code, message);
         }
 
+        /// <summary>
+        /// Sends any object converted to a json representation
+        /// </summary>
         public static void RespondAsJson(HttpStatusCode code, object jsonObject, IHttpContext context)
         {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(jsonObject, Newtonsoft.Json.Formatting.Indented);
 
-            Respond(code, json, context);
+            Respond(code, json, context, ContentType.JSON);
         }
 
+        /// <summary>
+        /// Check if any request is legal
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         [RestRoute]
         public IHttpContext BaseRoute(IHttpContext c)
         {
@@ -54,7 +70,7 @@ namespace SkyBot.API
         public class Verification
         {
             /// <summary>
-            /// Parameters: type: string (discordid/osuid), id: ulong/long (discord: ulong, osu: long)
+            /// Gets a specific verified user, Parameters: type: string (discordid/osuid), id: ulong/long (discord: ulong, osu: long)
             /// </summary>
             [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/getuser")]
             public IHttpContext GetUser(IHttpContext c)
@@ -108,7 +124,7 @@ namespace SkyBot.API
             }
 
             /// <summary>
-            /// Parameters: limit: int (max 100), start: long
+            /// Gets a list of verified users, Parameters: limit: int (max 100), start: long
             /// </summary>
             [RestRoute(HttpMethod = HttpMethod.GET, PathInfo = "/listusers")]
             public IHttpContext ListUsers(IHttpContext c)

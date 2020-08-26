@@ -26,6 +26,9 @@ namespace SkyBot.Osu.API.V1
             return await GetJson<JsonGetMatch>(string.Format(System.Globalization.CultureInfo.CurrentCulture, "{0}get_match?k={1}&mp={2}", API_URL, API_Key, matchId)).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Downloads a string from a specific url and then parses it into <typeparamref name="T"/>
+        /// </summary>
         private static async Task<T> GetJson<T>(string url)
         {
             return await Task.Run(async () =>

@@ -144,6 +144,9 @@ namespace SkyBot.Analyzer
             return result;
         }
 
+        /// <summary>
+        /// Removes a specific match from the db
+        /// </summary>
         public static void RemoveMatch(SeasonResult result, DBContext c)
         {
             if (c == null)
@@ -157,6 +160,9 @@ namespace SkyBot.Analyzer
             c.SaveChanges();
         }
 
+        /// <summary>
+        /// Removes all scores from a specific match from the db
+        /// </summary>
         public static void RemoveScores(long seasonResultId, DBContext c)
         {
             if (c == null)
@@ -191,6 +197,9 @@ namespace SkyBot.Analyzer
             }
         }
 
+        /// <summary>
+        /// Clears all matches from a specific server from the db
+        /// </summary>
         public static bool ClearMatches(DiscordGuild guild)
         {
             using (DBContext c = new DBContext())
@@ -209,6 +218,9 @@ namespace SkyBot.Analyzer
             }
         }
 
+        /// <summary>
+        /// Gets a match end result embed
+        /// </summary>
         public static DiscordEmbed GetMatchResultEmbed(long matchId)
         {
             using DBContext c = new DBContext();
@@ -485,6 +497,9 @@ namespace SkyBot.Analyzer
             return discordEmbedBuilder.Build();
         }
 
+        /// <summary>
+        /// Submits stats to the database
+        /// </summary>
         public static void SubmitStats(AnalyzerResult ar, DiscordGuild guild, List<HistoryGame> games, params long[] beatmapsToIgnore)
         {
             if (ar == null)
@@ -647,6 +662,9 @@ namespace SkyBot.Analyzer
             c.SaveChanges();
         }
 
+        /// <summary>
+        /// Updates all caches for a specific server
+        /// </summary>
         public static void UpdateCaches(DiscordGuild guild)
         {
             if (guild == null)
@@ -662,29 +680,6 @@ namespace SkyBot.Analyzer
 
             for (int i = 0; i < stcc.Count; i++)
                 StatisticCache.ForceRefreshTeamCache(stcc[i].TeamName, c, (long)guild.Id);
-        }
-
-        private static void SetProperty(object instance, string propertyName, object newValue, StringComparison nameComparer = StringComparison.CurrentCultureIgnoreCase)
-        {
-            try
-            {
-                Type instanceType = instance.GetType();
-                PropertyInfo[] properties = instanceType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    if (!properties[i].Name.Equals(propertyName, nameComparer))
-                        continue;
-
-                    properties[i].SetValue(instance, newValue);
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(ex.ToString(), LogLevel.Error);
-                throw;
-            }
         }
 
         /// <summary>
@@ -828,6 +823,12 @@ namespace SkyBot.Analyzer
             playCounts.ToArray());
         }
 
+        /// <summary>
+        /// Calculates the Overall Rating used for the top list
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
         private static double GetOverallRating(SeasonPlayer player, DBContext c)
         {
             List<SeasonScore> scores = c.SeasonScore.Where(s => s.SeasonPlayerId == player.Id).ToList();
@@ -883,6 +884,10 @@ namespace SkyBot.Analyzer
             return result;
         }
 
+        /// <summary>
+        /// Calculates the General Performance Score which depends on the users performance vs the others
+        /// </summary>
+        /// <param name="scores"></param>
         private static void CalculateGPS(List<SeasonScore> scores)
         {
             const double ACC_MULTI = 1.1;
@@ -919,6 +924,9 @@ namespace SkyBot.Analyzer
                 scores.Find(s => s.SeasonPlayerId == pair.Key).GeneralPerformanceScore = pair.Value * 100;
         }
 
+        /// <summary>
+        /// Calculates the multi value for <see cref="CalculateGPS(List{SeasonScore})"/>
+        /// </summary>
         private static void CalculateMultiValue<T>(List<SeasonScore> scores, Dictionary<long, double> gpsValues, double multi, Func<SeasonScore, T> sort, Func<SeasonScore, SeasonScore, bool> equality, bool sortByAscending = true, bool subtract = false)
         {
             scores = (sortByAscending ? scores.OrderBy(sort) : scores.OrderByDescending(sort)).ToList();

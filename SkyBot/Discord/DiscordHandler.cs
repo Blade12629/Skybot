@@ -280,6 +280,9 @@ namespace SkyBot.Discord
             return new DiscordMessageLink(parsed[0], parsed[1], parsed[2]);
         }
 
+        /// <summary>
+        /// Gets an embed which shows the current amount of <see cref="DiscordGuild"/>s, Verified <see cref="User"/>s and the current bot uptime
+        /// </summary>
         public DiscordEmbed GetBotInfo()
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
@@ -297,6 +300,9 @@ namespace SkyBot.Discord
             return builder.Build();
         }
 
+        /// <summary>
+        /// Sends a simple embed that only contains a title and optional a description
+        /// </summary>
         public static async Task<DiscordMessage> SendSimpleEmbed(DiscordChannel channel, string title, string description = null)
         {
             if (channel == null)

@@ -10,6 +10,9 @@ namespace SkyBot.API
 {
     public static class APIAuth
     {
+        /// <summary>
+        /// Checks if a api key is valid
+        /// </summary>
         public static bool CheckApiKey(string key)
         {
             try
@@ -37,6 +40,9 @@ namespace SkyBot.API
             }
         }
 
+        /// <summary>
+        /// Hashes a string and returns it's hashed base64 representation
+        /// </summary>
         public static string HashKey(string key)
         {
             using (SHA512 sha = SHA512.Create())

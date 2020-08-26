@@ -25,9 +25,15 @@ namespace SkyBot
         public static string IrcUser { get; set; }
         public static string IrcPass { get; set; }
         public static int IrcRateLimitResetDelayMS { get; set; }
+        /// <summary>
+        /// Max irc messages before we reach our limit
+        /// </summary>
         public static int IrcRateLimitMax { get; set; }
 
         public static int OsuApiRateLimitResetDelayMS { get; set; }
+        /// <summary>
+        /// Max API requests before we reach our limit
+        /// </summary>
         public static int OsuApiRateLimitMax { get; set; }
         public static string OsuApiKey { get; set; }
 

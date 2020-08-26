@@ -70,6 +70,9 @@ namespace SkyBot
     public enum LogLevel
     {
         Info,
+        /// <summary>
+        /// Hidden from console when in release build
+        /// </summary>
         Debug,
         Warning,
         Error

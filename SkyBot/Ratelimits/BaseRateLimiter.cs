@@ -12,6 +12,9 @@ namespace SkyBot.Ratelimits
     {
         public bool IsDisposed { get; private set; }
         public object SyncRoot { get; }
+        /// <summary>
+        /// Current count of requests
+        /// </summary>
         public int Current
         {
             get
@@ -27,6 +30,9 @@ namespace SkyBot.Ratelimits
             }
         }
 
+        /// <summary>
+        /// Max allowed requests
+        /// </summary>
         public int Max
         {
             get
@@ -42,7 +48,13 @@ namespace SkyBot.Ratelimits
             }
         }
 
+        /// <summary>
+        /// Current count of requests
+        /// </summary>
         protected int _current { get; set; }
+        /// <summary>
+        /// Max allowed requests
+        /// </summary>
         protected int _max { get; set; }
 
         private Timer _rateTimer;

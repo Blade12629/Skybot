@@ -60,6 +60,11 @@ namespace SkyBot.Discord
             }
         }
         
+        /// <summary>
+        /// Adds the <paramref name="value"/> to the column with the <paramref name="title"/>
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="value"></param>
         public void Add(string title, string value)
         {
             if (string.IsNullOrEmpty(title))

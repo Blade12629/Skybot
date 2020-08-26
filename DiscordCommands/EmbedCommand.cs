@@ -153,6 +153,12 @@ namespace DiscordCommands
             DiscordHandler.SendSimpleEmbed(args.Channel, ResourcesCommands.EmbedCommandModified).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Sends an embed to a specific channel
+        /// </summary>
+        /// <param name="content">message content</param>
+        /// <param name="webhook">Use webhook or message</param>
+        /// <param name="webhookUser">Webhook username</param>
         private static void SendEmbed(ICommand cmd, CommandEventArg args, DiscordEmbed embed, string content, ulong channelId, DiscordGuild guild, bool webhook, string webhookUser, string webhookAvatar = null)
         {
             DiscordChannel channel;

@@ -335,7 +335,8 @@ Embed Visualizer: &lt;https://leovoel.github.io/embed-visualizer/&gt;</value>
   </data>
   <data name="PermissionCommandUsage" xml:space="preserve">
     <value>{prefix}permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
-{prefix}permission unbind &lt;discordRoleId&gt; [accessLevel]</value>
+{prefix}permission unbind &lt;discordRoleId&gt; [accessLevel]
+{prefix}permission list [page]</value>
   </data>
   <data name="PrivacyPolicyCommand" xml:space="preserve">
     <value>privacy</value>

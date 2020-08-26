@@ -680,7 +680,8 @@ namespace DiscordCommands {
         
         /// <summary>
         ///   Looks up a localized string similar to {prefix}permission bind &lt;discordRoleId&gt; &lt;accessLevel&gt;
-        ///{prefix}permission unbind &lt;discordRoleId&gt; [accessLevel].
+        ///{prefix}permission unbind &lt;discordRoleId&gt; [accessLevel]
+        ///{prefix}permission list [page].
         /// </summary>
         internal static string PermissionCommandUsage {
             get {

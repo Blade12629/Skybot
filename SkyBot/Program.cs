@@ -80,6 +80,9 @@ namespace SkyBot
             await Task.Delay(-1).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Loads the bots API
+        /// </summary>
         private static void LoadAPI()
         {
             Logger.Log("Loading API", LogLevel.Info);

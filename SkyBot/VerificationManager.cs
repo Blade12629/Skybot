@@ -8,8 +8,15 @@ using System.Threading.Tasks;
 
 namespace SkyBot
 {
+    /// <summary>
+    /// Handles the bots verification system
+    /// </summary>
     public static class VerificationManager
     {
+        /// <summary>
+        /// Starts the verification for a specific user
+        /// </summary>
+        /// <param name="user"></param>
         public static void StartVerification(DiscordUser user)
         {
             if (user == null)
@@ -45,6 +52,9 @@ namespace SkyBot
             dmChannel.SendMessageAsync($"Started your verification, please send the following to {Program.IRC.Nick} in osu via pm: !verify {ver.VerificationCode}").Wait();
         }
 
+        /// <summary>
+        /// Generates a 9 character long verification code out of numbers
+        /// </summary>
         private static string GenerateVerificationCode()
         {
             StringBuilder codeBuilder = new StringBuilder();
@@ -55,6 +65,10 @@ namespace SkyBot
             return codeBuilder.ToString();
         }
 
+        /// <summary>
+        /// Synchronizes a user for every discord guild he currently is in
+        /// </summary>
+        /// <returns>User found</returns>
         public static async Task<bool> SynchronizeVerification(ulong discordUserId)
         {
             using DBContext c = new DBContext();
@@ -70,6 +84,10 @@ namespace SkyBot
             return true;
         }
 
+        /// <summary>
+        /// Synchronizes a user for a specific discord guild
+        /// </summary>
+        /// <returns>Verification success</returns>
         public static async Task<bool> SynchronizeVerification(ulong discordUserId, ulong discordGuildId, DiscordGuildConfig config = null)
         {
             using DBContext c = new DBContext();
@@ -92,6 +110,12 @@ namespace SkyBot
             return await SynchronizeVerification(discordUserId, (int)u.OsuUserId, discordGuildId, (ulong)dgc.VerifiedRoleId, dgc.VerifiedNameAutoSet).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Synchronizes a specific user
+        /// </summary>
+        /// <param name="verifiedRoleId">Verification role, 0 = don't set</param>
+        /// <param name="verifiedNameAutoSet">Set the osu username as new discord name</param>
+        /// <returns>Verification success</returns>
         public static async Task<bool> SynchronizeVerification(ulong discordUserId, int osuUserId, ulong discordGuildId, ulong verifiedRoleId, bool verifiedNameAutoSet)
         {
             DiscordGuild guild;
@@ -134,6 +158,11 @@ namespace SkyBot
             }
         }
 
+        /// <summary>
+        /// Completes a verification
+        /// </summary>
+        /// <param name="code">Verification code</param>
+        /// <param name="osuUserName"></param>
         public static void FinishVerification(string code, string osuUserName)
         {
             using DBContext c = new DBContext();
@@ -165,6 +194,9 @@ namespace SkyBot
             Task.Run(() => SendConfirmation(osuUserName, (ulong)ver.DiscordUserId));
         }
 
+        /// <summary>
+        /// Sends the verification confirmation to both the irc user and discord user
+        /// </summary>
         private static void SendConfirmation(string osuUserName, ulong discordUserId)
         {
             Program.IRC.SendMessage(osuUserName, Resources.VerSuccess);

@@ -28,15 +28,19 @@ namespace SkyBot.API
         public void Start(int port, string host)
         {
             _server = new RestServer(CreateSettings(port, host));
+
+            //Supress any exceptions
             _server.EnableThrowingExceptions = false;
             _server.Router.SendExceptionMessages = false;
+
             _server.LogToConsole(Grapevine.Interfaces.Shared.LogLevel.Error);
-            _server.Router.BeforeRouting += Router_BeforeRouting;
+            _server.Router.BeforeRouting += BeforeRouting;
             _server.Start();
         }
 
-        private void Router_BeforeRouting(Grapevine.Interfaces.Server.IHttpContext context)
+        private void BeforeRouting(Grapevine.Interfaces.Server.IHttpContext context)
         {
+            //Allow any cross origin cors requests, without this, websites might not be able to get any data from the API
             context.Response.AddHeader("Access-Control-Allow-Origin", "*");
             context.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
         }

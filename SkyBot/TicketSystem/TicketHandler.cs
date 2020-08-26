@@ -8,6 +8,12 @@ namespace SkyBot.TicketSystem
 {
     public static class TicketHandler
     {
+        /// <summary>
+        /// Gets a specific ticket, atleast one parameter required
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="discordId"></param>
+        /// <returns></returns>
         public static Ticket GetTicket(long? id = null, long? discordId = null)
         {
             List<Func<Ticket, bool>> filters = new List<Func<Ticket, bool>>();
@@ -24,6 +30,12 @@ namespace SkyBot.TicketSystem
                 return c.Ticket.FirstOrDefault(BuildSearchFilter(filters));
         }
 
+        /// <summary>
+        /// Gets all tickets that matches the used parameters
+        /// </summary>
+        /// <param name="sortByNewest">Choose either this or <paramref name="sortByOldest"/>, default: unsorted</param>
+        /// <param name="sortByOldest">Choose either this or <paramref name="sortByNewest"/>, default: unsorted</param>
+        /// <returns></returns>
         public static List<Ticket> GetTickets(long? discordId = null, long? discordGuildId = null, long? id = null, TicketStatus? status = null,
                                           TicketPriority? priority = null, TicketTag? tag = null,
                                           bool sortByNewest = false, bool sortByOldest = false)
@@ -62,6 +74,11 @@ namespace SkyBot.TicketSystem
             return tickets;
         }
 
+        /// <summary>
+        /// Creates a generic search filter
+        /// </summary>
+        /// <param name="input">Filter function</param>
+        /// <returns>Filter</returns>
         private static Func<T, bool> BuildSearchFilter<T>(List<Func<T, bool>> input)
         {
             Func<T, bool> result = input[0];
@@ -72,6 +89,9 @@ namespace SkyBot.TicketSystem
             return result;
         }
 
+        /// <summary>
+        /// Submits a ticket, optional: <paramref name="status"/>, <paramref name="tag"/>, <paramref name="timestamp"/>
+        /// </summary>
         public static void SubmitTicket(long discordId, long discordGuildId, string message, DateTime timestamp, TicketStatus? status = null,
                                  TicketPriority? priority = null, TicketTag? tag = null)
         {
