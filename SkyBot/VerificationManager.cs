@@ -115,7 +115,6 @@ namespace SkyBot
         /// </summary>
         /// <param name="verifiedRoleId">Verification role, 0 = don't set</param>
         /// <param name="verifiedNameAutoSet">Set the osu username as new discord name</param>
-        /// <returns>Verification success</returns>
         public static async Task<bool> SynchronizeVerification(ulong discordUserId, int osuUserId, ulong discordGuildId, ulong verifiedRoleId, bool verifiedNameAutoSet)
         {
             DiscordGuild guild;
@@ -124,14 +123,7 @@ namespace SkyBot
             {
                 guild = await Program.DiscordHandler.Client.GetGuildAsync(discordGuildId).ConfigureAwait(false);
                 member = await guild.GetMemberAsync(discordUserId).ConfigureAwait(false);
-            }
-            catch (DSharpPlus.Exceptions.NotFoundException)
-            {
-                return true;
-            }
 
-            try
-            {
                 if (verifiedRoleId > 0)
                 {
                     DiscordRole role = guild.GetRole(verifiedRoleId);
@@ -146,16 +138,17 @@ namespace SkyBot
 
                     member.ModifyAsync(username, reason: "synchronized name").Wait();
                 }
-
-                return true;
             }
-#pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception ex)
-#pragma warning restore CA1031 // Do not catch general exception types
+            catch(DSharpPlus.Exceptions.UnauthorizedException)
             {
-                Logger.Log(ex, LogLevel.Error);
-                return false;
+
             }
+            catch (DSharpPlus.Exceptions.NotFoundException)
+            {
+
+            }
+
+            return true;
         }
 
         /// <summary>
