@@ -24,6 +24,7 @@ namespace DiscordCommands
         public string Description => ResourcesCommands.TicketCommandDescription;
 
         public string Usage => ResourcesCommands.TicketCommandUsage;
+        public bool AllowOverwritingAccessLevel => true;
 
         public int MinParameters => 1;
 

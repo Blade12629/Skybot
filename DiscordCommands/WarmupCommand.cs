@@ -21,6 +21,7 @@ namespace DiscordCommands
         public string Description => ResourcesCommands.WarmupCommandDescription;
 
         public string Usage => ResourcesCommands.WarmupCommandUsage;
+        public bool AllowOverwritingAccessLevel => true;
 
         public int MinParameters => 1;
 

@@ -26,6 +26,7 @@ namespace DiscordCommands
         public string Description => ResourcesCommands.StatsCommandDescription;
 
         public string Usage => ResourcesCommands.StatsCommandUsage;
+        public bool AllowOverwritingAccessLevel => true;
 
         public int MinParameters => 2;
 

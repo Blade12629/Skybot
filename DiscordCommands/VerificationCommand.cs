@@ -20,6 +20,7 @@ namespace DiscordCommands
         public string Description => ResourcesCommands.VerifyCommandDescription;
 
         public string Usage => ResourcesCommands.VerifyCommandUsage;
+        public bool AllowOverwritingAccessLevel => false;
 
         public int MinParameters => 0;
 

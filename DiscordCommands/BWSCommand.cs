@@ -22,6 +22,7 @@ namespace DiscordCommands
         public CommandType CommandType => CommandType.None;
 
         public int MinParameters => 2;
+        public bool AllowOverwritingAccessLevel => true;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {

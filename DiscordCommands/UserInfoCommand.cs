@@ -23,6 +23,7 @@ namespace DiscordCommands
         public string Description => "Shows info about a user";
 
         public string Usage => "!userinfo <discordId/mention>";
+        public bool AllowOverwritingAccessLevel => false;
 
         public int MinParameters => 1;
 

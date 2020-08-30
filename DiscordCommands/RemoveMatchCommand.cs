@@ -18,6 +18,7 @@ namespace DiscordCommands
         public CommandType CommandType => CommandType.Public;
 
         public string Description => ResourcesCommands.RemoveMatchCommandDescription;
+        public bool AllowOverwritingAccessLevel => true;
 
         public string Usage => ResourcesCommands.RemoveMatchCommandUsage;
 

@@ -27,6 +27,7 @@ public class DBContext : DbContext
     public virtual DbSet<Reminder> Reminder { get; set; }
     public virtual DbSet<Ticket> Ticket { get; set; }
     public virtual DbSet<Mute> Mute { get; set; }
+    public virtual DbSet<CommandAccess> CommandAccess { get; set; }
 
     public DBContext()
     {
@@ -54,6 +55,27 @@ public class DBContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<CommandAccess>(entity =>
+        {
+            entity.ToTable("command_access");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.TypeName)
+                .HasColumnName("type_name")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.AccessLevel)
+                .HasColumnName("access_level")
+                .HasColumnType("int(11)");
+        });
+            
         modelBuilder.Entity<Mute>(entity =>
         {
             entity.ToTable("mute");

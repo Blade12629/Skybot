@@ -27,6 +27,7 @@ namespace DiscordCommands
         public string Usage => ResourcesCommands.HelpCommandUsage;
 
         public int MinParameters => 0;
+        public bool AllowOverwritingAccessLevel => false;
 
 
         public HelpCommand()
@@ -153,11 +154,12 @@ namespace DiscordCommands
             if (!string.IsNullOrEmpty(notice))
                 builder = builder.AddField($"**{ResourcesCommands.HelpCommandNotice}**", notice);
 
-            builder = builder.AddField(Resources.AccessLevel, command.AccessLevel.ToString())
+            builder = builder.AddField(Resources.AccessLevel, CommandHandler.GetCommandAccessLevel(command, channel.Guild?.Id ?? 0).ToString())
                              .AddField(ResourcesCommands.CommandDescription, command.Description)
                              .AddField(ResourcesCommands.CommandUsage, command.Usage.Replace("{prefix}", prefix.ToString(CultureInfo.CurrentCulture), StringComparison.CurrentCultureIgnoreCase))
                              .AddField(ResourcesCommands.CommandType, command.CommandType.ToString())
-                             .AddField(ResourcesCommands.CommandIsDisabled, command.IsDisabled ? Resources.True : Resources.False);
+                             .AddField(ResourcesCommands.CommandIsDisabled, command.IsDisabled ? Resources.True : Resources.False)
+                             .AddField(ResourcesCommands.CommandAccessCanBeOverwritten, command.AllowOverwritingAccessLevel ? Resources.True : Resources.False);
 
 
             channel.SendMessageAsync(embed: builder.Build()).Wait();

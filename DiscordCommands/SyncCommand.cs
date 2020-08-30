@@ -23,6 +23,7 @@ namespace DiscordCommands
         public string Description => ResourcesCommands.SyncCommandDescription;
 
         public string Usage => ResourcesCommands.SyncCommandUsage;
+        public bool AllowOverwritingAccessLevel => false;
 
         public int MinParameters => 0;
 

@@ -19,6 +19,7 @@ namespace DiscordCommands
         public string Description => "Notifies every host";
 
         public string Usage => "!notifyhosts <message>";
+        public bool AllowOverwritingAccessLevel => false;
 
         public int MinParameters => 1;
 

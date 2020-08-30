@@ -18,6 +18,7 @@ namespace DiscordCommands
         public AccessLevel AccessLevel => AccessLevel.User;
 
         public CommandType CommandType => CommandType.None;
+        public bool AllowOverwritingAccessLevel => false;
 
         public int MinParameters => 1;
 

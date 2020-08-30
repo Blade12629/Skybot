@@ -29,6 +29,7 @@ namespace DiscordCommands
         public string Description => ResourcesCommands.PrivacyPolicyCommandDescription;
 
         public string Usage => ResourcesCommands.PrivacyPolicyCommandUsage;
+        public bool AllowOverwritingAccessLevel => false;
 
         public int MinParameters => 0;
 

@@ -25,6 +25,7 @@ namespace DiscordCommands
         public string Description => "Mutes or unmutes someone";
 
         public string Usage => "!mute <mention/id> <duration in minutes> <reason>";
+        public bool AllowOverwritingAccessLevel => true;
 
         public int MinParameters => 2;
 

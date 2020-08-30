@@ -23,6 +23,7 @@ namespace DiscordCommands
         public string Usage => ResourcesCommands.ClearMatchesCommandUsage;
 
         public int MinParameters => 0;
+        public bool AllowOverwritingAccessLevel => true;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {

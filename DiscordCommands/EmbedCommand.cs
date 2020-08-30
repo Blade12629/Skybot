@@ -26,6 +26,7 @@ namespace DiscordCommands
         public string Usage => ResourcesCommands.EmbedCommandUsage;
 
         public int MinParameters => 3;
+        public bool AllowOverwritingAccessLevel => true;
 
 
         public void Invoke(CommandHandler handler, CommandEventArg args)

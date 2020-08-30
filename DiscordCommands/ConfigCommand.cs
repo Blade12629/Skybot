@@ -23,6 +23,7 @@ namespace DiscordCommands
         public string Usage => "!config set <key> <value>\n!config get <key>\n!config list";
 
         public int MinParameters => 1;
+        public bool AllowOverwritingAccessLevel => false;
 
         public void Invoke(CommandHandler handler, CommandEventArg args)
         {

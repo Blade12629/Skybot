@@ -6,6 +6,7 @@ using SkyBot.Database.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -204,7 +205,9 @@ namespace SkyBot.Discord.CommandSystem
                         break;
                 }
 
-                if (access < cmd.AccessLevel)
+                AccessLevel cmdAccess = e.Guild == null ? cmd.AccessLevel : GetCommandAccessLevel(cmd, e.Guild.Id);
+
+                if (access < cmdAccess)
                 {
                     OnException(e.Channel, cmd, Resources.AccessTooLow);
                     return;
@@ -273,6 +276,81 @@ namespace SkyBot.Discord.CommandSystem
             {
                 Logger.Log(ex, LogLevel.Error); 
             }
+        }
+
+        /// <summary>
+        /// Gets the accesslevel for a command, this also checks if the accesslevel is overriden
+        /// </summary>
+        /// <returns>Default or overwritten access level</returns>
+        public static AccessLevel GetCommandAccessLevel(ICommand cmd, ulong discordGuildId)
+        {
+            if (cmd == null)
+                throw new ArgumentNullException(nameof(cmd));
+
+            int access = (int)cmd.AccessLevel;
+
+            using DBContext c = new DBContext();
+            CommandAccess cmdAccess = null;
+
+            if (discordGuildId > 0)
+                cmdAccess = c.CommandAccess.FirstOrDefault(ca => ca.DiscordGuildId == (long)discordGuildId &&
+                                                           ca.TypeName.Equals(cmd.GetType().Name, StringComparison.CurrentCultureIgnoreCase));
+
+            if (cmdAccess != null && cmdAccess.AccessLevel != access)
+                access = cmdAccess.AccessLevel;
+
+            return (AccessLevel)access;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="AccessLevel"/> of a command for a specific guild
+        /// </summary>
+        /// <returns>True - changed, False - cannot be overwritten, command not found or command/requested access is dev</returns>
+        public static bool SetCommandAccessLevel(ICommand cmd, ulong discordGuildId, AccessLevel newAccess)
+        {
+            if (cmd == null)
+                throw new ArgumentNullException(nameof(cmd));
+            else if (!cmd.AllowOverwritingAccessLevel ||
+                     cmd.AccessLevel == AccessLevel.Dev ||
+                     newAccess == AccessLevel.Dev)
+                return false;
+
+            using DBContext c = new DBContext();
+            CommandAccess cmdAccess = c.CommandAccess.FirstOrDefault(ca => ca.DiscordGuildId == (long)discordGuildId &&
+                                                                           ca.TypeName.Equals(cmd.GetType().Name, StringComparison.CurrentCultureIgnoreCase));
+
+            if (cmdAccess == null)
+            {
+                cmdAccess = new CommandAccess((long)discordGuildId, cmd.GetType().Name, (int)newAccess);
+                c.CommandAccess.Add(cmdAccess);
+            }
+            else
+            {
+                int access = (int)newAccess;
+
+                if (cmdAccess.AccessLevel != access)
+                    cmdAccess.AccessLevel = access;
+
+                c.CommandAccess.Update(cmdAccess);
+            }
+
+            c.SaveChanges();
+            return true;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="AccessLevel"/> of a command for a specific guild
+        /// </summary>
+        /// <returns>True - changed, False - cannot be overwritten, command not found or command/requested access is dev</returns>
+        public bool SetCommandAccessLevel(string command, ulong discordGuildId, AccessLevel newAccess)
+        {
+            if (string.IsNullOrEmpty(command))
+                throw new ArgumentNullException(nameof(command));
+            
+            if (!Commands.TryGetValue(command.ToLower(CultureInfo.CurrentCulture), out ICommand cmd))
+                return false;
+
+            return SetCommandAccessLevel(cmd, discordGuildId, newAccess);
         }
 
         /// <summary>

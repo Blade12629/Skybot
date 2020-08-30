@@ -280,6 +280,15 @@ namespace DiscordCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Access can be overwritten.
+        /// </summary>
+        internal static string CommandAccessCanBeOverwritten {
+            get {
+                return ResourceManager.GetString("CommandAccessCanBeOverwritten", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Description.
         /// </summary>
         internal static string CommandDescription {
@@ -833,9 +842,7 @@ namespace DiscordCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Synchronizes you
-        ///Mod: Force synchronize someone
-        ///Host: synchronize all users.
+        ///   Looks up a localized string similar to Synchronizes you/Force synchronize someone/synchronize all users.
         /// </summary>
         internal static string SyncCommandDescription {
             get {

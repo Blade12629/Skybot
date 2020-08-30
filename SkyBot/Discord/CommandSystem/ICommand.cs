@@ -11,7 +11,11 @@ namespace SkyBot.Discord.CommandSystem
         /// Command Name
         /// </summary>
         string Command { get; }
+        /// <summary>
+        /// The default access level
+        /// </summary>
         AccessLevel AccessLevel { get; }
+        bool AllowOverwritingAccessLevel { get; }
         /// <summary>
         /// Public, private chat or both
         /// </summary>
