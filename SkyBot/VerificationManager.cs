@@ -181,6 +181,7 @@ namespace SkyBot
             if (u != null)
             {
                 Task.Run(() => SendUserAlreadyExists(osuUserName, (ulong)ver.DiscordUserId));
+                return;
             }
 
             u = new User(ver.DiscordUserId, userJson.UserId);
