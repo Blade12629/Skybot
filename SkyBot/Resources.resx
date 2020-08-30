@@ -221,4 +221,7 @@
   <data name="VerSuccess" xml:space="preserve">
     <value>Successfully verified</value>
   </data>
+  <data name="VerUserAlreadyExists" xml:space="preserve">
+    <value>Failed to verify, osuid or/and discordid already verified</value>
+  </data>
 </root>

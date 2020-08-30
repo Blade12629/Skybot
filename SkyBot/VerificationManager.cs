@@ -176,7 +176,14 @@ namespace SkyBot
                 return;
             }
 
-            User u = new User(ver.DiscordUserId, userJson.UserId);
+            User u = c.User.FirstOrDefault(u => u.OsuUserId == userJson.UserId);
+
+            if (u != null)
+            {
+                Task.Run(() => SendUserAlreadyExists(osuUserName, (ulong)ver.DiscordUserId));
+            }
+
+            u = new User(ver.DiscordUserId, userJson.UserId);
             c.Verification.Remove(ver);
             c.User.Add(u);
 
@@ -192,7 +199,14 @@ namespace SkyBot
         /// </summary>
         private static void SendConfirmation(string osuUserName, ulong discordUserId)
         {
-            Program.IRC.SendMessage(osuUserName, Resources.VerSuccess);
+            try
+            {
+                Program.IRC.SendMessage(osuUserName, Resources.VerSuccess);
+            }
+            catch (Exception)
+            {
+                //just skip if we can't message or find the user
+            }
 
             var user = Program.DiscordHandler.Client.GetUserAsync(discordUserId).Result;
 
@@ -205,6 +219,30 @@ namespace SkyBot
                 return;
 
             dmChannel.SendMessageAsync(Resources.VerSuccess).Wait();
+        }
+
+        private static void SendUserAlreadyExists(string osuUserName, ulong discordUserId)
+        {
+            try
+            {
+                Program.IRC.SendMessage(osuUserName, Resources.VerUserAlreadyExists);
+            }
+            catch (Exception)
+            {
+                //just skip if we can't message or find the user
+            }
+
+            var user = Program.DiscordHandler.Client.GetUserAsync(discordUserId).Result;
+
+            if (user == null)
+                return;
+
+            var dmChannel = Program.DiscordHandler.Client.CreateDmAsync(user).Result;
+
+            if (dmChannel == null)
+                return;
+
+            dmChannel.SendMessageAsync(Resources.VerUserAlreadyExists).Wait();
         }
     }
 }

@@ -365,5 +365,14 @@ namespace SkyBot {
                 return ResourceManager.GetString("VerSuccess", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to verify, osuid or/and discordid already verified.
+        /// </summary>
+        public static string VerUserAlreadyExists {
+            get {
+                return ResourceManager.GetString("VerUserAlreadyExists", resourceCulture);
+            }
+        }
     }
 }
