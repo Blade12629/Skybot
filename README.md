@@ -15,7 +15,7 @@ Currently Features:
 - - Top list for Players and Teams
 - - Detailed Info about specific matches, players and teams
 - - Player and Team ratings (ratings are not calculated based on the map difficulty but based on the performance someone did vs how the other players performed in a match)
-- Bind bot permissions (like VIP, admin etc.) to discord roles!
+- A custom permission system which allows customization
 - Verification
 - API (WIP)
 - Server Management commands (like !mute)
@@ -34,8 +34,8 @@ Special Thanks (without these groups/people this would probably never happen/ed)
 - GottaAimFast
 - osu! Mercenary Shop
 
-and especially to Haruki
+and especially to Haruki and Hoaq
 
 ---
 Contact:
-- Discord: ??????#0284
+- Discord: https://discord.gg/gHRj8e8
