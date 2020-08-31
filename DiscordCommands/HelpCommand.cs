@@ -69,7 +69,21 @@ namespace DiscordCommands
             else if (args == null)
                 throw new ArgumentNullException(nameof(args));
 
-            List<ICommand> commands = handler.Commands.Values.Where(c => c.AccessLevel <= args.AccessLevel).ToList();
+            List<(ICommand, AccessLevel)> commands = handler.Commands.Values.Select(s => (s, s.AccessLevel)).ToList();
+
+            for (int i = 0; i < commands.Count; i++)
+            {
+                AccessLevel newAccess = CommandHandler.GetCommandAccessLevel(commands[i].Item1, args.Guild?.Id ?? 0);
+
+                if (newAccess > args.AccessLevel)
+                {
+                    commands.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+
+                commands[i] = (commands[i].Item1, newAccess);
+            }
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
@@ -85,9 +99,9 @@ namespace DiscordCommands
 
             for (int i = 0; i < commands.Count; i++)
             {
-                epb.Add(ResourcesCommands.Command, commands[i].Command);
-                epb.Add(Resources.Access, commands[i].AccessLevel.ToString());
-                epb.Add(ResourcesCommands.CommandDescription, commands[i].Description);
+                epb.Add(ResourcesCommands.Command, commands[i].Item1.Command);
+                epb.Add(Resources.Access, commands[i].Item2.ToString());
+                epb.Add(ResourcesCommands.CommandDescription, commands[i].Item1.Description);
             }
 
             DiscordEmbed embed = epb.BuildPage(builder, page);
