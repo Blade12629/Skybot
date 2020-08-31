@@ -75,9 +75,9 @@ namespace SkyBot.Discord
             value = value.TrimEnd(' ').TrimStart(' ');
             title = title.TrimEnd(' ').TrimStart(' ');
 
-            if (value.Length > 55)
+            if (value.Length > 53)
             {
-                for (int i = 55; i > 1; i--)
+                for (int i = 53; i > 1; i--)
                 {
                     if (value[i] != ' ')
                         continue;
@@ -88,7 +88,7 @@ namespace SkyBot.Discord
                     Add(title, firstPart);
 
                     foreach (var field in _fields.Where(f => !f.Key.Equals(title, StringComparison.CurrentCulture)))
-                            _fields[field.Key].Add("");
+                            _fields[field.Key].Add(Resources.InvisibleCharacter);
 
                     Add(title, secondPart);
                     return;
