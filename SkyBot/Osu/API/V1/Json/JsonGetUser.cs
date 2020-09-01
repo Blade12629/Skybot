@@ -16,13 +16,13 @@ namespace SkyBot.Osu.API.V1.Json
         public string UserName { get; set; }
 
         [JsonProperty("count300")]
-        public int Count300 { get; set; }
+        public int? Count300 { get; set; }
 
         [JsonProperty("count100")]
-        public int Count100 { get; set; }
+        public int? Count100 { get; set; }
 
         [JsonProperty("count50")]
-        public int Count50 { get; set; }
+        public int? Count50 { get; set; }
 
         [JsonProperty("playcount")]
         public int PlayCount { get; set; }
@@ -69,7 +69,7 @@ namespace SkyBot.Osu.API.V1.Json
         [JsonProperty("events")]
         public JsonEvents[] Events { get; set; }
 
-        public JsonGetUser(int userId, string userName, int count300, int count100, int count50, 
+        public JsonGetUser(int userId, string userName, int? count300, int? count100, int? count50, 
                            int playCount, string rankedScore, string totalScore, int pPRank, 
                            float level, float pPRaw, float accuracy, int countRankSS, int countRankSSH, 
                            int countRankS, int countRankSH, int countRankA, string country, 
