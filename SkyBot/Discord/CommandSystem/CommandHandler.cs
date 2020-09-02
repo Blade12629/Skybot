@@ -259,13 +259,36 @@ namespace SkyBot.Discord.CommandSystem
                     {
                         if (ex is UnauthorizedException)
                         {
-                            OnException?.Invoke(e.Channel, cmd, "Unauthorized, please allow direct messages (if you have and this keeps happening, please report it)");
+                            OnException?.Invoke(e.Channel, cmd, "Unauthorized, please allow direct messages (if you have direct messages enabled and this keeps happening, please report it)");
                             Logger.Log($"Unauthorized: " + ex, LogLevel.Warning);
 
                             return;
                         }
-                        Logger.Log($"Something went wrong while invoking command {cmd.Command}, message: {arg.Message.Content} from {arg.User.Username}#{arg.User.Discriminator} ({arg.User.Id}):\n {ex.ToString()}");
-                        OnException?.Invoke(e.Channel, cmd, "Something went wrong executing this command");
+
+                        string debugMsg = $"Something went wrong while invoking command {cmd.Command}, message: {arg.Message.Content} from {arg.User.Username}#{arg.User.Discriminator} ({arg.User.Id}):\n {ex.ToString()}";
+                        Logger.Log(debugMsg, LogLevel.Warning);
+
+                        if (arg.Config != null && arg.Config.Debug)
+                        {
+                            OnException?.Invoke(e.Channel, cmd, GetDebugExceptionMessage(ex));
+
+                            if (arg.Config.DebugChannel != 0)
+                            {
+                                try
+                                {
+                                    var dchannel = arg.Guild.GetChannel((ulong)arg.Config.DebugChannel);
+                                    dchannel.SendMessageAsync(debugMsg).ConfigureAwait(false);
+                                }
+#pragma warning disable CA1031 // Do not catch general exception types
+                                catch (Exception)
+#pragma warning restore CA1031 // Do not catch general exception types
+                                {
+                                    //If we catch an exception here, there is nothing we can do, so just ignore it
+                                }
+                            }
+                        }
+                        else
+                            OnException?.Invoke(e.Channel, cmd, $"Something went wrong executing this command");
                     }
                 }));
 
@@ -275,6 +298,11 @@ namespace SkyBot.Discord.CommandSystem
 #pragma warning restore CA1031 // Do not catch general exception types
             {
                 Logger.Log(ex, LogLevel.Error); 
+            }
+
+            string GetDebugExceptionMessage(Exception ex)
+            {
+                return $"Something went wrong executing this command (L: {ex.GetLineNumber()} At: {ex.TargetSite.DeclaringType}.{ex.TargetSite.Name}: {ex.Message})";
             }
         }
 

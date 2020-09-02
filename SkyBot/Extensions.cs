@@ -24,4 +24,31 @@ public static class Extensions
             return false;
         }
     }
+
+    public static int GetLineNumber(this Exception ex)
+    {
+        const string lineSearch = ":line ";
+
+        if (ex == null || string.IsNullOrEmpty(ex.StackTrace))
+            return -1;
+
+        int indexStart = ex.StackTrace.IndexOf(lineSearch, StringComparison.CurrentCultureIgnoreCase);
+
+        if (indexStart == -1)
+            return -1;
+
+        string stack = ex.StackTrace.Remove(0, indexStart + lineSearch.Length);
+
+        int indexEnd = stack.IndexOf("\r\n", StringComparison.CurrentCultureIgnoreCase);
+
+        if (indexEnd > 0)
+            stack = stack.Substring(0, indexEnd);
+
+        stack = stack.Trim(' ');
+
+        if (int.TryParse(stack, out int lineNumber))
+            return lineNumber;
+
+        return -1;
+    }
 }

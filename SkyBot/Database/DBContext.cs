@@ -434,6 +434,13 @@ public class DBContext : DbContext
                 .HasColumnName("prefix")
                 .HasColumnType("char(1)");
 
+            entity.Property(e => e.Debug)
+                .HasColumnName("debug")
+                .HasColumnType("tinyint(1)");
+
+            entity.Property(e => e.DebugChannel)
+                .HasColumnName("debug_channel")
+                .HasColumnType("bigint(20)");
         });
 
         modelBuilder.Entity<SeasonPlayer>(entity =>
