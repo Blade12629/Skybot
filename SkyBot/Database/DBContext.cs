@@ -275,6 +275,10 @@ public class DBContext : DbContext
                 .HasColumnName("id")
                 .HasColumnType("bigint(20)");
 
+            entity.Property(e => e.OsuUserId)
+                .HasColumnName("osu_user_id")
+                .HasColumnType("bigint(20)");
+
             entity.Property(e => e.DiscordUserId)
                 .HasColumnName("discord_user_id")
                 .HasColumnType("bigint(20)");
@@ -440,6 +444,10 @@ public class DBContext : DbContext
 
             entity.Property(e => e.DebugChannel)
                 .HasColumnName("debug_channel")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.BlacklistRoleId)
+                .HasColumnName("blacklist_role_id")
                 .HasColumnType("bigint(20)");
         });
 

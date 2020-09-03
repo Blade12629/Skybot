@@ -150,6 +150,16 @@ namespace SkyBot.Discord.CommandSystem
                 {
                     using DBContext c = new DBContext();
                     config = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)e.Guild.Id);
+                    User user = c.User.FirstOrDefault(u => u.DiscordUserId == (long)e.Author.Id);
+                    long osuId = user == null ? 0 : user.OsuUserId;
+
+                    List<BannedUser> bans = BanManager.GetBansForUser((long)e.Author.Id, osuId, e.Guild == null ? 0 : (long)e.Guild.Id);
+
+                    if (bans.Count > 0)
+                    {
+                        OnBannedUserDetected(e, bans);
+                        return;
+                    }
 
                     if (config != null && config.Prefix.HasValue)
                         guildPrefix = config.Prefix.Value;
@@ -304,6 +314,12 @@ namespace SkyBot.Discord.CommandSystem
             {
                 return $"Something went wrong executing this command (L: {ex.GetLineNumber()} At: {ex.TargetSite.DeclaringType}.{ex.TargetSite.Name}: {ex.Message})";
             }
+        }
+
+        private static void OnBannedUserDetected(MessageCreateEventArgs e, List<BannedUser> bans)
+        {
+            //placeholder
+            return;
         }
 
         /// <summary>

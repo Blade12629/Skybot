@@ -66,6 +66,24 @@ namespace SkyBot.Discord
                 return;
             try
             {
+                User user = c.User.FirstOrDefault(u => u.DiscordUserId == (long)args.Member.Id);
+                long osuId = user == null ? 0 : user.OsuUserId;
+
+                List<BannedUser> bans = BanManager.GetBansForUser((long)args.Member.Id, osuId, args.Guild == null ? 0 : (long)args.Guild.Id);
+
+                if (bans.Count > 0)
+                {
+                    args.Guild.GetChannel((ulong)dgc.DebugChannel).SendMessageAsync($"Banned user detected ({args.Member.Mention} ({args.Member.Id})").ConfigureAwait(false);
+
+                    if (dgc.BlacklistRoleId != 0)
+                    {
+                        var drole = args.Guild.GetRole((ulong)dgc.BlacklistRoleId);
+                        args.Member.GrantRoleAsync(drole, "blacklisted").ConfigureAwait(false);
+                    }
+
+                    return;
+                }
+
                 string parsedMessage = dgc.WelcomeMessage.Replace("{mention}", args.Member.Mention, StringComparison.CurrentCultureIgnoreCase);
                 var dchannel = args.Guild.GetChannel((ulong)dgc.WelcomeChannel);
 

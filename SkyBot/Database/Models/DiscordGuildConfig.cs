@@ -33,10 +33,12 @@ namespace SkyBot.Database.Models
         public bool Debug { get; set; }
         public long DebugChannel { get; set; }
 
+        public long BlacklistRoleId { get; set; }
+
         public DiscordGuildConfig(long guildId, long analyzeChannelId, long commandChannelId, 
                                   bool verifiedNameAutoSet, long verifiedRoleId, short analyzeWarmupMatches,
                                   long ticketDiscordChannelId, string welcomeMessage, long welcomeChannel,
-                                  long mutedRoleId, char? prefix, bool debug, long debugChannel)
+                                  long mutedRoleId, char? prefix, bool debug, long debugChannel, long blacklistRoleId)
         {
             GuildId = guildId;
             AnalyzeChannelId = analyzeChannelId;
@@ -51,6 +53,7 @@ namespace SkyBot.Database.Models
             Prefix = prefix;
             Debug = debug;
             DebugChannel = debugChannel;
+            BlacklistRoleId = blacklistRoleId;
         }
 
         public DiscordGuildConfig()
