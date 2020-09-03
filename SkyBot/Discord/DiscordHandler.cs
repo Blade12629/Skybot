@@ -73,7 +73,8 @@ namespace SkyBot.Discord
 
                 if (bans.Count > 0)
                 {
-                    args.Guild.GetChannel((ulong)dgc.DebugChannel).SendMessageAsync($"Banned user detected ({args.Member.Mention} ({args.Member.Id})").ConfigureAwait(false);
+                    if (dgc.DebugChannel != 0)
+                        args.Guild.GetChannel((ulong)dgc.DebugChannel).SendMessageAsync($"Banned user detected ({args.Member.Mention} ({args.Member.Id})").ConfigureAwait(false);
 
                     if (dgc.BlacklistRoleId != 0)
                     {
