@@ -40,7 +40,7 @@ namespace SkyBot.Discord
         /// </summary>
         public async Task SendEmbed(string message = null, params DiscordEmbed[] embeds)
         {
-            await _webhook.ExecuteAsync(content: message, username: _username, embeds: embeds, avatar_url: _avatarUrl.ToString()).ConfigureAwait(false);
+            await _webhook.ExecuteAsync(content: message, username: _username, embeds: embeds, avatar_url: _avatarUrl?.ToString() ?? null).ConfigureAwait(false);
         }
 
         /// <summary>

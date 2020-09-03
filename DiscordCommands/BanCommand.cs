@@ -18,7 +18,7 @@ namespace DiscordCommands
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => "Bans a user locally (Only available for dev role)";
+        public string Description => "Bans a user locally/globally";
 
         public string Usage => "{prefix}ban <discordUserId> <osuUserId> <reason>\n" +
                                "{prefix}ban global <discordUserId> <osuUserId> <reason> (Only available for dev role)\n" +
