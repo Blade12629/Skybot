@@ -17,8 +17,16 @@ namespace SkyBot
 #pragma warning restore CA2208 // Instantiate argument exceptions correctly
 
             using DBContext c = new DBContext();
-            return c.BannedUser.Where(u => ((discordId > 0 && u.DiscordUserId == discordId) || (osuId > 0 && u.OsuUserId == osuId)) && 
-                                           guildId > 0 ? true : false).ToList();
+            List<BannedUser> result = new List<BannedUser>();
+
+            if (discordId != 0)
+                result.AddRange(c.BannedUser.Where(u => u.DiscordUserId == discordId));
+            if (osuId != 0)
+                result.AddRange(c.BannedUser.Where(u => u.OsuUserId == osuId));
+            if (guildId != 0)
+                result.AddRange(c.BannedUser.Where(u => u.DiscordGuildId == guildId));
+
+            return result;
         }
 
         public static void UnbanUser(long discordId = 0, long osuId = 0, long guildId = 0)
