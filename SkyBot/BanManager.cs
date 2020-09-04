@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Internal;
 using SkyBot.Database;
 using SkyBot.Database.Models;
 
@@ -27,6 +28,29 @@ namespace SkyBot
                 result.AddRange(c.BannedUser.Where(u => u.DiscordGuildId == guildId));
 
             return result;
+        }
+
+        public static List<BannedUser> GetBans(int start = 0, int count = int.MaxValue, long guildId = 0)
+        {
+            using DBContext c = new DBContext();
+            List<BannedUser> users = c.BannedUser.Where(u => u.DiscordGuildId == guildId).ToList();
+            List<BannedUser> result = new List<BannedUser>();
+
+            for (int i = start; count > result.Count && 
+                                i < users.Count; i++)
+                result.Add(users[i]);
+            
+            return result;
+        }
+
+        public static long GetBanCount(long guildId = 0)
+        {
+            using DBContext c = new DBContext();
+
+            if (guildId == 0)
+                return c.BannedUser.Count();
+            else
+                return c.BannedUser.Count(u => u.DiscordGuildId == guildId);
         }
 
         public static void UnbanUser(long discordId = 0, long osuId = 0, long guildId = 0)
