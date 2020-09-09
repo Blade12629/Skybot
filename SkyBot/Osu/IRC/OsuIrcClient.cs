@@ -1,6 +1,4 @@
-﻿using NetIrc2;
-using NetIrc2.Events;
-using SkyBot.Networking.Irc;
+﻿using SkyBot.Networking.Irc;
 using SkyBot.Ratelimits;
 using System;
 using System.Collections.Generic;
@@ -22,7 +20,7 @@ namespace SkyBot.Osu.IRC
 
         private QueueRateLimiter _qrl;
 
-        public OsuIrcClient(string host = "irc.ppy.sh", int port = 6667, char commandPrefix = '!')
+        public OsuIrcClient(string host = "irc.ppy.sh", int port = 6667, char commandPrefix = '!') : base(host, port)
         {
             CommandPrefix = commandPrefix;
             Host = host;

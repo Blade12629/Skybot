@@ -39,6 +39,7 @@ namespace SkyBot.Networking.Irc
         {
             _irc = new IrcClient(host, port, "123", "123", false);
             _irc.OnMessageRecieved += OnRawIrcMessageReceived;
+            _connectedSince = new Stopwatch();
         }
 
         ~OsuIrcClient()
@@ -134,7 +135,7 @@ namespace SkyBot.Networking.Irc
 
         protected virtual async Task WriteAsync(string message)
         {
-            await WriteAsync(message).ConfigureAwait(false);
+            await _irc.WriteAsync(message).ConfigureAwait(false);
         }
 
         private void OnRawIrcMessageReceived(object sender, string e)
