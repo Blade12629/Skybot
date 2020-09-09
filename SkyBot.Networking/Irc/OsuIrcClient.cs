@@ -1,8 +1,7 @@
-﻿using NetCoreServer;
-using SkyBot.Networking.Irc.Entities;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SkyBot.Networking.Irc
 {
-    public class OsuIrcClient
+    public class OsuIrcClient : IDisposable
     {
         public event EventHandler<IrcJoinEventArgs> OnUserJoined;
         public event EventHandler<IrcQuitEventArgs> OnUserQuit;
@@ -24,37 +23,85 @@ namespace SkyBot.Networking.Irc
         public event EventHandler<IrcChannelTopicEventArgs> OnChannelTopicReceived;
         public event EventHandler<IrcMotdEventArgs> OnMotdReceived;
 
+        public bool IsDisposed { get; private set; }
         public string CurrentUser { get; private set; }
-        public IReadOnlyDictionary<string, IrcMember> Members => _members;
-        public IReadOnlyDictionary<string, IrcChannel> Channels => _channels;
+        public bool IsConnected => _irc?.IsConnected ?? false;
 
         private IrcClient _irc;
+        private string _lastNick;
+        private string _lastPass;
 
-        private ConcurrentDictionary<string, IrcMember> _members;
-        private ConcurrentDictionary<string, IrcChannel> _channels;
+        private System.Timers.Timer _reconnectTimer;
+        private TimeSpan? _reconnectDelay;
+        private Stopwatch _connectedSince;
 
         public OsuIrcClient(string host = "irc.ppy.sh", int port = 6667)
         {
             _irc = new IrcClient(host, port, "123", "123", false);
             _irc.OnMessageRecieved += OnRawIrcMessageReceived;
-            _members = new ConcurrentDictionary<string, IrcMember>();
-            _channels = new ConcurrentDictionary<string, IrcChannel>();
         }
 
-        public async Task ConnectAsync()
+        ~OsuIrcClient()
+        {
+            Dispose(false);
+        }
+
+        private void ReconnectWatcher()
+        {
+            if (!IsConnected)
+            {
+                ConnectAsync(false).ConfigureAwait(false).GetAwaiter().GetResult();
+                LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
+                return;
+            }
+
+            if (_reconnectDelay.HasValue && _reconnectDelay.Value.TotalMilliseconds <= _connectedSince.ElapsedMilliseconds)
+            {
+                ReconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
+                _connectedSince.Restart();
+            }
+        }
+
+        /// <param name="reconnectAndRelogin">If false ignore all other parameters. Checks if we should reconnect + login</param>
+        /// <param name="reconnectDelay">Time we can stay connected until we initiate a reconnect, leave empty to not use</param>
+        /// <param name="checkConnDelay">Check if we are connected every X ms</param>
+        public async Task ConnectAsync(bool reconnectAndRelogin = true, TimeSpan? reconnectDelay = null, double checkConnDelay = 500)
         {
             await Task.Run(() => _irc.Connect()).ConfigureAwait(false);
             _irc.StartReadingAsync();
+
+            if (reconnectAndRelogin)
+            {
+                _reconnectTimer = new System.Timers.Timer(checkConnDelay)
+                {
+                    AutoReset = true
+                };
+                _reconnectTimer.Elapsed += (s, e) => ReconnectWatcher();
+
+                _reconnectDelay = reconnectDelay;
+                _reconnectTimer.Start();
+            }
         }
 
         public async Task DisconnectAsync()
         {
+            _reconnectTimer.Stop();
             _irc.StopReading();
             await Task.Run(() => _irc.Disconnect()).ConfigureAwait(false);
         }
 
+        public async Task ReconnectAsync()
+        {
+            await DisconnectAsync().ConfigureAwait(false);
+            await ConnectAsync().ConfigureAwait(false);
+        }
+
         public async Task LoginAsync(string nick, string pass)
         {
+            _lastNick = nick;
+            _lastPass = pass;
+
             await SendCommandAsync("PASS", pass).ConfigureAwait(false);
             await SendCommandAsync("NICK", nick).ConfigureAwait(false);
         }
@@ -89,84 +136,79 @@ namespace SkyBot.Networking.Irc
         {
             List<string> msgSplit = e.Split(' ').ToList();
 
-            if (msgSplit[0].Equals("ping", StringComparison.InvariantCulture))
+            switch (msgSplit[0].ToLower(CultureInfo.CurrentCulture))
             {
-                OnPing();
-                return;
+                case "ping":
+                    OnPing();
+                    return;
             }
 
             switch (msgSplit[1].ToLower(CultureInfo.CurrentCulture))
             {
                 case "join":
                     OnJoinMessage(msgSplit);
-                    break;
+                    return;
 
                 case "quit":
                     OnQuitMessage(msgSplit);
-                    break;
+                    return;
 
                 case "mode":
                     OnModeMessage(msgSplit, e);
-                    break;
+                    return;
 
                 case "privmsg":
                     OnMessage(msgSplit, e);
-                    break;
+                    return;
 
                 case "353": //User List (names)
                     OnUserListReceived(msgSplit);
-                    break;
+                    return;
 
                 case "366": //User List End
                     OnUserListEndReceived();
-                    break;
+                    return;
 
                 case "part":
                     OnUserPart(msgSplit);
-                    break;
+                    return;
 
                 case "001": //Welcome Message
                     OnWelcomeMessage(e.Remove(0, msgSplit[0].Length + msgSplit[1].Length + msgSplit[2].Length + 3).TrimStart(':'));
-                    break;
+                    return;
 
                 case "332": //Channel topic
                     OnChannelTopic(e.Remove(0, msgSplit[0].Length + msgSplit[1].Length + msgSplit[2].Length + 3).TrimStart(':'));
-                    break;
+                    return;
 
                 case "333": //???
 
-                    break;
+                    return;
 
                 case "375": //Motd begin
-                    
-                    break;
+
+                    return;
 
                 case "372": //Motd
                     OnMotd(e.Remove(0, msgSplit[0].Length + msgSplit[1].Length + msgSplit[2].Length + 3).TrimStart(':'));
-                    break;
+                    return;
 
                 case "376": //Motd end
 
-                    break;
+                    return;
 
-                default:
-                    Console.WriteLine("Unkown command: " + e);
-                    break;
+                case "pong":
+
+                    return;
             }
+
+            Console.WriteLine("Unkown command: " + e);
         }
 
         private void OnJoinMessage(List<string> msgSplit)
         {
             (string, string) userAndServer = ExtractUserAndServer(msgSplit[0]);
             string parameter = msgSplit[2].TrimStart(':');
-
-            if (IsChannel(parameter))
-            {
-                _channels.TryAdd(parameter, new IrcChannel(this, parameter));
-                _members.TryGetValue(userAndServer.Item1, out IrcMember member);
-
-                _channels[parameter].OnMemberJoin(member);
-            }
 
             OnUserJoined?.Invoke(this, new IrcJoinEventArgs(userAndServer.Item1, userAndServer.Item2, parameter));
         }
@@ -180,16 +222,6 @@ namespace SkyBot.Networking.Irc
 
             if (IsChannel(parameter))
                 channel = parameter;
-
-            _members.TryRemove(userAndServer.Item1, out IrcMember member);
-
-            if (member != null)
-            {
-                List<IrcChannel> channels = _channels.Select(kvp => kvp.Value).ToList();
-
-                foreach (IrcChannel ch in channels)
-                    ch.OnMemberPart(member);
-            }
 
             OnUserQuit?.Invoke(this, new IrcQuitEventArgs(userAndServer.Item1, userAndServer.Item2, channel));
         }
@@ -230,18 +262,11 @@ namespace SkyBot.Networking.Irc
 
         private void OnUserListReceived(List<string> msgSplit)
         {
-            for (int i = 0; i < 6; i++)
-                msgSplit.RemoveAt(i);
+            //for (int i = 0; i < 6; i++)
+            //    msgSplit.RemoveAt(i);
 
-            msgSplit.RemoveAt(msgSplit.Count - 1);
+            //msgSplit.RemoveAt(msgSplit.Count - 1);
 
-            for (int i = 0; i < msgSplit.Count; i++)
-            {
-                if (_members.ContainsKey(msgSplit[i]))
-                    continue;
-
-                _members.TryAdd(msgSplit[i], new IrcMember(this, msgSplit[i]));
-            }
         }
 
         private void OnUserListEndReceived()
@@ -253,11 +278,6 @@ namespace SkyBot.Networking.Irc
         {
             (string, string) userAndServer = ExtractUserAndServer(msgSplit[0]);
             string channel = msgSplit[2].TrimStart(':');
-
-            _channels.TryAdd(channel, new IrcChannel(this, channel));
-            _members.TryGetValue(userAndServer.Item1, out IrcMember member);
-
-            _channels[channel].OnMemberPart(member);
 
             OnUserParted?.Invoke(this, new IrcPartEventArgs(userAndServer.Item1, userAndServer.Item2, channel));
         }
@@ -306,6 +326,26 @@ namespace SkyBot.Networking.Irc
         private void OnPing()
         {
             SendCommandAsync("PING", "cho.ppy.sh").ConfigureAwait(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+
+            IsDisposed = true;
+
+            if (disposing)
+            {
+                _irc?.Dispose();
+                _reconnectTimer?.Dispose();
+            }
         }
     }
 }

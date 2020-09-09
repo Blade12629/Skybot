@@ -16,19 +16,19 @@ namespace SkyBot.Networking.Test
         {
             try
             {
+                string user = "Skyfly";
+                string pass = "ssssssssssss";
+
                 IPAddress ip = Dns.GetHostEntry("irc.ppy.sh").AddressList.First(i => i.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
 
                 _client = new Irc.OsuIrcClient();
-                _client.OnPrivateMessageReceived += (s, e) => Console.WriteLine("Private Message: " + e.Message);
-                _client.OnChannelMessageReceived += (s, e) => Console.WriteLine("Channel Message: " + e.Message);
-                _client.OnPrivateBanchoMessageReceived += (s, e) => Console.WriteLine($"Bancho Msg: {e.Message}");
+                _client.OnWelcomeMessageReceived += (s, e) => Console.WriteLine($"Welcome Message: {e.WelcomeMessage}");
+                _client.OnPrivateMessageReceived += (s, e) => Console.WriteLine($"Private Message: Sender: {e.Sender} Server: {e.Server} Message: {e.Message}");
+                _client.OnChannelMessageReceived += (s, e) => Console.WriteLine($"Channel Message: Sender: {e.Sender} Server: {e.Server} Destination: {e.Destination} Message: {e.Message}");
+                _client.OnPrivateBanchoMessageReceived += (s, e) => Console.WriteLine($"Bancho Message: Sender: {e.Sender} Server: {e.Server} Message: {e.Message}");
 
-                await _client.ConnectAsync().ConfigureAwait(false);
-                await _client.LoginAsync("Skyfly", "somepassword1234").ConfigureAwait(false);
-
-                await Task.Delay(1500);
-
-                await _client.SendCommandAsync("PRIVMSG", "banchobot !help").ConfigureAwait(false);
+                await _client.ConnectAsync(reconnectDelay: TimeSpan.FromMinutes(15.0)).ConfigureAwait(false);
+                await _client.LoginAsync(user, pass).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

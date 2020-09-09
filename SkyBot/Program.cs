@@ -123,35 +123,32 @@ namespace SkyBot
             Logger.Log("Loading IRC", LogLevel.Info);
 
             IRC = new Osu.IRC.OsuIrcClient();
-            IRC.SetAuthentication(SkyBotConfig.IrcUser,
-                                  SkyBotConfig.IrcPass);
 
-            IRC.OnIrcException += (s, e) => Logger.Log("IRC Exception: " + e, LogLevel.Error, member: "IRC");
             IRC.OnUserCommand += (s, e) =>
             {
                 try
                 {
-                    Logger.Log($"User command from {e.Sender.Nickname.ToString()}: {e.Message.ToString()}", member: "IRC");
+                    Logger.Log($"User command from {e.Sender}: {e.Message}", member: "IRC");
 
-                    string msg = e.Message.ToString();
-                    int index = msg.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
+                    int index = e.Message.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
 
                     if (index == -1)
                         return;
 
-                    VerificationManager.FinishVerification(msg.Remove(0, index + 1), e.Sender.Nickname.ToString());
+                    VerificationManager.FinishVerification(e.Message.Remove(0, index + 1), e.Sender);
                 }
 #pragma warning disable CA1031 // Do not catch general exception types
                 catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
                 {
                     Logger.Log(ex, LogLevel.Error);
-                    IRC.SendMessage(e.Sender.Nickname, "Something went wrong executing this command, if this keeps happening contact ??????#0284 via discord");
+                    IRC.SendMessageAsync(e.Sender, "Something went wrong executing this command, if this keeps happening contact ??????#0284 via discord").ConfigureAwait(false);
                 }
             };
             IRC.OnWelcomeMessageReceived += (s, e) => Logger.Log($"Welcome message received", member: "IRC");
 
-            await IRC.ConnectAndLoginAsync().ConfigureAwait(false);
+            await IRC.ConnectAsync().ConfigureAwait(false);
+            await IRC.LoginAsync(SkyBotConfig.IrcUser, SkyBotConfig.IrcPass).ConfigureAwait(false);
 
             Logger.Log("Loaded IRC", LogLevel.Info);
         }

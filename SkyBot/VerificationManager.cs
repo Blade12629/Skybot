@@ -164,7 +164,7 @@ namespace SkyBot
 
             if (ver == null)
             {
-                Program.IRC.SendMessage(osuUserName, Resources.VerCodeInvalidNotFound);
+                Program.IRC.SendMessageAsync(osuUserName, Resources.VerCodeInvalidNotFound).ConfigureAwait(false);
                 return;
             }
 
@@ -172,7 +172,7 @@ namespace SkyBot
 
             if (userJson == null)
             {
-                Program.IRC.SendMessage(osuUserName, Resources.FailedFetchOsuApi);
+                Program.IRC.SendMessageAsync(osuUserName, Resources.FailedFetchOsuApi).ConfigureAwait(false);
                 return;
             }
 
@@ -202,7 +202,7 @@ namespace SkyBot
         {
             try
             {
-                Program.IRC.SendMessage(osuUserName, Resources.VerSuccess);
+                Program.IRC.SendMessageAsync(osuUserName, Resources.VerSuccess).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -226,7 +226,7 @@ namespace SkyBot
         {
             try
             {
-                Program.IRC.SendMessage(osuUserName, Resources.VerUserAlreadyExists);
+                Program.IRC.SendMessageAsync(osuUserName, Resources.VerUserAlreadyExists).ConfigureAwait(false);
             }
             catch (Exception)
             {
