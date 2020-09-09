@@ -39,7 +39,7 @@ namespace DiscordCommands
 #pragma warning restore CA1305 // Specify IFormatProvider
         }
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             char prefix = args.Config?.Prefix ?? Program.DiscordHandler.CommandHandler.CommandPrefix;
 

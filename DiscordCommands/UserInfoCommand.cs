@@ -27,7 +27,7 @@ namespace DiscordCommands
 
         public int MinParameters => 1;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             args.Parameters[0] = args.Parameters[0].Trim('<', '>', '@', '!');
 
@@ -36,7 +36,7 @@ namespace DiscordCommands
             {
                 try
                 {
-                    user = Program.DiscordHandler.Client.GetUserAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
+                    user = client.GetUserAsync(uid).ConfigureAwait(false).GetAwaiter().GetResult();
                 }
                 catch (Exception)
                 {

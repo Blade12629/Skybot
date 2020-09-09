@@ -1,5 +1,7 @@
 ﻿using SkyBot;
+using SkyBot.Discord;
 using SkyBot.Discord.CommandSystem;
+using SkyBot.GlobalStatistics;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,7 +26,7 @@ namespace DiscordCommands
         public int MinParameters => 2;
         public bool AllowOverwritingAccessLevel => true;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             if (!int.TryParse(args.Parameters[0], out int rank))
             {
@@ -38,12 +40,12 @@ namespace DiscordCommands
                 return;
             }
 
-            args.Channel.SendMessageAsync(string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandResult, args.User.Mention, CalculateBWS(rank, badgeCount)));
-        }
+            if (args.Parameters.Count >= 3 && args.Parameters[2].Equals("test", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return;
+            }
 
-        private double CalculateBWS(int rank, int badgeCount)
-        {
-            return Math.Round(Math.Pow(rank, Math.Pow(0.9921, badgeCount * (badgeCount + 1.0) / 2.0)), 4, MidpointRounding.AwayFromZero);
+            client.SendSimpleEmbed(args.Channel, "BWS Rank", GSStatisticHandler.CalculateBWS(rank, badgeCount).ToString()).ConfigureAwait(false);
         }
     }
 }

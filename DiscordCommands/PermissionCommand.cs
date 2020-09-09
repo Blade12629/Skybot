@@ -27,7 +27,7 @@ namespace DiscordCommands
         public int MinParameters => 1;
         public bool AllowOverwritingAccessLevel => false;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             if (args.Parameters[0].Equals("list", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -42,7 +42,7 @@ namespace DiscordCommands
 
                 if (drbs.Count == 0)
                 {
-                    DiscordHandler.SendSimpleEmbed(args.Channel, ResourcesCommands.PermissionCommandNoBindsFound).ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, ResourcesCommands.PermissionCommandNoBindsFound).ConfigureAwait(false);
                     return;
                 }
 

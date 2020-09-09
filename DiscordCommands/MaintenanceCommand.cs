@@ -23,7 +23,7 @@ namespace DiscordCommands
         public int MinParameters => 2;
         public bool AllowOverwritingAccessLevel => false;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             if (!bool.TryParse(args.Parameters[0], out bool status))
             {

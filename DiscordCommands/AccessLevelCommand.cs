@@ -24,7 +24,7 @@ namespace DiscordCommands
 
         public int MinParameters => 0;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             if (args.Parameters.Count == 0)
             {
@@ -38,7 +38,7 @@ namespace DiscordCommands
                 return;
             }
 
-            var duser = Program.DiscordHandler.Client.GetUserAsync(uid).Result;
+            var duser = client.GetUserAsync(uid).Result;
             AccessLevel access = Program.DiscordHandler.CommandHandler.GetAccessLevel(duser, args.Guild);
 
             if (args.Parameters.Count == 1)

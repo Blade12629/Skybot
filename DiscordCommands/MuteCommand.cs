@@ -84,7 +84,7 @@ namespace DiscordCommands
 
                 try
                 {
-                    var guild = Program.DiscordHandler.Client.GetGuildAsync((ulong)m.DiscordGuildId).ConfigureAwait(false).GetAwaiter().GetResult();
+                    var guild = Program.DiscordHandler.GetGuildAsync((ulong)m.DiscordGuildId).ConfigureAwait(false).GetAwaiter().GetResult();
                     var member = guild.GetMemberAsync((ulong)m.DiscordUserId).ConfigureAwait(false).GetAwaiter().GetResult();
 
                     DiscordGuildConfig dgc = c.DiscordGuildConfig.FirstOrDefault(dgc => dgc.GuildId == (long)guild.Id);
@@ -118,7 +118,7 @@ namespace DiscordCommands
             }
         }
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             using DBContext c = new DBContext();
             DiscordGuildConfig dgc = args.Config;

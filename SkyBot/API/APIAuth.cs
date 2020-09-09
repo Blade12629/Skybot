@@ -35,8 +35,39 @@ namespace SkyBot.API
             catch (Exception ex)
 #pragma warning restore CA1031 // Do not catch general exception types
             {
-                Logger.Log(ex);
+                Logger.Log(ex, LogLevel.Error);
                 return false;
+            }
+        }
+
+        public static AccessLevel GetApiKeyAccess(string key)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(key))
+                    return AccessLevel.User;
+
+                string hashedKey = HashKey(key);
+
+                using DBContext c = new DBContext();
+                APIUser user = c.APIUser.FirstOrDefault(u => u.APIKeyMD5.Equals(hashedKey, StringComparison.CurrentCulture));
+
+                if (user == null ||
+                    !user.IsValid)
+                    return AccessLevel.User;
+
+                Permission perm = c.Permission.FirstOrDefault(p => p.DiscordUserId == user.DiscordUserId && 
+                                                                  (p.AccessLevel == (int)AccessLevel.Dev || p.DiscordGuildId == 0));
+
+                if (perm == null)
+                    return AccessLevel.User;
+
+                return (AccessLevel)perm.AccessLevel;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex, LogLevel.Error);
+                return AccessLevel.User;
             }
         }
 

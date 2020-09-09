@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkyBot.Database.Models;
+using SkyBot.Database.Models.GlobalStatistics;
 using SkyBot.Database.Models.Statistics;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,11 @@ public class DBContext : DbContext
     public virtual DbSet<Mute> Mute { get; set; }
     public virtual DbSet<CommandAccess> CommandAccess { get; set; }
 
+    public virtual DbSet<GSTeam> GSTeam { get; set; }
+    public virtual DbSet<GSTeamMember> GSTeamMember { get; set; }
+    public virtual DbSet<GSTournament> GSTournament { get; set; }
+    public virtual DbSet<PlayerProfile> PlayerProfile { get; set; }
+
     public DBContext()
     {
     }
@@ -53,7 +59,7 @@ public class DBContext : DbContext
         }
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    private void CreateConfigModels(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CommandAccess>(entity =>
         {
@@ -74,256 +80,6 @@ public class DBContext : DbContext
             entity.Property(e => e.AccessLevel)
                 .HasColumnName("access_level")
                 .HasColumnType("int(11)");
-        });
-            
-        modelBuilder.Entity<Mute>(entity =>
-        {
-            entity.ToTable("mute");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordUserId)
-                .HasColumnName("discord_user_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordGuildId)
-                .HasColumnName("discord_guild_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.StartTime)
-                .HasColumnName("start_time")
-                .HasColumnType("datetime");
-
-            entity.Property(e => e.DurationM)
-                .HasColumnName("duration_m")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.Reason)
-                .HasColumnName("reason")
-                .HasColumnType("longtext");
-        });
-
-        modelBuilder.Entity<Ticket>(entity =>
-        {
-            entity.ToTable("ticket");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordId)
-                .HasColumnName("discord_user_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordGuildId)
-                .HasColumnName("discord_guild_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.Tag)
-                .HasColumnName("tag")
-                .HasColumnType("smallint(6)");
-
-            entity.Property(e => e.Status)
-                .HasColumnName("status")
-                .HasColumnType("smallint(6)");
-
-            entity.Property(e => e.Priority)
-                .HasColumnName("priority")
-                .HasColumnType("smallint(6)");
-
-            entity.Property(e => e.Timestamp)
-                .HasColumnName("timestamp")
-                .HasColumnType("datetime");
-
-            entity.Property(e => e.Message)
-                .HasColumnName("message")
-                .HasColumnType("longtext");
-        });
-
-        modelBuilder.Entity<Reminder>(entity =>
-        {
-            entity.ToTable("reminder");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordUserId)
-                .HasColumnName("discord_user_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordChannelId)
-                .HasColumnName("discord_channel_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.Message)
-                .HasColumnName("message")
-                .HasColumnType("longtext");
-
-            entity.Property(e => e.EndDate)
-                .HasColumnName("end_date")
-                .HasColumnType("datetime");
-        });
-
-        modelBuilder.Entity<SeasonTeamCardCache>(entity =>
-        {
-            entity.ToTable("season_team_card_cache");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordGuildId)
-                .HasColumnName("discord_guild_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.TeamName)
-                .HasColumnName("team_name")
-                .HasColumnType("longtext");
-
-            entity.Property(e => e.MVPName)
-                .HasColumnName("mvp_name")
-                .HasColumnType("longtext");
-
-            entity.Property(e => e.TotalMatchMVPs)
-                .HasColumnName("total_match_mvps")
-                .HasColumnType("int(11)");
-
-            entity.Property(e => e.AverageOverallRating)
-                .HasColumnName("average_overall_rating")
-                .HasColumnType("double");
-
-            entity.Property(e => e.AverageGeneralPerformanceScore)
-                .HasColumnName("average_general_performance_score")
-                .HasColumnType("double");
-
-            entity.Property(e => e.AverageAccuracy)
-                .HasColumnName("average_accuracy")
-                .HasColumnType("double");
-
-            entity.Property(e => e.AverageScore)
-                .HasColumnName("average_score")
-                .HasColumnType("double");
-
-            entity.Property(e => e.AverageMisses)
-                .HasColumnName("average_misses")
-                .HasColumnType("double");
-
-            entity.Property(e => e.AverageCombo)
-                .HasColumnName("average_combo")
-                .HasColumnType("double");
-
-            entity.Property(e => e.TeamRating)
-                .HasColumnName("team_rating")
-                .HasColumnType("double");
-
-            entity.Property(e => e.LastUpdated)
-                .HasColumnName("last_updated")
-                .HasColumnType("datetime");
-        });
-
-        modelBuilder.Entity<APIUser>(entity =>
-    {
-        entity.ToTable("api_user");
-
-        entity.Property(e => e.Id)
-            .HasColumnName("id")
-            .HasColumnType("bigint(20)");
-
-        entity.Property(e => e.DiscordUserId)
-            .HasColumnName("discord_user_id")
-            .HasColumnType("bigint(20)");
-
-        entity.Property(e => e.DiscordUserId)
-            .HasColumnName("discord_user_id")
-            .HasColumnType("bigint(20)");
-
-        entity.Property(e => e.APIKeyMD5)
-            .HasColumnName("api_key_md5")
-            .HasColumnType("longtext");
-
-        entity.Property(e => e.IsValid)
-            .HasColumnName("is_valid")
-            .HasColumnType("tinyint(1)");
-
-    });
-
-        modelBuilder.Entity<BannedGuild>(entity =>
-        {
-            entity.ToTable("banned_guild");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordGuildId)
-                .HasColumnName("discord_guild_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.Reason)
-                .HasColumnName("reason")
-                .HasColumnType("longtext");
-        });
-
-        modelBuilder.Entity<BannedUser>(entity =>
-        {
-            entity.ToTable("banned_user");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.OsuUserId)
-                .HasColumnName("osu_user_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordUserId)
-                .HasColumnName("discord_user_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordGuildId)
-                .HasColumnName("discord_guild_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.Reason)
-                .HasColumnName("reason")
-                .HasColumnType("longtext");
-        });
-
-        modelBuilder.Entity<ByteTable>(entity =>
-        {
-            entity.ToTable("byte_table");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.Identifier)
-                .HasColumnName("identifier")
-                .HasColumnType("longtext");
-
-            entity.Property(e => e.Data)
-                .HasColumnName("data")
-                .HasColumnType("longblob");
-        });
-
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.ToTable("user");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordUserId)
-                .HasColumnName("discord_user_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.OsuUserId)
-                .HasColumnName("osu_user_id")
-                .HasColumnType("bigint(20)");
         });
 
         modelBuilder.Entity<Permission>(entity =>
@@ -366,24 +122,6 @@ public class DBContext : DbContext
             entity.Property(e => e.AccessLevel)
                 .HasColumnName("access_level")
                 .HasColumnType("smallint(1)");
-        });
-
-        modelBuilder.Entity<WarmupBeatmap>(entity =>
-        {
-            entity.ToTable("warmup_beatmap");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordGuildId)
-                .HasColumnName("discord_guild_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.BeatmapId)
-                .HasColumnName("beatmap_id")
-                .HasColumnType("bigint(20)");
-
         });
 
         modelBuilder.Entity<DiscordGuildConfig>(entity =>
@@ -451,6 +189,210 @@ public class DBContext : DbContext
                 .HasColumnType("bigint(20)");
         });
 
+        modelBuilder.Entity<WarmupBeatmap>(entity =>
+        {
+            entity.ToTable("warmup_beatmap");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.BeatmapId)
+                .HasColumnName("beatmap_id")
+                .HasColumnType("bigint(20)");
+
+        });
+    }
+
+    private void CreateUserRelatedModels(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Ticket>(entity =>
+        {
+            entity.ToTable("ticket");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Tag)
+                .HasColumnName("tag")
+                .HasColumnType("smallint(6)");
+
+            entity.Property(e => e.Status)
+                .HasColumnName("status")
+                .HasColumnType("smallint(6)");
+
+            entity.Property(e => e.Priority)
+                .HasColumnName("priority")
+                .HasColumnType("smallint(6)");
+
+            entity.Property(e => e.Timestamp)
+                .HasColumnName("timestamp")
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.Message)
+                .HasColumnName("message")
+                .HasColumnType("longtext");
+        });
+
+        modelBuilder.Entity<Reminder>(entity =>
+        {
+            entity.ToTable("reminder");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordChannelId)
+                .HasColumnName("discord_channel_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Message)
+                .HasColumnName("message")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.EndDate)
+                .HasColumnName("end_date")
+                .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("user");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.OsuUserId)
+                .HasColumnName("osu_user_id")
+                .HasColumnType("bigint(20)");
+        });
+
+        modelBuilder.Entity<APIUser>(entity =>
+        {
+            entity.ToTable("api_user");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.APIKeyMD5)
+                .HasColumnName("api_key_md5")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.IsValid)
+                .HasColumnName("is_valid")
+                .HasColumnType("tinyint(1)");
+
+        });
+
+        modelBuilder.Entity<Verification>(entity =>
+        {
+            entity.ToTable("verification");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.VerificationCode)
+                .HasColumnName("verification_code")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.InvalidatesAt)
+                .HasColumnName("invalidates_at")
+                .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<BannedUser>(entity =>
+        {
+            entity.ToTable("banned_user");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.OsuUserId)
+                .HasColumnName("osu_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Reason)
+                .HasColumnName("reason")
+                .HasColumnType("longtext");
+        });
+
+        modelBuilder.Entity<Mute>(entity =>
+        {
+            entity.ToTable("mute");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.StartTime)
+                .HasColumnName("start_time")
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.DurationM)
+                .HasColumnName("duration_m")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Reason)
+                .HasColumnName("reason")
+                .HasColumnType("longtext");
+        });
+    }
+
+    private void CreateSeasonModels(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<SeasonPlayer>(entity =>
         {
             entity.ToTable("season_player");
@@ -700,25 +642,230 @@ public class DBContext : DbContext
                 .HasColumnType("datetime");
         });
 
-        modelBuilder.Entity<Verification>(entity =>
+        modelBuilder.Entity<SeasonTeamCardCache>(entity =>
         {
-            entity.ToTable("verification");
+            entity.ToTable("season_team_card_cache");
 
             entity.Property(e => e.Id)
                 .HasColumnName("id")
                 .HasColumnType("bigint(20)");
 
-            entity.Property(e => e.DiscordUserId)
-                .HasColumnName("discord_user_id")
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
                 .HasColumnType("bigint(20)");
 
-            entity.Property(e => e.VerificationCode)
-                .HasColumnName("verification_code")
+            entity.Property(e => e.TeamName)
+                .HasColumnName("team_name")
                 .HasColumnType("longtext");
 
-            entity.Property(e => e.InvalidatesAt)
-                .HasColumnName("invalidates_at")
+            entity.Property(e => e.MVPName)
+                .HasColumnName("mvp_name")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.TotalMatchMVPs)
+                .HasColumnName("total_match_mvps")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.AverageOverallRating)
+                .HasColumnName("average_overall_rating")
+                .HasColumnType("double");
+
+            entity.Property(e => e.AverageGeneralPerformanceScore)
+                .HasColumnName("average_general_performance_score")
+                .HasColumnType("double");
+
+            entity.Property(e => e.AverageAccuracy)
+                .HasColumnName("average_accuracy")
+                .HasColumnType("double");
+
+            entity.Property(e => e.AverageScore)
+                .HasColumnName("average_score")
+                .HasColumnType("double");
+
+            entity.Property(e => e.AverageMisses)
+                .HasColumnName("average_misses")
+                .HasColumnType("double");
+
+            entity.Property(e => e.AverageCombo)
+                .HasColumnName("average_combo")
+                .HasColumnType("double");
+
+            entity.Property(e => e.TeamRating)
+                .HasColumnName("team_rating")
+                .HasColumnType("double");
+
+            entity.Property(e => e.LastUpdated)
+                .HasColumnName("last_updated")
                 .HasColumnType("datetime");
+        });
+
+    }
+
+    private void CreatePlayerProfileModels(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<GSTeam>(entity =>
+        {
+            entity.ToTable("gs_team");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.GSTournamentId)
+                .HasColumnName("gs_tournament_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Placement)
+                .HasColumnName("placement")
+                .HasColumnType("text");
+
+            entity.Property(e => e.Name)
+                .HasColumnName("name")
+                .HasColumnType("longtext");
+        });
+
+        modelBuilder.Entity<GSTeamMember>(entity =>
+        {
+            entity.ToTable("gs_team_member");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.GSTeamId)
+                .HasColumnName("gs_team_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.OsuUserId)
+                .HasColumnName("osu_user_id")
+                .HasColumnType("bigint(20)");
+        });
+
+        modelBuilder.Entity<GSTournament>(entity =>
+        {
+            entity.ToTable("gs_tournament");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.HostOsuId)
+                .HasColumnName("host_osu_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Name)
+                .HasColumnName("name")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.Acronym)
+                .HasColumnName("acronym")
+                .HasColumnType("text");
+
+            entity.Property(e => e.Thread)
+                .HasColumnName("thread")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.CountryCode)
+                .HasColumnName("country_code")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.Start)
+                .HasColumnName("start")
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.End)
+                .HasColumnName("end")
+                .HasColumnType("datetime");
+
+            entity.Property(e => e.RankMin)
+                .HasColumnName("rank_min")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.RankMax)
+                .HasColumnName("rank_max")
+                .HasColumnType("bigint(20)");
+        });
+
+        modelBuilder.Entity<PlayerProfile>(entity =>
+        {
+            entity.ToTable("player_profile");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Username)
+                .HasColumnName("username")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.OsuId)
+                .HasColumnName("osu_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.BWSRank)
+                .HasColumnName("bws_rank")
+                .HasColumnType("double");
+
+            entity.Property(e => e.TournamentWins)
+                .HasColumnName("tournament_wins")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.LastPlacement)
+                .HasColumnName("last_placement")
+                .HasColumnType("text");
+
+            entity.Property(e => e.TournamentsPlayed)
+                .HasColumnName("tournaments_played")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.BadgeCount)
+                .HasColumnName("badge_count")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.LastUpdated)
+                .HasColumnName("last_updated")
+                .HasColumnType("datetime");
+        });
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        CreateConfigModels(modelBuilder);
+        CreateUserRelatedModels(modelBuilder);
+        CreateSeasonModels(modelBuilder);
+        CreatePlayerProfileModels(modelBuilder);
+
+        modelBuilder.Entity<BannedGuild>(entity =>
+        {
+            entity.ToTable("banned_guild");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Reason)
+                .HasColumnName("reason")
+                .HasColumnType("longtext");
+        });
+        modelBuilder.Entity<ByteTable>(entity =>
+        {
+            entity.ToTable("byte_table");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Identifier)
+                .HasColumnName("identifier")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.Data)
+                .HasColumnName("data")
+                .HasColumnType("longblob");
         });
     }
 

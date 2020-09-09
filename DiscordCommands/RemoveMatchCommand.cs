@@ -24,7 +24,7 @@ namespace DiscordCommands
 
         public int MinParameters => 1;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             if (!long.TryParse(args.Parameters[0], out long matchId))
                 return;

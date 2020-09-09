@@ -31,7 +31,7 @@ namespace DiscordCommands
 
         public int MinParameters => 2;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             bool globalBan = false;
             //discordId, osuId

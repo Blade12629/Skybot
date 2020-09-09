@@ -30,6 +30,6 @@ namespace SkyBot.Discord.CommandSystem
         /// </summary>
         int MinParameters { get; }
 
-        void Invoke(CommandHandler handler, CommandEventArg args);
+        void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args);
     }
 }

@@ -33,7 +33,7 @@ namespace DiscordCommands
         };
         public bool AllowOverwritingAccessLevel => false;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             using DBContext c = new DBContext();
             APIUser user = c.APIUser.FirstOrDefault(u => u.DiscordUserId == (long)args.User.Id);

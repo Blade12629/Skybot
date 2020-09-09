@@ -28,7 +28,7 @@ namespace DiscordCommands
 
         public int MinParameters => 1;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             switch (args.Parameters[0].ToLower(CultureInfo.CurrentCulture))
             {

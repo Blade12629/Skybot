@@ -30,7 +30,7 @@ namespace DiscordCommands
 
         public int MinParameters => 2;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             string param = args.Parameters[0].ToLower(CultureInfo.CurrentCulture);
             args.Parameters.RemoveAt(0);
@@ -43,22 +43,22 @@ namespace DiscordCommands
 
                 case "player":
                 case "p":
-                    OnPlayerCommand(args);
+                    OnPlayerCommand(client, args);
                     return;
 
                 case "team":
                 case "t":
-                    OnTeamCommand(args);
+                    OnTeamCommand(client, args);
                     return;
 
                 case "match":
                 case "m":
-                    OnMatchCommand(args);
+                    OnMatchCommand(client, args);
                     return;
             }
         }
 
-        private void OnPlayerCommand(CommandEventArg args)
+        private void OnPlayerCommand(DiscordHandler client, CommandEventArg args)
         {
             string param = args.Parameters[0].ToLower(CultureInfo.CurrentCulture);
             args.Parameters.RemoveAt(0);
@@ -67,17 +67,17 @@ namespace DiscordCommands
             {
                 case "profile":
                 case "p":
-                    OnPlayerProfile(args);
+                    OnPlayerProfile(client, args);
                     return;
 
                 case "top":
                 case "t":
-                    OnPlayerTopList(args);
+                    OnPlayerTopList(client, args);
                     return;
 
                 case "last":
                 case "l":
-                    OnPlayerTopList(args, true);
+                    OnPlayerTopList(client, args, true);
                     return;
 
                 default:
@@ -86,7 +86,7 @@ namespace DiscordCommands
             }
         }
 
-        private void OnTeamCommand(CommandEventArg args)
+        private void OnTeamCommand(DiscordHandler client, CommandEventArg args)
         {
             string param = args.Parameters[0].ToLower(CultureInfo.CurrentCulture);
             args.Parameters.RemoveAt(0);
@@ -95,17 +95,17 @@ namespace DiscordCommands
             {
                 case "profile":
                 case "p":
-                    OnTeamProfile(args);
+                    OnTeamProfile(client, args);
                     return;
 
                 case "top":
                 case "t":
-                    OnTeamTopList(args);
+                    OnTeamTopList(client, args);
                     return;
 
                 case "last":
                 case "l":
-                    OnTeamTopList(args, true);
+                    OnTeamTopList(client, args, true);
                     return;
 
                 default:
@@ -114,7 +114,7 @@ namespace DiscordCommands
             }
         }
 
-        private static void OnPlayerTopList(CommandEventArg args, bool reverse = false)
+        private static void OnPlayerTopList(DiscordHandler client, CommandEventArg args, bool reverse = false)
         {
             int page = 1;
 
@@ -127,7 +127,7 @@ namespace DiscordCommands
 
             if (players.Count == 0)
             {
-                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.NoStatsFound).ConfigureAwait(false);
+                client.SendSimpleEmbed(args.Channel, ResourceStats.NoStatsFound).ConfigureAwait(false);
                 return;
             }
             else if (reverse)
@@ -138,7 +138,7 @@ namespace DiscordCommands
                                                                                        new Func<SeasonPlayerCardCache, double>(sp => sp.OverallRating)));
         }
 
-        private static void OnTeamTopList(CommandEventArg args, bool reverse = false)
+        private static void OnTeamTopList(DiscordHandler client, CommandEventArg args, bool reverse = false)
         {
             int page = 1;
 
@@ -150,7 +150,7 @@ namespace DiscordCommands
             List<SeasonTeamCardCache> teams = GetTeams(args.Guild).OrderByDescending(sp => sp.TeamRating).ToList();
             if (teams.Count == 0)
             {
-                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.NoStatsFound).ConfigureAwait(false);
+                client.SendSimpleEmbed(args.Channel, ResourceStats.NoStatsFound).ConfigureAwait(false);
                 return;
             }
             if (reverse)
@@ -161,7 +161,7 @@ namespace DiscordCommands
                                                                                        new Func<SeasonTeamCardCache, double>(sp => Math.Round(sp.TeamRating, 2, MidpointRounding.AwayFromZero))));
         }
 
-        private static void OnPlayerProfile(CommandEventArg args)
+        private static void OnPlayerProfile(DiscordHandler client, CommandEventArg args)
         {
             using DBContext c = new DBContext();
             (string, long) userParsed = TryParseIdOrUsernameString(args.Parameters);
@@ -176,7 +176,7 @@ namespace DiscordCommands
 
             if (osuUserId == -1)
             {
-                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
+                client.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
                 return;
             }
 
@@ -184,14 +184,14 @@ namespace DiscordCommands
 
             if (spcc == null)
             {
-                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
+                client.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
                 return;
             }
 
             args.Channel.SendMessageAsync(embed: GetPlayerEmbed(spcc.Username, spcc.TeamName, spcc.OsuUserId, spcc.AverageAccuracy, (int)spcc.AverageScore, spcc.AverageMisses, (int)spcc.AverageCombo, spcc.AveragePerformance, spcc.MatchMvps, spcc.OverallRating));
         }
 
-        private static void OnTeamProfile(CommandEventArg args)
+        private static void OnTeamProfile(DiscordHandler client, CommandEventArg args)
         {
             (string, long) userParsed = TryParseIdOrUsernameString(args.Parameters);
 
@@ -201,14 +201,14 @@ namespace DiscordCommands
 
             if (stcc == null)
             {
-                DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.TeamNotFound + teamName).ConfigureAwait(false);
+                client.SendSimpleEmbed(args.Channel, ResourceStats.TeamNotFound + teamName).ConfigureAwait(false);
                 return;
             }
 
             args.Channel.SendMessageAsync(embed: GetTeamEmbed(stcc.TeamName, stcc.AverageAccuracy, (int)stcc.AverageScore, stcc.AverageMisses, (int)stcc.AverageCombo, stcc.AverageGeneralPerformanceScore, stcc.TotalMatchMVPs, stcc.AverageOverallRating, stcc.TeamRating, stcc.MVPName));
         }
 
-        private void OnMatchCommand(CommandEventArg args)
+        private void OnMatchCommand(DiscordHandler client, CommandEventArg args)
         {
             using DBContext c = new DBContext();
             long matchId = -1;
@@ -241,7 +241,7 @@ namespace DiscordCommands
                 if (!c.SeasonResult.Any(sr => sr.MatchId == matchId &&
                                               sr.DiscordGuildId == (long)args.Guild.Id))
                 {
-                    DiscordHandler.SendSimpleEmbed(args.Channel, ResourceStats.MatchNotFound + matchId).ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, ResourceStats.MatchNotFound + matchId).ConfigureAwait(false);
                     return;
                 }
             }

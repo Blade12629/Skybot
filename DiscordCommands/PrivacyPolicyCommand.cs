@@ -33,7 +33,7 @@ namespace DiscordCommands
 
         public int MinParameters => 0;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             args.Channel.SendMessageAsync(GetPrivacyPolicy()).Wait();
         }

@@ -28,7 +28,7 @@ namespace DiscordCommands
 
         public int MinParameters => 2;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             if (!args.Parameters[0].Equals("reset", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -48,9 +48,9 @@ namespace DiscordCommands
                 }
 
                 if (!handler.SetCommandAccessLevel(args.Parameters[0], args.Guild.Id, newAccess))
-                    DiscordHandler.SendSimpleEmbed(args.Channel, "Failed to change accesslevel", "Command not found or command not overwrittable").ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, "Failed to change accesslevel", "Command not found or command not overwrittable").ConfigureAwait(false);
                 else
-                    DiscordHandler.SendSimpleEmbed(args.Channel, "Accesslevel changed", "Changed commands accesslevel").ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, "Accesslevel changed", "Changed commands accesslevel").ConfigureAwait(false);
             }
             else
             {
@@ -63,11 +63,11 @@ namespace DiscordCommands
                     c.CommandAccess.Remove(ca);
                     c.SaveChanges();
 
-                    DiscordHandler.SendSimpleEmbed(args.Channel, "Resetted", "Resetted command " + args.Parameters[1]).ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, "Resetted", "Resetted command " + args.Parameters[1]).ConfigureAwait(false);
                 }
                 else
                 {
-                    DiscordHandler.SendSimpleEmbed(args.Channel, "Not Found/Resetted", "Could not find command or command already resetted").ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, "Not Found/Resetted", "Could not find command or command already resetted").ConfigureAwait(false);
                 }
             }
         }

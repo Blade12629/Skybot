@@ -23,7 +23,7 @@ namespace SkyBot
                 throw new ArgumentNullException(nameof(user));
 
             using DBContext c = new DBContext();
-            var dmChannel = Program.DiscordHandler.Client.CreateDmAsync(user).Result;
+            var dmChannel = Program.DiscordHandler.GetDmChannelAsync(user).Result;
 
             var dbuser = c.User.FirstOrDefault(u => u.DiscordUserId == (long)user.Id);
 
@@ -121,7 +121,7 @@ namespace SkyBot
             DiscordMember member;
             try
             {
-                guild = await Program.DiscordHandler.Client.GetGuildAsync(discordGuildId).ConfigureAwait(false);
+                guild = await Program.DiscordHandler.GetGuildAsync(discordGuildId).ConfigureAwait(false);
                 member = await guild.GetMemberAsync(discordUserId).ConfigureAwait(false);
 
                 if (verifiedRoleId > 0)
@@ -209,12 +209,12 @@ namespace SkyBot
                 //just skip if we can't message or find the user
             }
 
-            var user = Program.DiscordHandler.Client.GetUserAsync(discordUserId).Result;
+            var user = Program.DiscordHandler.GetUserAsync(discordUserId).Result;
 
             if (user == null)
                 return;
 
-            var dmChannel = Program.DiscordHandler.Client.CreateDmAsync(user).Result;
+            var dmChannel = Program.DiscordHandler.GetDmChannelAsync(user).Result;
 
             if (dmChannel == null)
                 return;
@@ -233,12 +233,12 @@ namespace SkyBot
                 //just skip if we can't message or find the user
             }
 
-            var user = Program.DiscordHandler.Client.GetUserAsync(discordUserId).Result;
+            var user = Program.DiscordHandler.GetUserAsync(discordUserId).Result;
 
             if (user == null)
                 return;
 
-            var dmChannel = Program.DiscordHandler.Client.CreateDmAsync(user).Result;
+            var dmChannel = Program.DiscordHandler.GetDmChannelAsync(user).Result;
 
             if (dmChannel == null)
                 return;

@@ -29,7 +29,7 @@ namespace DiscordCommands
         public bool AllowOverwritingAccessLevel => true;
 
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             using WebClient wc = new WebClient();
 
@@ -94,7 +94,7 @@ namespace DiscordCommands
                             if (args.Parameters.Count > 4)
                                 avatarUri = args.Parameters[4].TrimStart('<').TrimEnd('>');
 
-                            SendEmbed(this, args, embed, ej.Content, chId, args.Guild, true, args.Parameters[3], avatarUri);
+                            SendEmbed(client, this, args, embed, ej.Content, chId, args.Guild, true, args.Parameters[3], avatarUri);
                         }
                         break;
 
@@ -109,7 +109,7 @@ namespace DiscordCommands
                                 return;
                             }
 
-                            SendEmbed(this, args, embed, ej.Content, chId, args.Guild, false, null, null);
+                            SendEmbed(client, this, args, embed, ej.Content, chId, args.Guild, false, null, null);
                         }
                         break;
 
@@ -124,7 +124,7 @@ namespace DiscordCommands
                             return;
                         }
 
-                        EditEmbed(args, embed, ej.Content, msgLink.DiscordChannelId, msgLink.DiscordMessageId, args.Guild);
+                        EditEmbed(client, args, embed, ej.Content, msgLink.DiscordChannelId, msgLink.DiscordMessageId, args.Guild);
                         break;
                 }
             }
@@ -135,7 +135,7 @@ namespace DiscordCommands
         }
 
 
-        private static void EditEmbed(CommandEventArg args, DiscordEmbed embed, string content, ulong channelId, ulong messageId, DiscordGuild guild)
+        private static void EditEmbed(DiscordHandler client, CommandEventArg args, DiscordEmbed embed, string content, ulong channelId, ulong messageId, DiscordGuild guild)
         {
             DiscordChannel channel;
             DiscordMessage message;
@@ -151,7 +151,7 @@ namespace DiscordCommands
 
             message.ModifyAsync(string.IsNullOrEmpty(content) ? default : content, embed).ConfigureAwait(false).GetAwaiter().GetResult();
 
-            DiscordHandler.SendSimpleEmbed(args.Channel, ResourcesCommands.EmbedCommandModified).ConfigureAwait(false);
+            client.SendSimpleEmbed(args.Channel, ResourcesCommands.EmbedCommandModified).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace DiscordCommands
         /// <param name="content">message content</param>
         /// <param name="webhook">Use webhook or message</param>
         /// <param name="webhookUser">Webhook username</param>
-        private static void SendEmbed(ICommand cmd, CommandEventArg args, DiscordEmbed embed, string content, ulong channelId, DiscordGuild guild, bool webhook, string webhookUser, string webhookAvatar = null)
+        private static void SendEmbed(DiscordHandler client, ICommand cmd, CommandEventArg args, DiscordEmbed embed, string content, ulong channelId, DiscordGuild guild, bool webhook, string webhookUser, string webhookAvatar = null)
         {
             DiscordChannel channel;
             try
@@ -192,7 +192,7 @@ namespace DiscordCommands
                 channel.SendMessageAsync(content: content, embed: embed).ConfigureAwait(false).GetAwaiter().GetResult();
             }
 
-            DiscordHandler.SendSimpleEmbed(args.Channel, ResourcesCommands.EmbedCommandSent).ConfigureAwait(false);
+            client.SendSimpleEmbed(args.Channel, ResourcesCommands.EmbedCommandSent).ConfigureAwait(false);
         }
     }
 }

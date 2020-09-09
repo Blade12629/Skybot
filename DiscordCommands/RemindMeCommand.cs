@@ -48,8 +48,8 @@ namespace DiscordCommands
             {
                 for (int i = 0; i < reminders.Count; i++)
                 {
-                    var dchannel = Program.DiscordHandler.Client.GetChannelAsync((ulong)reminders[i].DiscordChannelId).Result;
-                    var duser = Program.DiscordHandler.Client.GetUserAsync((ulong)reminders[i].DiscordUserId).Result;
+                    var dchannel = Program.DiscordHandler.GetChannelAsync((ulong)reminders[i].DiscordChannelId).Result;
+                    var duser = Program.DiscordHandler.GetUserAsync((ulong)reminders[i].DiscordUserId).Result;
 
                     dchannel.SendMessageAsync($"Reminder for you {duser.Mention}:\n{reminders[i].Message}");
 
@@ -81,7 +81,7 @@ namespace DiscordCommands
 
         public string Usage => "!remindme list [page, default: 1]\n!remindme remove <reminderId>\n!remindme <days>:<hours>:<minutes> <message>\n(Max: 62 days)";
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             switch (args.Parameters[0].ToLower(System.Globalization.CultureInfo.CurrentCulture))
             {

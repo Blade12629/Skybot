@@ -24,7 +24,7 @@ namespace DiscordCommands
 
         public int MinParameters => 0;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             args.Channel.SendMessageAsync("<https://docs.google.com/spreadsheets/d/1_Y_o3Y9mYKdxbciO5Gr2ucENJXG6l_UlhKU4XLeXvNA/edit#gid=1300289989>").ConfigureAwait(false);
         }

@@ -23,9 +23,9 @@ namespace DiscordCommands
 
         public int MinParameters => 1;
 
-        public void Invoke(CommandHandler handler, CommandEventArg args)
+        public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
-            foreach(var guild in Program.DiscordHandler.Client.Guilds)
+            foreach(var guild in client.Guilds)
                 guild.Value.Owner.SendMessageAsync(args.ParameterString).Wait();
         }
     }

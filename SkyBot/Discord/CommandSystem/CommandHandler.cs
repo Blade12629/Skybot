@@ -261,7 +261,7 @@ namespace SkyBot.Discord.CommandSystem
                 {
                     try
                     {
-                        cmd.Invoke(this, arg);
+                        cmd.Invoke(DiscordHandler, this, arg);
                     }
 #pragma warning disable CA1031 // Do not catch general exception types
                     catch (Exception ex)
@@ -418,7 +418,7 @@ namespace SkyBot.Discord.CommandSystem
             {
                 try
                 {
-                    DiscordGuild guild = DiscordHandler.Client.GetGuildAsync(discordGuildId).Result;
+                    DiscordGuild guild = DiscordHandler.GetGuildAsync(discordGuildId).Result;
 
                     //Check if user is owner
                     if (guild.Owner.Id == discordUserId)

@@ -29,11 +29,11 @@ namespace SkyBot.API
         {
             _server = new RestServer(CreateSettings(port, host));
 
-            //Supress any exceptions
+            ////Supress any exceptions
             _server.EnableThrowingExceptions = false;
             _server.Router.SendExceptionMessages = false;
 
-            _server.LogToConsole(Grapevine.Interfaces.Shared.LogLevel.Error);
+            _server.LogToConsole(Grapevine.Interfaces.Shared.LogLevel.Info);
             _server.Router.BeforeRouting += BeforeRouting;
             _server.Start();
         }
