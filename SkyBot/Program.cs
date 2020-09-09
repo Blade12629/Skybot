@@ -147,7 +147,7 @@ namespace SkyBot
             };
             IRC.OnWelcomeMessageReceived += (s, e) => Logger.Log($"Welcome message received", member: "IRC");
 
-            await IRC.ConnectAsync().ConfigureAwait(false);
+            await IRC.ConnectAsync(reconnectDelay: TimeSpan.FromMinutes(15)).ConfigureAwait(false);
             await IRC.LoginAsync(SkyBotConfig.IrcUser, SkyBotConfig.IrcPass).ConfigureAwait(false);
 
             Logger.Log("Loaded IRC", LogLevel.Info);

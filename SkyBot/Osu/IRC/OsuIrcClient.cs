@@ -20,7 +20,6 @@ namespace SkyBot.Osu.IRC
 
         public event EventHandler<IrcPrivateMessageEventArgs> OnUserCommand;
 
-        private string _pass;
         private QueueRateLimiter _qrl;
 
         public OsuIrcClient(string host = "irc.ppy.sh", int port = 6667, char commandPrefix = '!')
