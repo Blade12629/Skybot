@@ -108,7 +108,7 @@ namespace SkyBot.Networking.Irc
 
         public async Task SendCommandAsync(string command, string parameters)
         {
-            await _irc.WriteAsync($"{command} {parameters}").ConfigureAwait(false);
+            await WriteAsync($"{command} {parameters}").ConfigureAwait(false);
         }
 
         public async Task JoinChannelAsync(string channel)
@@ -130,6 +130,11 @@ namespace SkyBot.Networking.Irc
         public async Task SendMessageAsync(string destination, string message)
         {
             await SendCommandAsync("PRIVMSG", $"{destination} {message}").ConfigureAwait(false);
+        }
+
+        protected virtual async Task WriteAsync(string message)
+        {
+            await WriteAsync(message).ConfigureAwait(false);
         }
 
         private void OnRawIrcMessageReceived(object sender, string e)

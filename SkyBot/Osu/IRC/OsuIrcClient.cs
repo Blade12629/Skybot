@@ -36,6 +36,11 @@ namespace SkyBot.Osu.IRC
             Dispose(false);
         }
 
+        protected override async Task WriteAsync(string message)
+        {
+            await Task.Run(() => _qrl.Increment<bool>(new Action(async () => await base.WriteAsync(message).ConfigureAwait(false)))).ConfigureAwait(false);
+        }
+
         private void OnPrivateMessage(object sender, IrcPrivateMessageEventArgs args)
         {
             if (args.Message[0].Equals(CommandPrefix))
