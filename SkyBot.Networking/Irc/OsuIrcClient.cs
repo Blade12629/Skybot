@@ -59,8 +59,11 @@ namespace SkyBot.Networking.Irc
             if (_reconnectDelay.HasValue && _reconnectDelay.Value.TotalMilliseconds <= _connectedSince.ElapsedMilliseconds)
             {
                 ReconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
                 _connectedSince.Restart();
+
+                Task.Delay(500).Wait();
+
+                LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
 
@@ -82,11 +85,25 @@ namespace SkyBot.Networking.Irc
 
                 _reconnectDelay = reconnectDelay;
                 _reconnectTimer.Start();
+
+                if (reconnectDelay.HasValue)
+                {
+                    if (_connectedSince?.IsRunning ?? false == true)
+                        _connectedSince.Restart();
+                    else
+                        _connectedSince.Start();
+                }
             }
         }
 
         public async Task DisconnectAsync()
         {
+            if (_connectedSince?.IsRunning ?? false == true)
+            {
+                _connectedSince.Stop();
+                _connectedSince.Reset();
+            }
+
             _reconnectTimer.Stop();
             _irc.StopReading();
             await Task.Run(() => _irc.Disconnect()).ConfigureAwait(false);
@@ -95,7 +112,8 @@ namespace SkyBot.Networking.Irc
         public async Task ReconnectAsync()
         {
             await DisconnectAsync().ConfigureAwait(false);
-            await ConnectAsync().ConfigureAwait(false);
+            Task.Delay(500).Wait();
+            await ConnectAsync(false).ConfigureAwait(false);
         }
 
         public async Task LoginAsync(string nick, string pass)
@@ -331,7 +349,7 @@ namespace SkyBot.Networking.Irc
 
         private void OnPing()
         {
-            SendCommandAsync("PING", "cho.ppy.sh").ConfigureAwait(false);
+            SendCommandAsync("PONG", "cho.ppy.sh").ConfigureAwait(false);
         }
 
         public void Dispose()

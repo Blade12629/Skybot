@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SkyBot.Database.Models;
+using SkyBot.Osu.AutoRef;
 using SkyBot.Database.Models.GlobalStatistics;
 using SkyBot.Database.Models.Statistics;
 using System;
@@ -9,7 +10,6 @@ using System.Text;
 public class DBContext : DbContext
 {
     public virtual DbSet<APIUser> APIUser { get; set; }
-    public virtual DbSet<BannedGuild> BannedGuild { get; set; }
     public virtual DbSet<BannedUser> BannedUser { get; set; }
     public virtual DbSet<ByteTable> ByteTable { get; set; }
     public virtual DbSet<User> User { get; set; }
@@ -835,22 +835,6 @@ public class DBContext : DbContext
         CreateSeasonModels(modelBuilder);
         CreatePlayerProfileModels(modelBuilder);
 
-        modelBuilder.Entity<BannedGuild>(entity =>
-        {
-            entity.ToTable("banned_guild");
-
-            entity.Property(e => e.Id)
-                .HasColumnName("id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.DiscordGuildId)
-                .HasColumnName("discord_guild_id")
-                .HasColumnType("bigint(20)");
-
-            entity.Property(e => e.Reason)
-                .HasColumnName("reason")
-                .HasColumnType("longtext");
-        });
         modelBuilder.Entity<ByteTable>(entity =>
         {
             entity.ToTable("byte_table");

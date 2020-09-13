@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordCommands", "DiscordC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GSStatManager", "GSStatManager\GSStatManager.csproj", "{5BEAF9E9-63D5-409B-9B05-56424BC00974}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyBot.Networking", "SkyBot.Networking\SkyBot.Networking.csproj", "{1D79D94D-7EFE-46B8-AF04-A0C4E5EDC472}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkyBot.Networking", "SkyBot.Networking\SkyBot.Networking.csproj", "{1D79D94D-7EFE-46B8-AF04-A0C4E5EDC472}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyBot.Networking.Test", "SkyBot.Networking.Test\SkyBot.Networking.Test.csproj", "{CE085CF2-CDBE-40B2-BD19-1B25CD22CF34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkyBot.Networking.Test", "SkyBot.Networking.Test\SkyBot.Networking.Test.csproj", "{CE085CF2-CDBE-40B2-BD19-1B25CD22CF34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
