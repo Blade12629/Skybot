@@ -99,7 +99,7 @@ namespace SkyBot.Networking.Irc
             }
         }
 
-        public async Task DisconnectAsync()
+        public async Task DisconnectAsync(bool stopTimer = true)
         {
             if (_connectedSince?.IsRunning ?? false == true)
             {
@@ -107,7 +107,9 @@ namespace SkyBot.Networking.Irc
                 _connectedSince.Reset();
             }
 
-            _reconnectTimer.Stop();
+            if (stopTimer)
+                _reconnectTimer.Stop();
+
             _irc.StopReading();
             _irc.Disconnect();
         }
@@ -116,7 +118,7 @@ namespace SkyBot.Networking.Irc
         {
             try
             {
-                await DisconnectAsync().ConfigureAwait(false);
+                await DisconnectAsync(false).ConfigureAwait(false);
                 Task.Delay(500).Wait();
                 await ConnectAsync(false).ConfigureAwait(false);
             }
