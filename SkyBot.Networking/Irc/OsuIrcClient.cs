@@ -49,24 +49,30 @@ namespace SkyBot.Networking.Irc
 
         private void ReconnectWatcher()
         {
-            if (!IsConnected)
+            try
             {
-                ConnectAsync(false).ConfigureAwait(false).GetAwaiter().GetResult();
-                LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
-                return;
+                if (!IsConnected)
+                {
+                    ConnectAsync(false).ConfigureAwait(false).GetAwaiter().GetResult();
+                    LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
+                    return;
+                }
+
+                if (_reconnectDelay.HasValue && _reconnectDelay.Value.TotalMilliseconds <= _connectedSince.ElapsedMilliseconds)
+                {
+                    while (!ReconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult())
+                        Task.Delay(500).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    while (!IsConnected)
+                        Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    _connectedSince.Restart();
+
+                    LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
+                }
             }
-
-            if (_reconnectDelay.HasValue && _reconnectDelay.Value.TotalMilliseconds <= _connectedSince.ElapsedMilliseconds)
+            catch (Exception)
             {
-                while(!ReconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult())
-                    Task.Delay(500).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                while (!IsConnected)
-                    Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                _connectedSince.Restart();
-
-                LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
 

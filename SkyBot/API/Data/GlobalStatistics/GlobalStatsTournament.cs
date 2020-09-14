@@ -221,8 +221,8 @@ namespace SkyBot.API.Data.GlobalStatistics
             CountryCode = reader.ReadString();
             Start = reader.ReadDate();
             End = reader.ReadDate();
-            RankMin = reader.ReadInt();
-            RankMax = reader.ReadInt();
+            RankMin = reader.ReadLong();
+            RankMax = reader.ReadLong();
 
             int teams = reader.ReadInt();
             for (int i = 0; i < teams; i++)

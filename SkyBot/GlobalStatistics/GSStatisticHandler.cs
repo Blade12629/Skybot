@@ -20,6 +20,16 @@ namespace SkyBot.GlobalStatistics
             using DBContext c = new DBContext();
             PlayerProfile p = c.PlayerProfile.FirstOrDefault(p => p.OsuId == osuId);
 
+            if (p == null)
+            {
+                DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
+                {
+                    Title = "No stats found"
+                };
+
+                return builder.Build();
+            }
+
             return BuildPlayerProfile(p.Username, osuId, p.LastUpdated, p.BWSRank, p.TournamentWins, p.LastPlacement, p.TournamentsPlayed, p.BadgeCount);
         }
 

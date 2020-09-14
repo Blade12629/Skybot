@@ -20,12 +20,14 @@ namespace GSStatManager
         }
 
         private string _apikey;
+        private readonly TimeSpan _timeOut = TimeSpan.FromMinutes(5);
 
         public HTTPClient(string host, int port, string apikey) : base()
         {
             _apikey = apikey;
             Host = host;
             Port = port;
+            RestRequest.GlobalTimeout = (int)_timeOut.TotalMilliseconds;
         }
 
         public void SubmitTourneyStats(GlobalStatsTournament stats)
@@ -35,6 +37,7 @@ namespace GSStatManager
             restRequest.ContentType = Grapevine.Shared.ContentType.BIN;
             restRequest.ContentLength = 100000000000000000;
             restRequest.QueryString["apikey"] = _apikey;
+            restRequest.Timeout = (int)_timeOut.TotalMilliseconds;
 
             UriBuilder builder = new UriBuilder()
             {
