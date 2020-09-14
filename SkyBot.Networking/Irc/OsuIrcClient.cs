@@ -58,10 +58,13 @@ namespace SkyBot.Networking.Irc
 
             if (_reconnectDelay.HasValue && _reconnectDelay.Value.TotalMilliseconds <= _connectedSince.ElapsedMilliseconds)
             {
-                ReconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                _connectedSince.Restart();
+                while(!ReconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult())
+                    Task.Delay(500).ConfigureAwait(false).GetAwaiter().GetResult();
 
-                Task.Delay(500).Wait();
+                while (!IsConnected)
+                    Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                _connectedSince.Restart();
 
                 LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
             }
@@ -106,14 +109,23 @@ namespace SkyBot.Networking.Irc
 
             _reconnectTimer.Stop();
             _irc.StopReading();
-            await Task.Run(() => _irc.Disconnect()).ConfigureAwait(false);
+            _irc.Disconnect();
         }
 
-        public async Task ReconnectAsync()
+        public async Task<bool> ReconnectAsync()
         {
-            await DisconnectAsync().ConfigureAwait(false);
-            Task.Delay(500).Wait();
-            await ConnectAsync(false).ConfigureAwait(false);
+            try
+            {
+                await DisconnectAsync().ConfigureAwait(false);
+                Task.Delay(500).Wait();
+                await ConnectAsync(false).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public async Task LoginAsync(string nick, string pass)

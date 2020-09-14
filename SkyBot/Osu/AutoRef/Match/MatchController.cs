@@ -3,13 +3,18 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SkyBot.Osu.AutoRef.Match
 {
     public class MatchController
     {
+        public bool IsFinished { get; private set; }
+        public bool IsLobbyCreated => _isLobbyCreated;
+        public DateTime MatchStartTime => _matchStartTime;
+        public TimeSpan RunningSince => DateTime.UtcNow.Subtract(_matchCreationTime);
+
+
         private LobbyController _controller;
         private DateTime _matchStartTime;
         private DateTime _matchCreationTime;
@@ -39,6 +44,13 @@ namespace SkyBot.Osu.AutoRef.Match
 
         private int _blueWins;
         private int _redWins;
+
+        /*
+            Warmup Phase: HeadToHead, ScoreV2
+            Play Phase: TeamVs, ScoreV2
+            Blue team first slots
+            Red team second slots
+         */
 
         public MatchController(LobbyController controller, DateTime matchStartTime, string matchName,
                                List<string> playersRed, List<string> playersBlue, string captainRed,
@@ -103,6 +115,9 @@ namespace SkyBot.Osu.AutoRef.Match
 
             WaitForMatchStartTime();
 
+            SendMessage("Welcome to Skybot's auto-ref (Alpha 0.1.1)");
+            SendMessage($"Blue captain: {_captainBlueDisplay} | Red captain: {_captainRedDisplay}");
+
             if (_totalWarmups > 0)
             {
                 SetupWarmup();
@@ -121,6 +136,7 @@ namespace SkyBot.Osu.AutoRef.Match
 
         private void SubmitResults()
         {
+            Logger.Log("Submitting Results");
             SendMessage("Submitting Results");
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
@@ -141,37 +157,45 @@ namespace SkyBot.Osu.AutoRef.Match
 
         private void CloseLobby()
         {
+            Logger.Log("Closing lobby");
             SendMessage("Match ended, you have 240 seconds to leave");
             Task.Delay(240 * 1000).ConfigureAwait(false).GetAwaiter().GetResult();
 
             _controller.CloseMatch();
+
+            IsFinished = true;
         }
 
         private void SetupWarmup()
         {
+            Logger.Log("Setting up for warmup");
             _controller.SetWinConditions(TeamMode.HeadToHead, WinCondition.ScoreV2, _totalPlayers);
         }
 
         private void InitSetup()
         {
+            Logger.Log("Initial setup");
             _controller.SetMatchLock(true);
             _controller.SetWinConditions(TeamMode.TeamVs, WinCondition.ScoreV2, 16);
         }
 
         private void Setup()
         {
+            Logger.Log("Setting up for play phase");
             _controller.SetWinConditions(TeamMode.TeamVs, WinCondition.ScoreV2, _totalPlayers);
             _latestScores.Clear();
             _totalScores.Clear();
+            _controller.RefreshSettings();
         }
-
 
         private void SortPlayers()
         {
+            Logger.Log("Sorting players");
             int playersPerTeam = _totalPlayers / 2;
 
             List<LobbySlot> blueSlots = _controller.Slots.Where(s => s.Key > 0 && s.Key <= playersPerTeam).Select(p => p.Value).ToList();
             List<string> bluePlayers = _playersBlue.ToList();
+            bluePlayers.Add(_captainBlue);
 
             int nextFreeSlot = 11;
             for (int i = 0; i < blueSlots.Count; i++)
@@ -205,6 +229,7 @@ namespace SkyBot.Osu.AutoRef.Match
 
             List<LobbySlot> redSlots = _controller.Slots.Where(s => s.Key > playersPerTeam && s.Key <= playersPerTeam * 2).Select(p => p.Value).ToList();
             List<string> redPlayers = _playersRed.ToList();
+            redPlayers.Add(_captainRed);
 
             for (int i = 0; i < redSlots.Count; i++)
             {
@@ -225,15 +250,21 @@ namespace SkyBot.Osu.AutoRef.Match
 
                 _controller.SetSlot(player, redSlots[i].Slot);
             }
+
+            _controller.RefreshSettings();
         }
 
         private void SetTeamColors()
         {
+            Logger.Log("Setting team colors");
+
             SetColors(_playersBlue, LobbyColor.Blue);
             _controller.SetTeam(_captainBlue, LobbyColor.Blue);
 
             SetColors(_playersRed, LobbyColor.Red);
             _controller.SetTeam(_captainRed, LobbyColor.Red);
+
+            _controller.RefreshSettings();
 
             void SetColors(List<string> users, LobbyColor color)
             {
@@ -244,6 +275,7 @@ namespace SkyBot.Osu.AutoRef.Match
 
         private void PlayWarmup()
         {
+            Logger.Log("Starting warmup phase");
             SendMessage("Rolls for warmups");
             SetNextPlayerPick();
 
@@ -256,10 +288,12 @@ namespace SkyBot.Osu.AutoRef.Match
             }
 
             SendMessage("Warmups finished");
+            Logger.Log("Warmups finished");
         }
 
         private void PlayPhase()
         {
+            Logger.Log("Play phase");
             SendMessage("Play phase");
             SendMessage("Rolls for play phase");
 
@@ -275,10 +309,12 @@ namespace SkyBot.Osu.AutoRef.Match
             }
 
             SendMessage("End of play phase");
+            Logger.Log("End of play phase");
         }
 
         private void GetBans()
         {
+            Logger.Log("Ban phase");
             SendMessage("Ban phase");
 
             SendMessage("Rolls for ban phase");
@@ -293,6 +329,7 @@ namespace SkyBot.Osu.AutoRef.Match
             }
 
             SendMessage("End of ban phase");
+            Logger.Log("End of ban phase");
         }
 
         private void PlayMap(long mapId)
@@ -360,7 +397,8 @@ namespace SkyBot.Osu.AutoRef.Match
             while((readyCount = _controller.Slots.Count(s => s.Value.IsReady)) < _totalPlayers &&
                   elapsedTime.Elapsed < timeout)
             {
-                Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
+                _controller.RefreshSettings();
+                Task.Delay(2500).ConfigureAwait(false).GetAwaiter().GetResult();
             }
 
             elapsedTime.Stop();
@@ -373,6 +411,8 @@ namespace SkyBot.Osu.AutoRef.Match
 
         private void WaitForMatchStartTime()
         {
+            Logger.Log("Waiting for match to start");
+            SendMessage("Waiting for match to start");
             WaitFor(_matchStartTime);
         }
 
@@ -456,16 +496,23 @@ namespace SkyBot.Osu.AutoRef.Match
         /// </summary>
         private void WaitForLobbyCreation()
         {
+            Logger.Log("Waiting for lobby to create");
             WaitFor(_matchCreationTime);
 
+            Logger.Log("Creating lobby");
             _controller.CreateMatch(_matchName);
 
+            Logger.Log("Waiting for lobby to be created");
+            
             while(!_isLobbyCreated)
                 Task.Delay(50).ConfigureAwait(false).GetAwaiter().GetResult();
+            
+            Logger.Log("Lobby created");
         }
 
         private void WaitForLobbyInvites()
         {
+            Logger.Log("Waiting until we can invite players");
             WaitFor(_matchInvitationTime);
         }
 
@@ -477,10 +524,14 @@ namespace SkyBot.Osu.AutoRef.Match
 
         private void InvitePlayers()
         {
+            Logger.Log("Inviting players");
+
             InvitePlayers(_playersBlue);
             InvitePlayers(_playersRed);
             InvitePlayer(_captainBlue);
             InvitePlayer(_captainRed);
+
+            Logger.Log("Invited players");
 
             void InvitePlayers(List<string> nicknames)
             {
@@ -499,8 +550,12 @@ namespace SkyBot.Osu.AutoRef.Match
         /// </summary>
         private void WaitForPlayersToJoin()
         {
+            Logger.Log("Waiting for players to join");
+
             while (_controller.Slots.Count(s => s.Value.Nickname != null) < _totalPlayers)
                 Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            Logger.Log("All players joined");
         }
 
         private void FixNames(List<string> names)
@@ -509,7 +564,7 @@ namespace SkyBot.Osu.AutoRef.Match
                 names[i] = FixName(names[i]);
         }
 
-        private string FixName(string name)
+        private static string FixName(string name)
         {
             return name.Replace(' ', '_');
         }
