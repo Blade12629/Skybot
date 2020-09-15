@@ -13,7 +13,7 @@ namespace SkyBot.Osu.IRC
     {
         public string Host { get; private set; }
         public int Port { get; private set; }
-        public string Nick { get; private set; }
+        public string Nick { get => _lastNick; private set => _lastNick = value; }
         public char CommandPrefix { get; set; }
 
         public event EventHandler<IrcPrivateMessageEventArgs> OnUserCommand;

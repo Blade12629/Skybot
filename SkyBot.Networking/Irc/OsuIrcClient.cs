@@ -28,7 +28,7 @@ namespace SkyBot.Networking.Irc
         public bool IsConnected => _irc?.IsConnected ?? false;
 
         private IrcClient _irc;
-        private string _lastNick;
+        protected string _lastNick;
         private string _lastPass;
 
         private System.Timers.Timer _reconnectTimer;

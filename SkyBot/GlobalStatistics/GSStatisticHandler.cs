@@ -154,7 +154,7 @@ namespace SkyBot.GlobalStatistics
                     }
                     catch (Exception ex)
                     {
-                        Logger.Log("Player not found, skipping...");
+                        Logger.Log($"Error building player profile, skipping: {ex}");
                         continue;
                     }
                 }
