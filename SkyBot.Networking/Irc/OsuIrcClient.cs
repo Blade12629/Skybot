@@ -59,21 +59,24 @@ namespace SkyBot.Networking.Irc
                 }
 
                 if (_reconnectDelay.HasValue && _reconnectDelay.Value.TotalMilliseconds <= _connectedSince.ElapsedMilliseconds)
-                {
-                    while (!ReconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult())
-                        Task.Delay(500).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                    while (!IsConnected)
-                        Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                    _connectedSince.Restart();
-
-                    LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
-                }
+                    Reconnect();
             }
             catch (Exception)
             {
             }
+        }
+
+        private void Reconnect()
+        {
+            while (!ReconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult())
+                Task.Delay(500).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            while (!IsConnected)
+                Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            _connectedSince.Restart();
+
+            LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <param name="reconnectAndRelogin">If false ignore all other parameters. Checks if we should reconnect + login</param>
@@ -107,17 +110,20 @@ namespace SkyBot.Networking.Irc
 
         public async Task DisconnectAsync(bool stopTimer = true)
         {
-            if (_connectedSince?.IsRunning ?? false == true)
+            await Task.Run(() =>
             {
-                _connectedSince.Stop();
-                _connectedSince.Reset();
-            }
+                if (_connectedSince?.IsRunning ?? false == true)
+                {
+                    _connectedSince.Stop();
+                    _connectedSince.Reset();
+                }
 
-            if (stopTimer)
-                _reconnectTimer.Stop();
+                if (stopTimer)
+                    _reconnectTimer.Stop();
 
-            _irc.StopReading();
-            _irc.Disconnect();
+                _irc.StopReading();
+                _irc.Disconnect();
+            }).ConfigureAwait(false);
         }
 
         public async Task<bool> ReconnectAsync()
@@ -243,6 +249,21 @@ namespace SkyBot.Networking.Irc
 
                 case "pong":
 
+                    return;
+
+                case "464": //Bad authentication token (ERR_PASSWDMISMATCH) (should be the same for osu?)
+                    bool reInitTimer = false;
+
+                    if (_reconnectTimer?.Enabled ?? false == true)
+                    {
+                        _reconnectTimer.Stop();
+                        reInitTimer = true;
+                    }
+
+                    Reconnect();
+
+                    if (reInitTimer)
+                        _reconnectTimer.Start();
                     return;
             }
 
