@@ -592,7 +592,7 @@ namespace SkyBot.Osu.AutoRef.Match
             {
                 while (!_controller.IRC.IsConnected ||
                        !_controller.IsInLobby)
-                    Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
+                    Task.Delay(50).ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
 
