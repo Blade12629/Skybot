@@ -22,6 +22,8 @@ namespace SkyBot.Networking.Irc
         public event EventHandler<IrcWelcomeMessageEventArgs> OnWelcomeMessageReceived;
         public event EventHandler<IrcChannelTopicEventArgs> OnChannelTopicReceived;
         public event EventHandler<IrcMotdEventArgs> OnMotdReceived;
+        public event EventHandler OnBeforeReconnect;
+        public event EventHandler OnAfterReconnect;
 
         public bool IsDisposed { get; private set; }
         public string CurrentUser { get; private set; }
@@ -68,6 +70,8 @@ namespace SkyBot.Networking.Irc
 
         private void Reconnect()
         {
+            OnBeforeReconnect?.Invoke(this, new EventArgs());
+
             while (!ReconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult())
                 Task.Delay(500).ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -76,7 +80,32 @@ namespace SkyBot.Networking.Irc
 
             _connectedSince.Restart();
 
-            LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
+            OnWelcomeMessageReceived += OnReconnected;
+
+            try
+            {
+                LoginAsync(_lastNick, _lastPass).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                OnWelcomeMessageReceived -= OnReconnected;
+                throw ex;
+            }
+
+            void OnReconnected(object sender, EventArgs e)
+            {
+                try
+                {
+                    OnAfterReconnect?.Invoke(this, new EventArgs());
+                }
+                catch (Exception ex)
+                {
+                    OnWelcomeMessageReceived -= OnReconnected;
+                    throw ex;
+                }
+
+                OnWelcomeMessageReceived -= OnReconnected;
+            }
         }
 
         /// <param name="reconnectAndRelogin">If false ignore all other parameters. Checks if we should reconnect + login</param>

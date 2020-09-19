@@ -25,6 +25,8 @@ namespace SkyBot.Osu.AutoRef
         public LobbySetting Settings => _settings.Copy();
         public IReadOnlyDictionary<int, LobbySlot> Slots => _slots;
         public bool RefreshedSettings { get; private set; }
+        public IRCClient IRC => _irc;
+        public bool IsInLobby { get; private set; }
 
         private IRCClient _irc;
         private string _tempMatchName;
@@ -54,6 +56,21 @@ namespace SkyBot.Osu.AutoRef
                 { "team mode: ", new Action<string>(s => _settings.TeamMode = Enum.Parse<TeamMode>(s)) },
                 { "win condition: ", new Action<string>(s => _settings.WinCondition = Enum.Parse<WinCondition>(s)) }
             };
+
+            OnLobbyCreated += (s, e) => IsInLobby = true;
+
+            irc.OnBeforeReconnect += (s, e) => IsInLobby = false;
+            irc.OnAfterReconnect += (s, e) => ReJoin();
+        }
+
+        private void ReJoin()
+        {
+            IRC.SendCommandAsync("JOIN", _settings.ChannelName).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            //Simple re-join implementation after we reconnected
+
+            Task.Delay(1500).ConfigureAwait(false).GetAwaiter().GetResult();
+            IsInLobby = true;
         }
 
         public void RefreshSettings()

@@ -13,6 +13,8 @@ namespace SkyBot.Osu.AutoRef.Match
         public bool IsLobbyCreated => _isLobbyCreated;
         public DateTime MatchStartTime => _matchStartTime;
         public TimeSpan RunningSince => DateTime.UtcNow.Subtract(_matchCreationTime);
+        public int WorkflowIteration { get => _workflowIndex; set => _workflowIndex = value; }
+        public int WorkflowMaxIterations { get => _workflow.Count; }
 
 
         private LobbyController _controller;
@@ -45,6 +47,8 @@ namespace SkyBot.Osu.AutoRef.Match
         private int _blueWins;
         private int _redWins;
 
+        private List<Action> _workflow;
+        private int _workflowIndex;
         /*
             Warmup Phase: HeadToHead, ScoreV2
             Play Phase: TeamVs, ScoreV2
@@ -101,37 +105,61 @@ namespace SkyBot.Osu.AutoRef.Match
             AddScore(new LobbyScore(FixName(e.Username), e.Score, e.Passed));
         }
 
-        public void Run()
+        private void CreateWorkflow()
         {
-            WaitForLobbyCreation();
-            InitSetup();
-
-            WaitForLobbyInvites();
-            InvitePlayers();
-            WaitForPlayersToJoin();
-
-            SortPlayers();
-            SetTeamColors();
-
-            WaitForMatchStartTime();
-
-            SendMessage("Welcome to Skybot's auto-ref (Alpha 0.1.1)");
-            SendMessage($"Blue captain: {_captainBlueDisplay} | Red captain: {_captainRedDisplay}");
+            _workflow = new List<Action>()
+            {
+                new Action(WaitForLobbyCreation),
+                new Action(InitSetup),
+                new Action(WaitForLobbyInvites),
+                new Action(InvitePlayers),
+                new Action(WaitForPlayersToJoin),
+                new Action(SortPlayers),
+                new Action(SetTeamColors),
+                new Action(WaitForMatchStartTime),
+                new Action(() => SendMessage("Welcome to Skybot's auto-ref (Alpha 0.1.1)")),
+                new Action(() => SendMessage($"Blue captain: {_captainBlueDisplay} | Red captain: {_captainRedDisplay}")),
+                new Action(Setup),
+                new Action(GetBans),
+                new Action(PlayPhase),
+                new Action(SubmitResults),
+                new Action(CloseLobby)
+            };
 
             if (_totalWarmups > 0)
             {
-                SetupWarmup();
-                PlayWarmup();
+                _workflow.Insert(10, new Action(SetupWarmup));
+                _workflow.Insert(11, new Action(PlayWarmup));
+            }
+        }
+
+        public void Run()
+        {
+            TryRun(out Exception _);
+        }
+
+        public bool TryRun(out Exception ex)
+        {
+            try
+            {
+                while(_workflowIndex < _workflow.Count)
+                {
+                    while (!_controller.IRC.IsConnected ||
+                           !_controller.IsInLobby)
+                        Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    _workflow[_workflowIndex].Invoke();
+                    _workflowIndex++;
+                }
+            }
+            catch (Exception e)
+            {
+                ex = e;
+                return false;
             }
 
-            Setup();
-
-            GetBans();
-
-            PlayPhase();
-
-            SubmitResults();
-            CloseLobby();
+            ex = null;
+            return true;
         }
 
         private void SubmitResults()
