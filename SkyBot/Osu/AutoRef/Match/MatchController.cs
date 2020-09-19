@@ -92,6 +92,8 @@ namespace SkyBot.Osu.AutoRef.Match
             _totalRounds = totalRounds;
             _totalWarmups = totalWarmups;
             _bannedMaps = new List<long>();
+
+            CreateWorkflow();
         }
 
         private void AddScore(LobbyScore score)
@@ -165,6 +167,7 @@ namespace SkyBot.Osu.AutoRef.Match
         private void SubmitResults()
         {
             Logger.Log("Submitting Results");
+            WaitFor(DateTime.UtcNow);
             SendMessage("Submitting Results");
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
@@ -189,6 +192,7 @@ namespace SkyBot.Osu.AutoRef.Match
             SendMessage("Match ended, you have 240 seconds to leave");
             Task.Delay(240 * 1000).ConfigureAwait(false).GetAwaiter().GetResult();
 
+            WaitFor(DateTime.UtcNow);
             _controller.CloseMatch();
 
             IsFinished = true;
@@ -203,6 +207,7 @@ namespace SkyBot.Osu.AutoRef.Match
         private void InitSetup()
         {
             Logger.Log("Initial setup");
+            WaitFor(DateTime.UtcNow);
             _controller.SetMatchLock(true);
             _controller.SetWinConditions(TeamMode.TeamVs, WinCondition.ScoreV2, 16);
         }
@@ -210,6 +215,7 @@ namespace SkyBot.Osu.AutoRef.Match
         private void Setup()
         {
             Logger.Log("Setting up for play phase");
+            WaitFor(DateTime.UtcNow);
             _controller.SetWinConditions(TeamMode.TeamVs, WinCondition.ScoreV2, _totalPlayers);
             _latestScores.Clear();
             _totalScores.Clear();
@@ -242,6 +248,7 @@ namespace SkyBot.Osu.AutoRef.Match
                 }
                 else
                 {
+                    WaitFor(DateTime.UtcNow);
                     _controller.SetSlot(slot.Nickname, nextFreeSlot);
                     nextFreeSlot++;
                 }
@@ -252,6 +259,7 @@ namespace SkyBot.Osu.AutoRef.Match
                 LobbySlot nextSlot = blueSlots[0];
                 blueSlots.RemoveAt(0);
 
+                WaitFor(DateTime.UtcNow);
                 _controller.SetSlot(bluePlayers[i], nextSlot.Slot);
             }
 
@@ -287,17 +295,23 @@ namespace SkyBot.Osu.AutoRef.Match
             Logger.Log("Setting team colors");
 
             SetColors(_playersBlue, LobbyColor.Blue);
+            WaitFor(DateTime.UtcNow);
             _controller.SetTeam(_captainBlue, LobbyColor.Blue);
 
             SetColors(_playersRed, LobbyColor.Red);
+            WaitFor(DateTime.UtcNow);
             _controller.SetTeam(_captainRed, LobbyColor.Red);
 
+            WaitFor(DateTime.UtcNow);
             _controller.RefreshSettings();
 
             void SetColors(List<string> users, LobbyColor color)
             {
                 for (int i = 0; i < users.Count; i++)
+                {
+                    WaitFor(DateTime.UtcNow);
                     _controller.SetTeam(users[i], color);
+                }
             }
         }
 
@@ -322,6 +336,7 @@ namespace SkyBot.Osu.AutoRef.Match
         private void PlayPhase()
         {
             Logger.Log("Play phase");
+            WaitFor(DateTime.UtcNow);
             SendMessage("Play phase");
             SendMessage("Rolls for play phase");
 
@@ -329,10 +344,15 @@ namespace SkyBot.Osu.AutoRef.Match
 
             for (int i = 0; i < _totalRounds; i++)
             {
+                WaitFor(DateTime.UtcNow);
                 long mapId = PickNextMap();
+                WaitFor(DateTime.UtcNow);
                 WaitForPlayersReady(TimeSpan.FromSeconds(120));
+                WaitFor(DateTime.UtcNow);
                 PlayMap(mapId);
+                WaitFor(DateTime.UtcNow);
                 WaitForMapEnd();
+                WaitFor(DateTime.UtcNow);
                 GetWins();
             }
 
@@ -345,6 +365,7 @@ namespace SkyBot.Osu.AutoRef.Match
             Logger.Log("Ban phase");
             SendMessage("Ban phase");
 
+            WaitFor(DateTime.UtcNow);
             SendMessage("Rolls for ban phase");
             SetNextPlayerPick();
 
@@ -353,9 +374,11 @@ namespace SkyBot.Osu.AutoRef.Match
                 long mapId = PickNextMap();
                 _bannedMaps.Add(mapId);
 
+                WaitFor(DateTime.UtcNow);
                 SendMessage($"Banned map id {mapId}");
             }
 
+            WaitFor(DateTime.UtcNow);
             SendMessage("End of ban phase");
             Logger.Log("End of ban phase");
         }
@@ -379,6 +402,7 @@ namespace SkyBot.Osu.AutoRef.Match
 
             while (_latestScores.Count < _totalPlayers)
                 Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
+            WaitFor(DateTime.UtcNow);
 
             SendMessage("Map ended");
         }
@@ -411,6 +435,7 @@ namespace SkyBot.Osu.AutoRef.Match
             else if (redScore > blueScore)
                 _redWins++;
 
+            WaitFor(DateTime.UtcNow);
             SendMessage($"Current wins: Blue {_blueWins} vs {_redWins} Red");
         }
 
@@ -450,8 +475,12 @@ namespace SkyBot.Osu.AutoRef.Match
             string nextPick = _nextPick == LobbyColor.Red ? _captainRed : _captainBlue;
             string nextPickDisplay = _nextPick == LobbyColor.Red ? _captainRedDisplay : _captainBlueDisplay;
 
+            WaitFor(DateTime.UtcNow);
             while (!(beatmap = _controller.RequestPick(nextPick, $"{nextPickDisplay} Pick a map via !pick <mapId>")).HasValue)
+            {
+                WaitFor(DateTime.UtcNow);
                 Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
 
             return beatmap.Value;
         }
@@ -478,6 +507,8 @@ namespace SkyBot.Osu.AutoRef.Match
             {
                 (long, long) rolls = GetCaptainRolls();
 
+                WaitFor(DateTime.UtcNow);
+
                 if (rolls.Item1 > rolls.Item2)
                 {
                     _nextPick = LobbyColor.Blue;
@@ -491,6 +522,7 @@ namespace SkyBot.Osu.AutoRef.Match
                 else
                     return false;
 
+                WaitFor(DateTime.UtcNow);
                 SendMessage("Invalid roll result");
 
                 return true;
@@ -508,6 +540,7 @@ namespace SkyBot.Osu.AutoRef.Match
 
         private LobbyRoll GetRoll(string from)
         {
+            WaitFor(DateTime.UtcNow);
             LobbyRoll roll = _controller.RequestRoll(from);
 
             return roll;
@@ -527,6 +560,7 @@ namespace SkyBot.Osu.AutoRef.Match
             Logger.Log("Waiting for lobby to create");
             WaitFor(_matchCreationTime);
 
+            WaitFor(DateTime.UtcNow);
             Logger.Log("Creating lobby");
             _controller.CreateMatch(_matchName);
 
@@ -534,7 +568,9 @@ namespace SkyBot.Osu.AutoRef.Match
             
             while(!_isLobbyCreated)
                 Task.Delay(50).ConfigureAwait(false).GetAwaiter().GetResult();
-            
+
+            WaitFor(DateTime.UtcNow);
+
             Logger.Log("Lobby created");
         }
 
@@ -544,10 +580,20 @@ namespace SkyBot.Osu.AutoRef.Match
             WaitFor(_matchInvitationTime);
         }
 
-        private void WaitFor(DateTime date)
+        private void WaitFor(DateTime date, bool waitIfNotInLobby = true)
         {
-            TimeSpan waitTime = date.Subtract(DateTime.UtcNow);
-            Task.Delay(waitTime).ConfigureAwait(false).GetAwaiter().GetResult();
+            if (DateTime.UtcNow < date)
+            {
+                TimeSpan waitTime = date.Subtract(DateTime.UtcNow);
+                Task.Delay(waitTime).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+
+            if (waitIfNotInLobby)
+            {
+                while (!_controller.IRC.IsConnected ||
+                       !_controller.IsInLobby)
+                    Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
         }
 
         private void InvitePlayers()
@@ -563,6 +609,7 @@ namespace SkyBot.Osu.AutoRef.Match
 
             void InvitePlayers(List<string> nicknames)
             {
+                WaitFor(DateTime.UtcNow);
                 for (int i = 0; i < nicknames.Count; i++)
                     InvitePlayer(nicknames[i]);
             }
@@ -570,6 +617,7 @@ namespace SkyBot.Osu.AutoRef.Match
 
         private void InvitePlayer(string nickname)
         {
+            WaitFor(DateTime.UtcNow);
             _controller.Invite(nickname);
         }
 
@@ -582,6 +630,8 @@ namespace SkyBot.Osu.AutoRef.Match
 
             while (_controller.Slots.Count(s => s.Value.Nickname != null) < _totalPlayers)
                 Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
+            
+            WaitFor(DateTime.UtcNow);
 
             Logger.Log("All players joined");
         }
