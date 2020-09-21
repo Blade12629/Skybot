@@ -47,7 +47,10 @@ namespace Skybot.Web.Wiki
 
         public WikiPage Interpret(string pageScript)
         {
-            List<string> split = ReplaceEscapeCharacters(pageScript, WikiScriptCommands.EscapeCharacters).Replace("@", ";@").Split(';').Where(l => l != null).ToList();
+            List<string> split = ReplaceEscapeCharacters(pageScript, WikiScriptCommands.EscapeCharacters).Replace(WikiScriptCommands.CommandCharacter, $"{WikiScriptCommands.CommandTerminator}{WikiScriptCommands.CommandCharacter}")
+                                                                                                         .Split(WikiScriptCommands.CommandTerminator[0])
+                                                                                                         .Where(l => l != null)
+                                                                                                         .ToList();
             StringBuilder htmlBuilder = new StringBuilder();
 
             for (int i = split.Count - 1; i >= 0; i--)
@@ -68,10 +71,10 @@ namespace Skybot.Web.Wiki
 
         private string InterpretLine(string line)
         {
-            if (!line.StartsWith("@"))
+            if (!line.StartsWith(WikiScriptCommands.CommandCharacter))
                 return line;
 
-            line = line.TrimStart('@');
+            line = line.TrimStart(WikiScriptCommands.CommandCharacter[0]);
 
             int index = line.IndexOf(' ');
 
@@ -80,15 +83,15 @@ namespace Skybot.Web.Wiki
 
             string cmd = index > -1 ? line.Substring(0, index).ToLower(CultureInfo.CurrentCulture) : line;
 
-            if (cmd.EndsWith("-st"))
+            if (cmd.EndsWith(WikiScriptCommands.AreaStart))
             {
                 start = true;
-                cmd = cmd.Remove(cmd.Length - 3);
+                cmd = cmd.Remove(cmd.Length - WikiScriptCommands.AreaStart.Length);
             }
-            else if (cmd.EndsWith("-ed"))
+            else if (cmd.EndsWith(WikiScriptCommands.AreaEnd))
             {
                 end = true;
-                cmd = cmd.Remove(cmd.Length - 3);
+                cmd = cmd.Remove(cmd.Length - WikiScriptCommands.AreaEnd.Length);
             }
 
             if (!_commands.ContainsKey(cmd))
@@ -101,18 +104,18 @@ namespace Skybot.Web.Wiki
             if (start)
             {
                 func = wsc.OnAreaStart;
-                line = line.Remove(0, 3);
+                line = line.Remove(0, WikiScriptCommands.AreaStart.Length);
             }
             else if (end)
             {
                 func = wsc.OnAreaEnd;
-                line = line.Remove(0, 3);
+                line = line.Remove(0, WikiScriptCommands.AreaStart.Length);
             }
             else
                 func = wsc.OnSingle;
 
             if (func == null)
-                throw new InvalidWikiCommandInvokeException($"Undefined (-st: {wsc.OnAreaStart != null}, -ed: {wsc.OnAreaEnd != null}, default: {wsc.OnSingle != null})");
+                throw new InvalidWikiCommandInvokeException($"Undefined (Available: {WikiScriptCommands.AreaStart}: {wsc.OnAreaStart != null}, {WikiScriptCommands.AreaStart}: {wsc.OnAreaEnd != null}, default: {wsc.OnSingle != null})");
 
             try
             {
