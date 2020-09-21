@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SkyBot;
 
 namespace Skybot.Web
 {
@@ -13,6 +14,7 @@ namespace Skybot.Web
     {
         public static void Main(string[] args)
         {
+            SkyBotConfig.Read();
             CreateHostBuilder(args).Build().Run();
         }
 
