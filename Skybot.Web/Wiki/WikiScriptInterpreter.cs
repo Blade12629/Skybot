@@ -10,7 +10,9 @@ namespace Skybot.Web.Wiki
     {
         public static void TestRun()
         {
-            string script = @"Current Time:\n\t@time HH:MM:SS.MSMS;\n@center-st;Future bot @font-color-st red; scripting @font-color-ed;language;\n<br>html supported in scripts<br>";
+            string script = @"Current Time:\n\t@time HH:MM:SS.MSMS;\n@center-st;Future bot @font-color-st red; scripting @font-color-ed;language;\n<br>html supported in scripts<br>some.email\atweb.de";
+
+            script += @"\n\n\ls\ntab \t, < \<, > \>, At symbol: \@ \at";
 
             WikiScriptInterpreter inp = new WikiScriptInterpreter();
             WikiPage page = inp.Interpret(script);
@@ -45,7 +47,7 @@ namespace Skybot.Web.Wiki
 
         public WikiPage Interpret(string pageScript)
         {
-            List<string> split = ReplaceEscapeCharacters(pageScript).Replace("@", ";@").Split(';').Where(l => l != null).ToList();
+            List<string> split = ReplaceEscapeCharacters(pageScript, WikiScriptCommands.EscapeCharacters).Replace("@", ";@").Split(';').Where(l => l != null).ToList();
             StringBuilder htmlBuilder = new StringBuilder();
 
             for (int i = split.Count - 1; i >= 0; i--)
@@ -59,7 +61,7 @@ namespace Skybot.Web.Wiki
             }
 
             for (int i = 0; i < split.Count; i++)
-                htmlBuilder.Append(InterpretLine(split[i]));
+                htmlBuilder.Append(ReplaceEscapeCharacters(InterpretLine(split[i]), WikiScriptCommands.SpecialEscapeCharacter));
 
             return new WikiPage(htmlBuilder.ToString(), pageScript);
         }
@@ -127,9 +129,9 @@ namespace Skybot.Web.Wiki
             }
         }
 
-        private string ReplaceEscapeCharacters(string input)
+        private string ReplaceEscapeCharacters(string input, Dictionary<string, string> escapeCharacters)
         {
-            foreach (var ec in WikiScriptCommands.EscapeCharacters)
+            foreach (var ec in escapeCharacters)
                 input = input.Replace(ec.Key, ec.Value);
 
             return input;

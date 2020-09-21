@@ -10,18 +10,6 @@ namespace Skybot.Web.Wiki
     {
         public const string CommandCharacter = "@";
 
-
-        public const string FontStyle = "font-style";
-        public const string FontColor = "font-color";
-        public const string FontSize = "font-size";
-        public const string FontBig = "font-big";
-        public const string FontUnderlined = "font-underline";
-        public const string FontCrossedOut = "font-crossed";
-
-        public const string Grid = "grid";
-        public const string GridItem = "grid-item";
-
-
         public const string LoadFile = "loadfile";
 
         public const string CurrentTime = "time";
@@ -37,13 +25,23 @@ namespace Skybot.Web.Wiki
         public const string EscapeCharacter = "\\";
         public static readonly Dictionary<string, string> EscapeCharacters = new Dictionary<string, string>()
         {
-            { EscapeCharacter + "@", "@" }, //@
-            { EscapeCharacter + "t", "\t" }, //tab
             { EscapeCharacter + "n", "<br>\n" }, //line break
             { EscapeCharacter + "\\", "\\"}, // \
             { EscapeCharacter + "ls", "————————————————————————————————" },
             { EscapeCharacter + "ic", SkyBot.Resources.InvisibleCharacter },
             { EscapeCharacter + "br", "<br>\n" }, //line break
+
+            //ASCII chars
+            { EscapeCharacter + "t", "&emsp\\,\t" }, //tab
+            { EscapeCharacter + "<", "&#60\\," }, //<
+            { EscapeCharacter + ">", "&#62\\," }, //>
+            { EscapeCharacter + "@", "&#64\\," }
+        };
+
+        public static readonly Dictionary<string, string> SpecialEscapeCharacter = new Dictionary<string, string>()
+        {
+            { EscapeCharacter + ",", ";" }, //line terminator
+            { EscapeCharacter + "at", "@" }, //command trigger
         };
 
         public const string AreaStart = "-st";
