@@ -152,7 +152,7 @@ namespace SkyBot
             IRC.OnPrivateMessageReceived += (s, e) => Logger.Log($"Message from {e.Sender}: {e.Message}");
             IRC.OnPrivateBanchoMessageReceived += (s, e) => Logger.Log($"Bancho message: {e.Message}");
 
-            await IRC.ConnectAsync(reconnectDelay: TimeSpan.FromMinutes(15)).ConfigureAwait(false);
+            await IRC.ConnectAsync(reconnectDelay: TimeSpan.FromMinutes(60)).ConfigureAwait(false);
             await IRC.LoginAsync(SkyBotConfig.IrcUser, SkyBotConfig.IrcPass).ConfigureAwait(false);
 
             Logger.Log("Loaded IRC", LogLevel.Info);
