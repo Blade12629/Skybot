@@ -361,6 +361,7 @@ public sealed class DiscordHandler : IDisposable
 
         builder.AddField(Resources.DiscordGuilds, Client.Guilds.Count.ToString(CultureInfo.CurrentCulture), true)
                 .AddField(Resources.VerifiedUsers, c.User.Count().ToString(CultureInfo.CurrentCulture), true)
+                .AddField(Resources.LastUpdateDate, Program.LastUpdatedOn.ToString(CultureInfo.CurrentCulture))
                 .AddField(Resources.Uptime, DateTime.UtcNow.Subtract(Program.StartedOn).ToString());
 
         return builder.Build();

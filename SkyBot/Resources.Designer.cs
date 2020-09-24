@@ -223,6 +223,15 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Last Bot Update.
+        /// </summary>
+        public static string LastUpdateDate {
+            get {
+                return ResourceManager.GetString("LastUpdateDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Most Valuable Player.
         /// </summary>
         public static string MVP {

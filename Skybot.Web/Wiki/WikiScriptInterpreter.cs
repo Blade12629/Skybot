@@ -10,9 +10,7 @@ namespace Skybot.Web.Wiki
     {
         public static void TestRun()
         {
-            string script = @"Current Time:\n\t@time HH:MM:SS.MSMS;\n@center-st;Future bot @font-color-st red; scripting @font-color-ed;language;\n<br>html supported in scripts<br>some.email\atweb.de";
-
-            script += @"\n\n\ls\ntab \t, < \<, > \>, At symbol: \@ \at";
+            string script = @"@header-st;@css test.css;@header-ed@body-st;Current Time:\n\t@time HH:MM:SS.MSMS;\n@center-st;Future bot @font-color-st red; scripting @font-color-ed;language;\n<br>html supported in scripts<br>some.email\atweb.de@body-ed;@footer;\n\n\ls\ntab \t, < \<, > \>, At symbol: \@ \at\n\n\ls\n@cs for (int i = 0\, i < 5\, i++)\n\_t\at:Iteration \at(i + 1)\n";
 
             WikiScriptInterpreter inp = new WikiScriptInterpreter();
             WikiPage page = inp.Interpret(script);
@@ -33,15 +31,25 @@ namespace Skybot.Web.Wiki
         {
             _commands = new Dictionary<string, WikiScriptCommand>()
             {
-                { WikiScriptCommands.Center, new WikiScriptCommand(WikiScriptCommands.Center, WikiScriptCommands.OnCenterStart, WikiScriptCommands.OnCenterEnd, WikiScriptCommands.OnCenterSingle) },
-                { WikiScriptCommands.Div, new WikiScriptCommand(WikiScriptCommands.Div, WikiScriptCommands.OnDivStart, WikiScriptCommands.OnDivEnd, WikiScriptCommands.OnDivSingle) },
-                { WikiScriptCommands.Paragraph, new WikiScriptCommand(WikiScriptCommands.Paragraph, WikiScriptCommands.OnParagraphStart, WikiScriptCommands.OnParagraphEnd, WikiScriptCommands.OnParagraphSingle) },
-                { WikiScriptCommands.LoadFile, new WikiScriptCommand(WikiScriptCommands.LoadFile, null, null, WikiScriptCommands.OnLoadFile) },
+                //C#
+                { WikiScriptCommands.CSCode, new WikiScriptCommand(WikiScriptCommands.CSCode, WikiScriptCommands.OnCSCodeStart, WikiScriptCommands.OnCSCodeEnd, WikiScriptCommands.OnCSCode) },
                 { WikiScriptCommands.CurrentTime, new WikiScriptCommand(WikiScriptCommands.CurrentTime, null, null, WikiScriptCommands.OnCurrentTime) },
                 { WikiScriptCommands.CurrentDate, new WikiScriptCommand(WikiScriptCommands.CurrentDate, null, null, WikiScriptCommands.OnCurrentDate) },
                 { WikiScriptCommands.CurrentDateTime, new WikiScriptCommand(WikiScriptCommands.CurrentDateTime, null, null, WikiScriptCommands.OnCurrentDateTime) },
+                { WikiScriptCommands.LoadString, new WikiScriptCommand(WikiScriptCommands.LoadString, null, null, WikiScriptCommands.OnLoadString) },
+
+                //HTML/CSS
+                { WikiScriptCommands.Center, new WikiScriptCommand(WikiScriptCommands.Center, WikiScriptCommands.OnCenterStart, WikiScriptCommands.OnCenterEnd, WikiScriptCommands.OnCenterSingle) },
+                { WikiScriptCommands.Div, new WikiScriptCommand(WikiScriptCommands.Div, WikiScriptCommands.OnDivStart, WikiScriptCommands.OnDivEnd, WikiScriptCommands.OnDivSingle) },
+                { WikiScriptCommands.Paragraph, new WikiScriptCommand(WikiScriptCommands.Paragraph, WikiScriptCommands.OnParagraphStart, WikiScriptCommands.OnParagraphEnd, WikiScriptCommands.OnParagraphSingle) },
                 { WikiScriptCommands.Image, new WikiScriptCommand(WikiScriptCommands.Image, null, null, WikiScriptCommands.OnImage) },
                 { WikiScriptCommands.Link, new WikiScriptCommand(WikiScriptCommands.Link, WikiScriptCommands.OnLinkStart, WikiScriptCommands.OnLinkEnd, WikiScriptCommands.OnLink) },
+
+                { WikiScriptCommands.Header, new WikiScriptCommand(WikiScriptCommands.Header, WikiScriptCommands.OnHeaderStart, WikiScriptCommands.OnHeaderEnd, WikiScriptCommands.OnHeader) },
+                { WikiScriptCommands.Body, new WikiScriptCommand(WikiScriptCommands.Body, WikiScriptCommands.OnBodyStart, WikiScriptCommands.OnBodyEnd, WikiScriptCommands.OnBody) },
+                { WikiScriptCommands.Footer, new WikiScriptCommand(WikiScriptCommands.Footer, WikiScriptCommands.OnFooterStart, WikiScriptCommands.OnFooterEnd, WikiScriptCommands.OnFooter) },
+
+                { WikiScriptCommands.CSS, new WikiScriptCommand(WikiScriptCommands.CSS, null, null, WikiScriptCommands.OnCSS) },
             };
         }
 
@@ -51,7 +59,7 @@ namespace Skybot.Web.Wiki
                                                                                                          .Split(WikiScriptCommands.CommandTerminator[0])
                                                                                                          .Where(l => l != null)
                                                                                                          .ToList();
-            StringBuilder htmlBuilder = new StringBuilder();
+            StringBuilder htmlBuilder = new StringBuilder("<!DOCTYPE html>\n<html>");
 
             for (int i = split.Count - 1; i >= 0; i--)
             {
@@ -65,6 +73,8 @@ namespace Skybot.Web.Wiki
 
             for (int i = 0; i < split.Count; i++)
                 htmlBuilder.Append(ReplaceEscapeCharacters(InterpretLine(split[i]), WikiScriptCommands.SpecialEscapeCharacter));
+
+            htmlBuilder.AppendLine("\n</html>");
 
             return new WikiPage(htmlBuilder.ToString(), pageScript);
         }

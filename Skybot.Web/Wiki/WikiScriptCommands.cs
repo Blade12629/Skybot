@@ -10,38 +10,45 @@ namespace Skybot.Web.Wiki
     {
         public const string CommandCharacter = "@";
 
-        public const string LoadFile = "loadfile";
+        public const string LoadString = "loadstring";
 
-        public const string CurrentTime = "time";
-        public const string CurrentDate = "date";
-        public const string CurrentDateTime = "datetime";
         public const string Paragraph = "p";
         public const string Div = "div";
         public const string Center = "center";
+        public const string Header = "header";
+        public const string Body = "body";
+        public const string Footer = "footer";
 
         public const string Image = "img";
         public const string Link = "url";
+        public const string CSS = "css";
+        public const string CurrentTime = "time";
+        public const string CurrentDate = "date";
+        public const string CurrentDateTime = "datetime";
+
+        public const string CSCode = "cs";
 
         public const string EscapeCharacter = "\\";
         public static readonly Dictionary<string, string> EscapeCharacters = new Dictionary<string, string>()
         {
             { EscapeCharacter + "n", "<br>\n" }, //line break
-            { EscapeCharacter + "\\", "\\"}, // \
+            { EscapeCharacter + "br", "<br>\n" }, //line break
             { EscapeCharacter + "ls", "————————————————————————————————" },
             { EscapeCharacter + "ic", SkyBot.Resources.InvisibleCharacter },
-            { EscapeCharacter + "br", "<br>\n" }, //line break
 
             //ASCII chars
-            { EscapeCharacter + "t", "&emsp\\,\t" }, //tab
+            { EscapeCharacter + "t", "&emsp\\," }, //tab
             { EscapeCharacter + "<", "&#60\\," }, //<
             { EscapeCharacter + ">", "&#62\\," }, //>
-            { EscapeCharacter + "@", "&#64\\," }
+            { EscapeCharacter + "@", "&#64\\," } //@
         };
 
         public static readonly Dictionary<string, string> SpecialEscapeCharacter = new Dictionary<string, string>()
         {
-            { EscapeCharacter + ",", ";" }, //line terminator
-            { EscapeCharacter + "at", "@" }, //command trigger
+            { EscapeCharacter + ",", ";" }, //line terminator ;
+            { EscapeCharacter + "at", "@" }, //command trigger @
+            { EscapeCharacter + "_t", "\t" }, //tab
+            { EscapeCharacter + "/", "\\"}, // \
         };
 
         public const string AreaStart = "-st";
@@ -99,7 +106,7 @@ namespace Skybot.Web.Wiki
         }
 
 
-        public static string OnLoadFile(string line, List<string> split)
+        public static string OnLoadString(string line, List<string> split)
         {
             if (!File.Exists(line))
                 throw new FileNotFoundException("Could not find file", line);
@@ -169,14 +176,100 @@ namespace Skybot.Web.Wiki
             return $"<a href=\"{split[0]}\">{line.Remove(split[0].Length + 1)}";
         }
 
+        public static string OnLinkEnd(string line, List<string> split)
+        {
+            return $"{line}</a>";
+        }
+
         public static string OnImage(string line, List<string> split)
         {
             return $"<img src=\"{line}\" alt=\"{line}\">";
         }
 
-        public static string OnLinkEnd(string line, List<string> split)
+        public static string OnCSS(string line, List<string> split)
         {
-            return $"{line}</a>";
+            return $"<link rel\"stylesheet\" href=\"line\" type=\"text/css\">";
+        }
+
+
+        public static string OnHeader(string line, List<string> split)
+        {
+            return $"\n<head>\n{line}\n</head>\n";
+        }
+
+        public static string OnHeaderStart(string line, List<string> split)
+        {
+            if (!string.IsNullOrEmpty(line))
+                return $"\n<head>\n{line}";
+
+            return $"\n<head>\n";
+        }
+
+        public static string OnHeaderEnd(string line, List<string> split)
+        {
+            if (!string.IsNullOrEmpty(line))
+                return $"{line}\n<head>\n";
+
+            return $"\n</head>\n";
+        }
+
+
+        public static string OnBody(string line, List<string> split)
+        {
+            return $"\n<body>\n{line}\n</body>\n";
+        }
+
+        public static string OnBodyStart(string line, List<string> split)
+        {
+            if (!string.IsNullOrEmpty(line))
+                return $"\n<body>\n{line}";
+
+            return $"\n<body>\n";
+        }
+
+        public static string OnBodyEnd(string line, List<string> split)
+        {
+            if (!string.IsNullOrEmpty(line))
+                return $"{line}\n<body>";
+
+            return $"\n</body>\n";
+        }
+
+
+        public static string OnFooter(string line, List<string> split)
+        {
+            return $"\n<footer>\n{line}\n</footer>\n";
+        }
+
+        public static string OnFooterStart(string line, List<string> split)
+        {
+            if (!string.IsNullOrEmpty(line))
+                return $"\n<footer>\n{line}";
+
+            return $"\n<footer>\n";
+        }
+
+        public static string OnFooterEnd(string line, List<string> split)
+        {
+            if (!string.IsNullOrEmpty(line))
+                return $"{line}\n<footer>";
+
+            return $"\n</footer>";
+        }
+
+        public static string OnCSCode(string line, List<string> split)
+        {
+            return $"\n@(\n{line}\n)\n";
+        }
+
+        public static string OnCSCodeStart(string line, List<string> split)
+        {
+            return $"\n@(\n{line}";
+        }
+
+        public static string OnCSCodeEnd(string line, List<string> split)
+        {
+            return $"{line}\n)\n";
         }
         #endregion
     }

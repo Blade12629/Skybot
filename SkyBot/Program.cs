@@ -4,6 +4,7 @@ using SkyBot.Discord;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace SkyBot
         public static string BotMention => DiscordHandler.Client.CurrentUser.Mention;
         public static MaintenanceScanner MaintenanceScanner { get; private set; }
         public static DateTime StartedOn { get; private set; }
+        public static DateTimeOffset LastUpdatedOn { get; private set; }
 
         private static VerificationScanner _verificationScanner;
 
@@ -38,6 +40,7 @@ namespace SkyBot
             {
                 Logger.Log("Starting Skybot", LogLevel.Info);
                 StartedOn = DateTime.UtcNow;
+                LastUpdatedOn = new DateTimeOffset(GetLastUpdateDate(), TimeSpan.Zero);
 
                 LoadSettings();
 
@@ -193,6 +196,18 @@ namespace SkyBot
         private static void OnMaintenanceChanged(object sender, (bool, string) e)
         {
             DiscordHandler.Client.UpdateStatusAsync(new DSharpPlus.Entities.DiscordGame(e.Item2), e.Item1 ? DSharpPlus.Entities.UserStatus.DoNotDisturb : DSharpPlus.Entities.UserStatus.Online);
+        }
+
+        private static DateTime GetLastUpdateDate()
+        {
+            DirectoryInfo currentDir = new DirectoryInfo(Directory.GetCurrentDirectory());
+            DateTime lastUpdate = DateTime.MinValue;
+
+            foreach (FileInfo dll in currentDir.EnumerateFiles("*.dll"))
+                if (dll.LastWriteTimeUtc > lastUpdate)
+                    lastUpdate = dll.LastWriteTimeUtc;
+
+            return lastUpdate;
         }
     }
 }

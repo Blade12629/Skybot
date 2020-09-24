@@ -136,7 +136,7 @@ namespace SkyBot.Networking.Irc
             _readerSource.Cancel();
         }
 
-        public async Task WriteAsync(string line)
+        public async Task<bool> WriteAsync(string line)
         {
             try
             {
@@ -144,12 +144,19 @@ namespace SkyBot.Networking.Irc
                 {
                     await _writer.WriteLineAsync(line).ConfigureAwait(true);
                     _writer.Flush();
+
+                    return true;
                 }
             }
             catch (ObjectDisposedException)
             {
-
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex); //temp error logging
+            }
+
+            return false;
         }
     }
 }
