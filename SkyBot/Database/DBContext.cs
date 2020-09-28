@@ -6,6 +6,7 @@ using SkyBot.Database.Models.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SkyBot.Database.Models.Customs;
 
 public class DBContext : DbContext
 {
@@ -34,6 +35,9 @@ public class DBContext : DbContext
     public virtual DbSet<GSTeamMember> GSTeamMember { get; set; }
     public virtual DbSet<GSTournament> GSTournament { get; set; }
     public virtual DbSet<PlayerProfile> PlayerProfile { get; set; }
+
+    public virtual DbSet<CustomScript> CustomScript { get; set; }
+    public virtual DbSet<CustomCommand> CustomCommand { get; set; }
 
     public DBContext()
     {
@@ -828,12 +832,83 @@ public class DBContext : DbContext
         });
     }
 
+    private void CreateCustomModels(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<CustomCommand>(entity =>
+        {
+            entity.ToTable("custom_command");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.ScriptId)
+                .HasColumnName("script_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.IsEnabled)
+                .HasColumnName("is_enabled")
+                .HasColumnType("tinyint(1)");
+
+
+            entity.Property(e => e.AccessLevel)
+                .HasColumnName("access_level")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.Command)
+                .HasColumnName("command")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.MinParameter)
+                .HasColumnName("min_parameter")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.Description)
+                .HasColumnName("description")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.Usage)
+                .HasColumnName("usage")
+                .HasColumnType("longtext");
+        });
+
+        modelBuilder.Entity<CustomScript>(entity =>
+        {
+            entity.ToTable("custom_script");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Script)
+                .HasColumnName("script")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.CreatedBy)
+                .HasColumnName("created_by")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.LastEditedBy)
+                .HasColumnName("last_edited_by")
+                .HasColumnType("bigint(20)");
+        });
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         CreateConfigModels(modelBuilder);
         CreateUserRelatedModels(modelBuilder);
         CreateSeasonModels(modelBuilder);
         CreatePlayerProfileModels(modelBuilder);
+        CreateCustomModels(modelBuilder);
 
         modelBuilder.Entity<ByteTable>(entity =>
         {
