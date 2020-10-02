@@ -1,0 +1,70 @@
+﻿@page
+@model Skybot.Web.Pages.CP.ConfigModel
+@{
+    ViewData["Title"] = "Config";
+    Layout = "_LayoutCP";
+}
+
+    <center>
+        Config
+        <div class="SimpleBox">
+            <form method="post">
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="AnalyzeChannelId"></label></div>
+                    <input asp-for="AnalyzeChannelId" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="AnalyzeWarmupMatches"></label></div>
+                    <input asp-for="AnalyzeWarmupMatches" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="CommandChannelId"></label></div>
+                    <input asp-for="CommandChannelId" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="VerifiedNameAutoSet"></label></div>
+                    <input asp-for="VerifiedNameAutoSet" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="VerifiedRoleId"></label></div>
+                    <input asp-for="VerifiedRoleId" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="TicketDiscordChannelId"></label></div>
+                    <input asp-for="TicketDiscordChannelId"/>
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="WelcomeMessage"></label></div>
+                    <input asp-for="WelcomeMessage"  style="max-width:80%; width:50%"/>
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="WelcomeChannel"></label></div>
+                    <input asp-for="WelcomeChannel" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="MutedRoleId"></label></div>
+                    <input asp-for="MutedRoleId" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="Prefix"></label></div>
+                    <input asp-for="Prefix" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="Debug"></label></div>
+                    <input asp-for="Debug" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="DebugChannel"></label></div>
+                    <input asp-for="DebugChannel" />
+                </div>
+                <div class="form-group">
+                    <div class="LabelText"><label asp-for="BlacklistRoleId"></label></div>
+                    <input asp-for="BlacklistRoleId" />
+                </div>
+                <div class="form-group">
+                    <button class="SimpleButton">Save</button>
+                </div>
+            </form>
+        </div>
+    </center>
+

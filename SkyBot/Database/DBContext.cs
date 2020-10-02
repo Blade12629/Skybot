@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using SkyBot.Database.Models.Customs;
+using SkyBot.Database.Models.Web;
 
 public class DBContext : DbContext
 {
@@ -38,6 +39,10 @@ public class DBContext : DbContext
 
     public virtual DbSet<CustomScript> CustomScript { get; set; }
     public virtual DbSet<CustomCommand> CustomCommand { get; set; }
+
+
+    public virtual DbSet<WebUser> WebUser { get; set; }
+
 
     public DBContext()
     {
@@ -902,6 +907,31 @@ public class DBContext : DbContext
         });
     }
 
+    private void CreateWebModels(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<WebUser>(entity =>
+        {
+            entity.ToTable("web_user");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+            
+            entity.Property(e => e.Username)
+                .HasColumnName("username")
+                .HasColumnType("longtext");
+            
+            entity.Property(e => e.PasswordHashed)
+                .HasColumnName("password_hashed")
+                .HasColumnType("longtext");
+            
+            entity.Property(e => e.DiscordUserId)
+                .HasColumnName("discord_user_id")
+                .HasColumnType("bigint(20)");
+
+        });
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         CreateConfigModels(modelBuilder);
@@ -909,6 +939,7 @@ public class DBContext : DbContext
         CreateSeasonModels(modelBuilder);
         CreatePlayerProfileModels(modelBuilder);
         CreateCustomModels(modelBuilder);
+        CreateWebModels(modelBuilder);
 
         modelBuilder.Entity<ByteTable>(entity =>
         {

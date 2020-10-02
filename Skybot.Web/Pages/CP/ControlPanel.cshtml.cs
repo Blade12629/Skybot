@@ -5,12 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Skybot.Web
+namespace Skybot.Web.Pages.CP
 {
-    public class IndexModel : PageModel
+    public class ControlPanelModel : PageModel
     {
-        public string BotName => "Skybot";
-
         public void OnGet()
         {
 

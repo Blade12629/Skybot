@@ -1,0 +1,19 @@
+﻿@page
+@model Skybot.Web.Pages.CP.ControlPanelModel
+@{
+    Layout = "_LayoutCP";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ControlPanel</title>
+</head>
+<body>
+    <center>
+        Welcome @(User.FindFirst(System.Security.Claims.ClaimTypes.Name).Properties["Username"]) (Access: @(User.FindFirst(System.Security.Claims.ClaimTypes.Name).Properties["AccessLevel"])), ID: @(User.FindFirst(System.Security.Claims.ClaimTypes.Name).Properties["DiscordUserId"]), Server: @(User.FindFirst(System.Security.Claims.ClaimTypes.Name).Properties["DiscordGuildId"]))
+    </center>
+</body>
+</html>

@@ -1,0 +1,240 @@
+/*General Stuff
+
+Blue:  #56A6FB
+Orangey Red:  #F62D3C
+Dark Grey Background: #040416
+
+*/
+html, body {
+    height: 100%;
+}
+
+body {
+    background-image: linear-gradient(#290145, #100020);
+    /* use at your own discretion background-image: url("yeet.gif");*/
+    margin: 0%;
+    padding: 0%;
+    font-family: 'Open Sans', 'Roboto', arial, sans-serif;
+    min-height: 100%;
+    height: auto !important;
+}
+
+
+p {
+    color: #FDFFFF;
+}
+
+/*--------------------------------Navbar--------------------------------------------------*/
+#SimpleNavbar {
+    display: flex;
+    width: 100%;
+    height: 3.5em;
+    font: bold 60%/1.4 'Open Sans', 'Roboto', arial, sans-serif;
+    text-transform: uppercase;
+}
+
+.SimpleNavbarItem {
+    display: inline-block;
+    width: 10em;
+    height: 2em;
+    flex: 1;
+    padding: 0.5em 0 0.5em 0;
+    background-color: #040416;
+    border-bottom: solid 3px #56A6FB;
+    color: whitesmoke;
+    text-decoration: none;
+    line-height: 2em;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+}
+
+    .SimpleNavbarItem:hover {
+        border-bottom: solid 5px #F62D3C;
+        /*transform: scale(1.1);*/
+    }
+
+    .SimpleNavbarItem:active {
+        background-color: #F62D3C;
+        transition-duration: 0.1s;
+        transform: translateY(2px);
+    }
+
+/*-----------------------------------Simple Box---------------------------------------*/
+
+
+
+.SimpleBox {
+    margin: 3%;
+    padding: 1em;
+    border-left: solid 2em #56A6FB;
+    background-color: #040416;
+    transition-duration: 0.4s;
+    /*border-radius: 3%; not sure about this one*/
+}
+
+
+    .SimpleBox:hover {
+        border-left: solid 2em #F62D3C;
+    }
+
+/*-------------------------------------Button -------------------------------------*/
+.SimpleButton {
+    margin: 3%;
+    display: inline-block;
+    padding: 1em;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: whitesmoke;
+    background-color: #040416;
+    border: solid 0.2em #56A6FB;
+    border-radius: 3%;
+    font-family: 'Open Sans', 'Roboto', arial, sans-serif;
+    transition-duration: 0.3s;
+}
+
+    .SimpleButton:hover {
+        border: solid 0.2em #F62D3C;
+    }
+
+    .SimpleButton:active {
+        transition-duration: 0.1s;
+        background-color: #F62D3C;
+        transform: translateY(2px);
+    }
+/*-------------------------------Input Field--------------------------------------*/
+
+label {
+    display: block;
+    padding-top: 30px;
+    color: white;
+    opacity: 1;
+}
+
+    label .LabelText {
+        transform: translateY(-34px);
+        transition: all 0.3s;
+        cursor: text;
+        opacity: 0.7;
+    }
+
+    label input:focus + .LabelText {
+        opacity: 1;
+        transform: translateY(-50px);
+    }
+
+input {
+    background-color: transparent;
+    border: 0;
+    border-bottom: 2px solid #56A6FB;
+    color: white;
+    font-size: 16px;
+    letter-spacing: 1px;
+    outline: 0;
+    transition: all 0.3s;
+    opacity: 0.7;
+}
+
+    input:focus {
+        border-bottom: 2px solid #F62D3C;
+        opacity: 1;
+    }
+
+
+/*-------------------------Checkbox-------------------------------------------------*/
+.SimpleCheckbox {
+    margin: 3%;
+}
+
+
+/*--------------------------------Tables-------------------------------------------*/
+.SimpleTable {
+    margin: 3%;
+    color: white;
+    background-color: #23232e;
+}
+
+
+    .SimpleTable th, td {
+        padding: 0.5em;
+        text-align: center;
+    }
+
+
+    .SimpleTable tr:nth-child(even) {
+        background-color: #171720;
+    }
+
+    .SimpleTable th {
+        background-color: #56A6FB;
+    }
+
+    .SimpleTable tr:hover {
+        background-color: #F62D3C;
+    }
+
+
+/*-----------------------------------Dropdowns-------------------------------------------*/
+
+
+.SimpleDropdowns {
+    overflow: hidden;
+    margin: 3%;
+}
+
+    .SimpleDropdowns .DropdownButton {
+        display: inline-block;
+        padding: 1em;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        color: whitesmoke;
+        background-color: #040416;
+        border: none;
+        border-right: solid 0.4em #56A6FB;
+        font-family: 'Open Sans', 'Roboto', arial, sans-serif;
+        transition-duration: 0.3s;
+    }
+
+
+.DropdownButton:hover {
+    border-right: solid 0.4em #F62D3C;
+}
+
+.DropdownContent {
+    display: none;
+    position: absolute;
+    background-color: #23232e;
+    min-width: 160px;
+    z-index: 1;
+}
+
+    .DropdownContent a {
+        float: none;
+        color: white;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+    }
+
+        .DropdownContent a:nth-child(even) {
+            background-color: #171720;
+        }
+
+        .DropdownContent a:hover {
+            background-color: #F62D3C;
+        }
+
+
+
+.SimpleDropdowns:hover .DropdownContent {
+    display: block;
+}
+
+.DropdownContent a:active {
+    transition-duration: 0.1s;
+    background-color: #F62D3C;
+    transform: translateY(2px);
+}

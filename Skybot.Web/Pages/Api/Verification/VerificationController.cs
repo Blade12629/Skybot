@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Skybot.Web.Pages.Api.Verification.Data;
 using SkyBot.Database.Models;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Skybot.Web.Pages.Api.Verification
 {
@@ -18,8 +12,9 @@ namespace Skybot.Web.Pages.Api.Verification
     public class VerificationController : Controller
     {
         [Authorize(AuthenticationSchemes = AuthenticationSchemes.ApiKeyScheme)]
-        [HttpGet("{type}/{id}")]
-        public string Get(string type, ulong id)
+        [Authorize(AuthenticationSchemes = AuthenticationSchemes.AdminScheme)]
+        [HttpGet("getuser/single/{type}/{id}")]
+        public string GetUser(string type, ulong id)
         {
             using DBContext dbc = new DBContext();
             User user;
@@ -40,7 +35,21 @@ namespace Skybot.Web.Pages.Api.Verification
             if (user == null)
                 return new ApiResponse(System.Net.HttpStatusCode.NotFound, $"User with id {id} not found");
 
-            return JsonConvert.SerializeObject(user);
+            return new ApiObject<VerifiedUser>(user);
+        }
+
+        [Authorize(AuthenticationSchemes = AuthenticationSchemes.ApiKeyScheme)]
+        [Authorize(AuthenticationSchemes = AuthenticationSchemes.AdminScheme)]
+        [HttpGet("getuser/list/{limit}/{start}")]
+        public string GetUsers(int limit = 100, long start = 0)
+        {
+            using DBContext dbc = new DBContext();
+            User[] users = dbc.User.Where(u => u.Id >= start && u.Id < start + limit).ToArray();
+
+            if (users.Length == 0)
+                return new ApiResponse(System.Net.HttpStatusCode.NotFound, "No users found");
+
+            return new ApiObject<VerifiedUser[]>(users.Select(u => (VerifiedUser)u).ToArray());
         }
     }
 }

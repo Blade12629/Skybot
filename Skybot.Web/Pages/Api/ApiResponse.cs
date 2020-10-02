@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Skybot.Web.Pages
+namespace Skybot.Web.Pages.Api
 {
     public struct ApiResponse
     {

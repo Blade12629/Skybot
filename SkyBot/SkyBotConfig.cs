@@ -44,15 +44,19 @@ namespace SkyBot
         public static bool Read()
         {
             string file = typeof(SkyBotConfig).Name + ".cfg";
+            return Read(file);
+        }
 
+        public static bool Read(string file)
+        {
             if (!File.Exists(file))
                 return false;
 
             Dictionary<string, PropertyInfo> props = typeof(SkyBotConfig).GetProperties(BindingFlags.Static | BindingFlags.Public).ToDictionary(k => k.Name);
 
-            using (StreamReader sreader = new StreamReader(typeof(SkyBotConfig).Name + ".cfg"))
+            using (StreamReader sreader = new StreamReader(file))
             {
-                while(!sreader.EndOfStream)
+                while (!sreader.EndOfStream)
                 {
                     string line = sreader.ReadLine();
                     int propIndexEnd = line.IndexOf('=', StringComparison.CurrentCultureIgnoreCase);
