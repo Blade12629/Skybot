@@ -49,6 +49,7 @@ namespace SkyBot.Osu.AutoRef.Match
 
         private List<Action> _workflow;
         private int _workflowIndex;
+        bool _isTestRun;
         /*
             Warmup Phase: HeadToHead, ScoreV2
             Play Phase: TeamVs, ScoreV2
@@ -74,11 +75,22 @@ namespace SkyBot.Osu.AutoRef.Match
             _latestScores = new List<LobbyScore>();
             _totalScores = new List<LobbyScore>();
 
-            FixNames(playersBlue);
-            FixNames(playersRed);
+            if (playersBlue != null)
+            {
+                _playersBlue = playersBlue;
+                FixNames(_playersBlue);
+            }
+            else
+                _playersBlue = new List<string>();
 
-            _playersBlue = playersBlue;
-            _playersRed = playersRed;
+            if (playersRed != null)
+            {
+                _playersRed = playersRed;
+                FixNames(_playersRed);
+            }
+            else
+                _playersRed = new List<string>();
+
             _captainBlue = FixName(captainBlue);
             _captainRed = FixName(captainRed);
 
@@ -133,6 +145,13 @@ namespace SkyBot.Osu.AutoRef.Match
                 _workflow.Insert(10, new Action(SetupWarmup));
                 _workflow.Insert(11, new Action(PlayWarmup));
             }
+        }
+
+        public void SetupTestWorkflow()
+        {
+            _isTestRun = true;
+            _matchCreationTime = _matchStartTime.Subtract(TimeSpan.FromMinutes(3));
+            _matchInvitationTime = _matchStartTime.Subtract(TimeSpan.FromMinutes(1));
         }
 
         public void Run()
@@ -600,8 +619,12 @@ namespace SkyBot.Osu.AutoRef.Match
         {
             Logger.Log("Inviting players");
 
-            InvitePlayers(_playersBlue);
-            InvitePlayers(_playersRed);
+            if (_playersBlue.Count > 0)
+                InvitePlayers(_playersBlue);
+
+            if (_playersRed.Count > 0)
+                InvitePlayers(_playersRed);
+
             InvitePlayer(_captainBlue);
             InvitePlayer(_captainRed);
 

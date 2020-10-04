@@ -136,16 +136,32 @@ namespace SkyBot
                 {
                     string username = Osu.API.V1.OsuApi.GetUserName(osuUserId).Result;
 
+                    if (string.IsNullOrEmpty(username))
+                        return false;
+                    else if (!string.IsNullOrEmpty(member.Nickname) && member.Nickname.Equals(username, StringComparison.CurrentCulture))
+                        return true;
+
                     member.ModifyAsync(username, reason: "synchronized name").Wait();
                 }
             }
-            catch(DSharpPlus.Exceptions.UnauthorizedException)
+            catch (AggregateException ae)
             {
+                if (ae.InnerExceptions.Any(e => e is DSharpPlus.Exceptions.NotFoundException ||
+                                                e is DSharpPlus.Exceptions.UnauthorizedException))
+                    return false;
 
+                List<Exception> exceptions = new List<Exception>(ae.InnerExceptions);
+                exceptions.Insert(0, new Exception($"Unable to verify user {discordUserId}"));
+
+                throw new AggregateException(exceptions);
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {
-
+                return false;
+            }
+            catch (DSharpPlus.Exceptions.UnauthorizedException)
+            {
+                return false;
             }
 
             return true;

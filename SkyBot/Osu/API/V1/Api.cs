@@ -85,7 +85,10 @@ namespace SkyBot.Osu.API.V1
                                                                              mode.ToString(System.Globalization.CultureInfo.CurrentCulture), type, eventDays))
                                                                .ConfigureAwait(false);
 
-            return users?[0] ?? null;
+            if (users == null || users.Length == 0)
+                return null;
+
+            return users[0];
         }
 
         /// <summary>

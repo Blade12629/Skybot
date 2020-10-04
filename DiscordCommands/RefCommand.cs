@@ -124,9 +124,9 @@ namespace DiscordCommands
                     args.Channel.SendMessageAsync($"Skyfly picked: {(pick ?? -1)}");
                     return;
 
-                //case "testmatch":
-                //    SetTestMatchUp(args, args.Parameters[1], args.Parameters[2]);
-                //    break;
+                case "testmatch":
+                    SetTestMatchUp(args, args.Parameters[1], args.Parameters[2]);
+                    return;
             }
 
             args.Channel.SendMessageAsync("Unkown parameters").ConfigureAwait(false);
@@ -140,7 +140,11 @@ namespace DiscordCommands
                                               new List<string>() { },
                                               userB, userA, 2, 4, args.Channel.Id);
 
-            _controller.Run();
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                if (!_controller.TryRun(out Exception ex))
+                    args.Channel.SendMessageAsync(ex.ToString());
+            });
         }
 
         private void CreateMatch(CommandEventArg args, string mpName)

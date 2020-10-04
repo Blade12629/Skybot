@@ -37,10 +37,30 @@ namespace DiscordCommands
 
                     args.Channel.SendMessageAsync("Started synchronizing all users").ConfigureAwait(false).GetAwaiter().GetResult();
 
-                    foreach (var member in args.Guild.GetAllMembersAsync().ConfigureAwait(false).GetAwaiter().GetResult())
-                        VerificationManager.SynchronizeVerification(member.Id, args.Guild.Id, args.Config).ConfigureAwait(false).GetAwaiter().GetResult();
+                    int errors = 0;
+                    StringBuilder strb = new StringBuilder();
 
-                    args.Channel.SendMessageAsync("Synchronized all users");
+                    foreach (var member in args.Guild.GetAllMembersAsync().ConfigureAwait(false).GetAwaiter().GetResult())
+                    {
+                        if (!VerificationManager.SynchronizeVerification(member.Id, args.Guild.Id, args.Config).ConfigureAwait(false).GetAwaiter().GetResult())
+                        {
+                            strb.Append($"{member.Id} ");
+                            errors++;
+                        }
+                    }
+
+                    if (errors == 0)
+                        args.Channel.SendMessageAsync("Synchronized all users");
+                    else
+                    {
+                        if (strb.Length > 1990)
+                            strb.Length = 1990;
+
+                        args.Channel.SendMessageAsync($"Synchronized users, failed to synchronize {errors} users:");
+                        args.Channel.SendMessageAsync($"```\n{strb.ToString()}\n```");
+                    }
+
+
                     return;
                 }
 
