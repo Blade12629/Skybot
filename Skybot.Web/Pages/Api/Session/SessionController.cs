@@ -16,7 +16,7 @@ namespace Skybot.Web.Pages.Api.Session
     {
         [Authorize(AuthenticationSchemes.AdminScheme)]
         [Authorize(AuthenticationSchemes.ApiKeyScheme)]
-        [HttpGet("getprofile/{osuUserId}")]
+        [HttpGet("getprofile/{discordGuildId}/{osuUserId}")]
         public string GetProfile(long discordGuildId, long osuUserId)
         {
             using DBContext c = new DBContext();
@@ -31,7 +31,7 @@ namespace Skybot.Web.Pages.Api.Session
 
         [Authorize(AuthenticationSchemes.AdminScheme)]
         [Authorize(AuthenticationSchemes.ApiKeyScheme)]
-        [HttpGet("getteamprofile/{teamName}")]
+        [HttpGet("getteamprofile/{discordGuildId}/{teamName}")]
         public string GetTeamProfile(long discordGuildId, string teamName)
         {
             if (string.IsNullOrEmpty(teamName))
@@ -49,7 +49,7 @@ namespace Skybot.Web.Pages.Api.Session
 
         [Authorize(AuthenticationSchemes.AdminScheme)]
         [Authorize(AuthenticationSchemes.ApiKeyScheme)]
-        [HttpGet("getresultraw/{matchId}")]
+        [HttpGet("getresultraw/{discordGuildId}/{matchId}")]
         public string GetResultRaw(long discordGuildId, long matchId)
         {
             using DBContext c = new DBContext();

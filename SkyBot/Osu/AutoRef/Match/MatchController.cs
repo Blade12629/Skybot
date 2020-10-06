@@ -599,6 +599,11 @@ namespace SkyBot.Osu.AutoRef.Match
             WaitFor(_matchInvitationTime);
         }
 
+        /// <summary>
+        /// Waits until the specified time
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="waitIfNotInLobby">Should we wait until we are reconnected again</param>
         private void WaitFor(DateTime date, bool waitIfNotInLobby = true)
         {
             if (DateTime.UtcNow < date)

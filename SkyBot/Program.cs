@@ -90,7 +90,8 @@ namespace SkyBot
         {
             Logger.Log("Loading API", LogLevel.Info);
 
-            API.APIListener.Listener.Start(40005, System.Net.IPAddress.Any.ToString());
+            Logger.Log("API is currently getting started via an external program");
+            //API.APIListener.Listener.Start(40005, System.Net.IPAddress.Any.ToString());
 
             Logger.Log("Loaded API", LogLevel.Info);
         }

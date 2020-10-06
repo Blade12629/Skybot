@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkyBot.Networking.Test", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Skybot.Web", "Skybot.Web\Skybot.Web.csproj", "{4EE6F6F4-BC7A-49D7-8031-9E60EDE4EE14}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkybotWeb.TestApi", "SkybotWeb.TestApi\SkybotWeb.TestApi.csproj", "{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{4EE6F6F4-BC7A-49D7-8031-9E60EDE4EE14}.Release|x64.Build.0 = Release|x64
 		{4EE6F6F4-BC7A-49D7-8031-9E60EDE4EE14}.Release|x86.ActiveCfg = Release|x86
 		{4EE6F6F4-BC7A-49D7-8031-9E60EDE4EE14}.Release|x86.Build.0 = Release|x86
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Debug|x64.Build.0 = Debug|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Debug|x86.Build.0 = Debug|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Release|x64.ActiveCfg = Release|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Release|x64.Build.0 = Release|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Release|x86.ActiveCfg = Release|Any CPU
+		{A4435711-C686-4BC7-9BDE-1042BD8F3BBD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

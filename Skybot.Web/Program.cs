@@ -15,7 +15,8 @@ namespace Skybot.Web
     {
         public static void Main(string[] args)
         {
-            SkyBotConfig.Read(@"D:\reposSSD\SkyBot\Skybot.Web\bin\Debug\netcoreapp3.1\SkyBotConfig.cfg");
+            SkyBotConfig.Read();
+            //SkyBotConfig.Read(@"D:\reposSSD\SkyBot\Skybot.Web\bin\Debug\netcoreapp3.1\SkyBotConfig.cfg");
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -23,7 +24,8 @@ namespace Skybot.Web
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>()
+                              .UseUrls("http://localhost:40005/", "http://dra-gon.wtf:40005/");
                 });
 
     }
