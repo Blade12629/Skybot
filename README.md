@@ -17,7 +17,9 @@ Currently Features:
 - - Player and Team ratings (ratings are not calculated based on the map difficulty but based on the performance someone did vs how the other players performed in a match)
 - A custom permission system which allows customization
 - Verification
-- API (WIP)
+- API
+- AutoRef (WIP)
+- Website for managing server specific bot settings (WIP)
 - Server Management commands (like !mute)
 
 - And much more to come!
