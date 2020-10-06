@@ -13,7 +13,7 @@
 </head>
 <body>
     <center>
-        Welcome @(User.FindFirst(System.Security.Claims.ClaimTypes.Name).Properties["Username"]) (Access: @(User.FindFirst(System.Security.Claims.ClaimTypes.Name).Properties["AccessLevel"])), ID: @(User.FindFirst(System.Security.Claims.ClaimTypes.Name).Properties["DiscordUserId"]), Server: @(User.FindFirst(System.Security.Claims.ClaimTypes.Name).Properties["DiscordGuildId"]))
+        Welcome @Model.Username (Access: @Model.Access, ID: @Model.DiscordUserId, Server: @Model.DiscordGuildId)
     </center>
 </body>
 </html>

@@ -7,64 +7,111 @@
 
     <center>
         Config
+        @if(!string.IsNullOrEmpty(Model.NotificationMessage))
+        {
+            @Model.NotificationMessage;
+        }
         <div class="SimpleBox">
-            <form method="post">
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="AnalyzeChannelId"></label></div>
-                    <input asp-for="AnalyzeChannelId" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="AnalyzeWarmupMatches"></label></div>
-                    <input asp-for="AnalyzeWarmupMatches" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="CommandChannelId"></label></div>
-                    <input asp-for="CommandChannelId" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="VerifiedNameAutoSet"></label></div>
-                    <input asp-for="VerifiedNameAutoSet" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="VerifiedRoleId"></label></div>
-                    <input asp-for="VerifiedRoleId" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="TicketDiscordChannelId"></label></div>
-                    <input asp-for="TicketDiscordChannelId"/>
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="WelcomeMessage"></label></div>
-                    <input asp-for="WelcomeMessage"  style="max-width:80%; width:50%"/>
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="WelcomeChannel"></label></div>
-                    <input asp-for="WelcomeChannel" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="MutedRoleId"></label></div>
-                    <input asp-for="MutedRoleId" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="Prefix"></label></div>
-                    <input asp-for="Prefix" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="Debug"></label></div>
-                    <input asp-for="Debug" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="DebugChannel"></label></div>
-                    <input asp-for="DebugChannel" />
-                </div>
-                <div class="form-group">
-                    <div class="LabelText"><label asp-for="BlacklistRoleId"></label></div>
-                    <input asp-for="BlacklistRoleId" />
-                </div>
-                <div class="form-group">
-                    <button class="SimpleButton">Save</button>
-                </div>
-            </form>
+            <center>
+                <form method="post">
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="LabelText"><label asp-for="AnalyzeChannelId"></label></div>
+                                    <input asp-for="AnalyzeChannelId" value="@Model.AnalyzeChannelId" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group" style="padding-left:5%; text-align:center">
+                                    <div class="LabelText"><label asp-for="AnalyzeWarmupMatches"></label></div>
+                                    <input asp-for="AnalyzeWarmupMatches" value="@Model.AnalyzeWarmupMatches" />
+                                </div>
+                            </td>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="LabelText"><label asp-for="VerifiedRoleId"></label></div>
+                                    <input asp-for="VerifiedRoleId" value="@Model.VerifiedRoleId" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group" style="padding-left:5%">
+                                    <div class="LabelText"><label asp-for="DebugChannel"></label></div>
+                                    <input asp-for="DebugChannel" value="@Model.DebugChannel" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="LabelText"><label asp-for="VerifiedNameAutoSet"></label></div>
+                                    @Html.CheckBoxFor(m => m.VerifiedNameAutoSet)
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group" style="padding-left:5%">
+                                    <div class="LabelText"><label asp-for="Debug"></label></div>
+                                    @Html.CheckBoxFor(m => m.Debug)
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="form-group">
+                        <div class="LabelText"><label asp-for="WelcomeMessage"></label></div>
+                        <input asp-for="WelcomeMessage" value="@Model.WelcomeMessage" style="max-width:65%; width:65%" />
+                    </div>
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="LabelText"><label asp-for="WelcomeChannel"></label></div>
+                                    <input asp-for="WelcomeChannel" value="@Model.WelcomeChannel" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group" style="padding-left:5%">
+                                    <div class="LabelText"><label asp-for="TicketDiscordChannelId"></label></div>
+                                    <input asp-for="TicketDiscordChannelId" value="@Model.TicketDiscordChannelId" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="LabelText"><label asp-for="BlacklistRoleId"></label></div>
+                                    <input asp-for="BlacklistRoleId" value="@Model.BlacklistRoleId" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group" style="padding-left:5%">
+                                    <div class="LabelText"><label asp-for="MutedRoleId"></label></div>
+                                    <input asp-for="MutedRoleId" value="@Model.MutedRoleId" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <div class="LabelText"><label asp-for="Prefix"></label></div>
+                                    <input asp-for="Prefix" value="@(Model.Prefix?.ToString() ?? "")" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group" style="padding-left:5%">
+                                    <div class="LabelText"><label asp-for="CommandChannelId"></label></div>
+                                    <input asp-for="CommandChannelId" style="text-align:center"; value="@Model.CommandChannelId" />
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="form-group">
+                        <button class="SimpleButton">Save</button>
+                    </div>
+                </form>
+            </center>
         </div>
     </center>
 
