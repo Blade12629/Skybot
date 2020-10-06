@@ -18,6 +18,7 @@ Currently Features:
 - A custom permission system which allows customization
 - Verification
 - API (WIP)
+- AutoRef (WIP)
 - Server Management commands (like !mute)
 
 - And much more to come!
