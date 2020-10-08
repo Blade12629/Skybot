@@ -18,6 +18,9 @@ namespace SkyBot.Osu.AutoRef.Match
 
 
         private LobbyController _controller;
+        private MatchSettings _settings;
+
+
         private DateTime _matchStartTime;
         private DateTime _matchCreationTime;
         private DateTime _matchInvitationTime;
