@@ -36,7 +36,7 @@ Special Thanks (without these groups/people this would probably never happen/ed)
 - GottaAimFast
 - osu! Mercenary Shop
 
-and especially to Haruki and Hoaq
+and especially to Haruki, Hoaq and Tibo
 
 ---
 Contact:
