@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Skybot.Web.Authorization;
+using AspNet.Security.OAuth.Discord;
 
 namespace Skybot.Web
 {
@@ -25,7 +26,7 @@ namespace Skybot.Web
         {
             services.Configure<CookiePolicyOptions>(o =>
             {
-                o.CheckConsentNeeded = c => false;
+                o.CheckConsentNeeded = c => true;
                 o.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
@@ -44,38 +45,19 @@ namespace Skybot.Web
               .AddScheme<AdminKeyOptions, AdminKeyHandler>(AuthenticationSchemes.AdminScheme, o => { })
               .AddCookie(o => 
               {
-                  o.LoginPath = "/";
+                  o.LoginPath = "/Login";
                   o.AccessDeniedPath = "/Login";
-                  o.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                  o.ExpireTimeSpan = TimeSpan.FromHours(6);
+              })
+              .AddDiscord(o =>
+              {
+                  o.ClientId = SkyBot.SkyBotConfig.DiscordClientId;
+                  o.ClientSecret = SkyBot.SkyBotConfig.DiscordClientSecret;
+                  o.AccessDeniedPath = "/Login2";
+                  o.Scope.Add("identify");
               });
 
-            #region old
-            //services.Configure<IdentityOptions>(o =>
-            //{
-            //    o.Password.RequireDigit = true;
-            //    o.Password.RequireLowercase = false;
-            //    o.Password.RequireNonAlphanumeric = false;
-            //    o.Password.RequireUppercase = false;
-
-            //    o.Password.RequiredLength = 8;
-
-            //    o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(60);
-            //    o.Lockout.MaxFailedAccessAttempts = 5;
-            //    o.Lockout.AllowedForNewUsers = true;
-
-            //    o.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/*-+_.:,;#'´`^°²³µ><|@";
-            //    o.User.RequireUniqueEmail = false;
-            //});
-
-            //services.ConfigureApplicationCookie(o =>
-            //{
-            //    o.Cookie.HttpOnly = false;
-            //    o.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-            //    o.LoginPath = "Identity/Account/Login";
-            //    o.AccessDeniedPath = "Identity/Account/AccessDenied";
-            //    o.SlidingExpiration = true;
-            //});
-            #endregion
+            services.AddHttpClient();
 
             services.AddRazorPages(o =>
             {
@@ -90,9 +72,6 @@ namespace Skybot.Web
 
                 //Allow login
                 o.Conventions.AllowAnonymousToPage("/Login");
-
-                //Allow Registration
-                o.Conventions.AllowAnonymousToPage("/Register");
 
             }).AddRazorRuntimeCompilation();
         }
@@ -110,6 +89,7 @@ namespace Skybot.Web
                 app.UseHsts();
             }
 
+            app.UseCookiePolicy();
             app.UseCors(CORS_POLICY);
             app.UseStaticFiles();
 

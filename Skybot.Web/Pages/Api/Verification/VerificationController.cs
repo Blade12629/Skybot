@@ -40,7 +40,7 @@ namespace Skybot.Web.Pages.Api.Verification
 
         [Authorize(AuthenticationSchemes = AuthenticationSchemes.ApiKeyScheme)]
         [Authorize(AuthenticationSchemes = AuthenticationSchemes.AdminScheme)]
-        [HttpGet("getuser/list/{limit}/{start}")]
+        [HttpGet("getuser/list/")]
         public string GetUsers(int limit = 100, long start = 0)
         {
             using DBContext dbc = new DBContext();

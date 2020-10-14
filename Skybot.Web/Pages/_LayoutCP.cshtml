@@ -9,11 +9,24 @@
     <nav id="SimpleNavbar">
         <a href="~/CP/ControlPanel/" class="SimpleNavbarItem">Home</a>
         <a href="~/CP/Config/" class="SimpleNavbarItem">Config</a>
+        <a href="~/CP/AnalyzerSettings/" class="SimpleNavbarItem">Analyzer Settings</a>
+        @if (ClaimExtensions.AllowGlobalStats(ClaimExtensions.Claim(User)))
+        {
+        <a href="~/CP/GlobalStatsManager/" class="SimpleNavbarItem">GStat Manager</a>
+        }
+        <a href="~/CP/UserSettings/" class="SimpleNavbarItem">User Settings</a>
         <a href="~/CP/BotSetup/" class="SimpleNavbarItem">Bot Setup</a>
+        <a href="~/Login?code=logout" class="SimpleNavbarItem">Logout</a>
     </nav>
     <br />
     <div>
         @RenderBody()
     </div>
 </body>
+<footer style="position: absolute; bottom: 0; width: 100%; height: 5%;">
+    <center>
+        This Site uses cookies, you can read more about it here:<br />
+        <a href="~/PrivacyPolicy/">Privacy Policy</a>
+    </center>
+</footer>
 </html>

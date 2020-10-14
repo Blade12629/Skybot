@@ -40,6 +40,8 @@ public class DBContext : DbContext
     public virtual DbSet<CustomScript> CustomScript { get; set; }
     public virtual DbSet<CustomCommand> CustomCommand { get; set; }
 
+    public virtual DbSet<AnalyzerMods> AnalyzerMods { get; set; }
+
 
     public virtual DbSet<WebUser> WebUser { get; set; }
 
@@ -68,7 +70,7 @@ public class DBContext : DbContext
         }
     }
 
-    private void CreateConfigModels(ModelBuilder modelBuilder)
+    void CreateConfigModels(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CommandAccess>(entity =>
         {
@@ -217,7 +219,7 @@ public class DBContext : DbContext
         });
     }
 
-    private void CreateUserRelatedModels(ModelBuilder modelBuilder)
+    void CreateUserRelatedModels(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Ticket>(entity =>
         {
@@ -400,7 +402,7 @@ public class DBContext : DbContext
         });
     }
 
-    private void CreateSeasonModels(ModelBuilder modelBuilder)
+    void CreateSeasonModels(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<SeasonPlayer>(entity =>
         {
@@ -710,7 +712,7 @@ public class DBContext : DbContext
 
     }
 
-    private void CreatePlayerProfileModels(ModelBuilder modelBuilder)
+    void CreatePlayerProfileModels(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<GSTeam>(entity =>
         {
@@ -837,7 +839,7 @@ public class DBContext : DbContext
         });
     }
 
-    private void CreateCustomModels(ModelBuilder modelBuilder)
+    void CreateCustomModels(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CustomCommand>(entity =>
         {
@@ -907,7 +909,7 @@ public class DBContext : DbContext
         });
     }
 
-    private void CreateWebModels(ModelBuilder modelBuilder)
+    void CreateWebModels(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<WebUser>(entity =>
         {
@@ -917,18 +919,65 @@ public class DBContext : DbContext
                 .HasColumnName("id")
                 .HasColumnType("bigint(20)");
             
-            entity.Property(e => e.Username)
-                .HasColumnName("username")
-                .HasColumnType("longtext");
-            
-            entity.Property(e => e.PasswordHashed)
-                .HasColumnName("password_hashed")
-                .HasColumnType("longtext");
-            
             entity.Property(e => e.DiscordUserId)
                 .HasColumnName("discord_user_id")
                 .HasColumnType("bigint(20)");
+            
+            entity.Property(e => e.AllowGlobalStats)
+                .HasColumnName("allow_global_stats")
+                .HasColumnType("tinyint(1)");
+        });
+    }
 
+    void CreateAnalyzerMods(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AnalyzerMods>(entity =>
+        {
+            entity.ToTable("analyzer_mods");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.NF)
+                .HasColumnName("nf")
+                .HasColumnType("double");
+
+            entity.Property(e => e.EZ)
+                .HasColumnName("ez")
+                .HasColumnType("double");
+
+            entity.Property(e => e.HT)
+                .HasColumnName("ht")
+                .HasColumnType("double");
+
+            entity.Property(e => e.HR)
+                .HasColumnName("hr")
+                .HasColumnType("double");
+
+            entity.Property(e => e.DTNC)
+                .HasColumnName("dt_nc")
+                .HasColumnType("double");
+
+            entity.Property(e => e.HD)
+                .HasColumnName("hd")
+                .HasColumnType("double");
+
+            entity.Property(e => e.FL)
+                .HasColumnName("fl")
+                .HasColumnType("double");
+
+            entity.Property(e => e.RLX)
+                .HasColumnName("rlx")
+                .HasColumnType("double");
+
+            entity.Property(e => e.AP)
+                .HasColumnName("ap")
+                .HasColumnType("double");
         });
     }
 
@@ -940,6 +989,7 @@ public class DBContext : DbContext
         CreatePlayerProfileModels(modelBuilder);
         CreateCustomModels(modelBuilder);
         CreateWebModels(modelBuilder);
+        CreateAnalyzerMods(modelBuilder);
 
         modelBuilder.Entity<ByteTable>(entity =>
         {

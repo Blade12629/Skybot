@@ -1,0 +1,89 @@
+﻿@page
+@model Skybot.Web.AnalyzerSettingsModel
+@{
+    ViewData["Title"] = "AnalyzerSettings";
+    Layout = "~/Pages/_LayoutCP.cshtml";
+}
+
+    <center>
+        Analyzer Settings
+        <br />
+        @if (!string.IsNullOrEmpty(Model.NotificationMessage))
+        {
+            @Model.NotificationMessage;
+        }
+        <div class="SimpleBox">
+            <form method="post">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <label class="LabelText"><label asp-for="AnalyzeChannelId"></label></label>
+                                <input asp-for="AnalyzeChannelId" value="@Model.AnalyzeChannelId" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <label class="LabelText"><label asp-for="AnalyzeWarmupMatches"></label></label>
+                                <input asp-for="AnalyzeWarmupMatches" value="@Model.AnalyzeWarmupMatches" />
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                Mod Multipliers (This is not the base multiplier!) <br />
+                (Example: set EZ to 2.0: every score that has been played with ez will now be multiplicated by 2) <br />
+
+                <table>
+                    <tr>
+                        <th>NF</th>
+                        <th>EZ</th>
+                        <th>HR</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <input asp-for="NF" value="@Model.NF" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <input asp-for="EZ" value="@Model.EZ" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <input asp-for="HR" value="@Model.HR" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>DT/NC</th>
+                        <th>HD</th>
+                        <th>FL</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="form-group">
+                                <input asp-for="DTNC" value="@Model.DTNC" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <input asp-for="HD" value="@Model.HD" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                <input asp-for="FL" value="@Model.FL" />
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <div class="form-group">
+                    <button class="SimpleButton">Save</button>
+                </div>
+            </form>
+        </div>
+    </center>
+

@@ -1,0 +1,104 @@
+﻿@page
+@model Skybot.Web.PrivacyPolicyModel
+@{
+    ViewData["Title"] = "PrivacyPolicy";
+    Layout = "~/Pages/_Layout.cshtml";
+}
+    <center>
+        <br />
+        <div class="SimpleBox">
+            <table>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th>
+                        1. Data we collect and use:
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        - Your Discord user data (username, ID, mention, roles)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        - Your osu! data (username, ID, Scores)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        2. How are we using this Data?
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        - We are using this data to analyze multiplayer matches and to improve your general user experience.
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        3. Where is the data stored?
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        Gefaengnistrakt (gtrakt.de)<br />
+                        Germany<br />
+                        95030 Hof<br />
+                    </td>
+                </tr>
+                <tr>
+                    <th>4. Info about API</th>
+                </tr>
+                <tr>
+                    <td>
+                        - The API itself is public and can be used by anyone
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        - Data provided by the API are generally available through public (example, your osuId)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        - If you want to be excluded from the api you will be excluded from the whole bot
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        As a user you have the rights to ALWAYS request your saved data and to request the deletion of the data.<br />
+                        You can contact me via Discord: ??????#0284<br />
+                        (This will also result in you being blacklisted from the bot)
+                    </td>
+                </tr>
+                <tr>
+                    <th>5. Cookies</th>
+                </tr>
+                <tr>
+                    <td>
+                        Cookies are used to authenticate and identify the user for the webserver
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <form method="get" asp-page="~/">
+                <div class="form-group">
+                    <button class="SimpleButton">Home</button>
+                </div>
+            </form>
+        </div>
+    </center>

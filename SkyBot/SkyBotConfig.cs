@@ -10,6 +10,8 @@ namespace SkyBot
     public static class SkyBotConfig
     {
         public static string DiscordToken { get; set; }
+        public static string DiscordClientId { get; set; }
+        public static string DiscordClientSecret { get; set; }
 
         /// <summary>
         /// Set to true to use MariaDB otherwise use default MySQL

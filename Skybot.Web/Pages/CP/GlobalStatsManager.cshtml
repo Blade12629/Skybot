@@ -1,0 +1,168 @@
+﻿@page
+@model Skybot.Web.GlobalStatsManagerModel
+@{
+    ViewData["Title"] = "GlobalStatsManager";
+    Layout = "~/Pages/_LayoutCP.cshtml";
+}
+
+    <center>
+        GlobalStatsManager
+        <div class="SimpleBox">
+            NOTE: There is NO data validation so double check that your input is correct!
+            <br />
+            @switch (Model.State)
+            {
+                case 0:
+                    <form method="post">
+                        <div class="form-group">
+                            <div class="LabelText"><label asp-for="TotalTeams"></label></div>
+                            <input asp-for="TotalTeams" />
+                        </div>
+                        <div class="form-group">
+                            <div class="LabelText"><label asp-for="MaxPlayersPerTeam"></label></div>
+                            <input asp-for="MaxPlayersPerTeam" />
+                        </div>
+                        <div class="form-group">
+                            <button class="SimpleButton">Next</button>
+                        </div>
+                    </form>
+                    break;
+
+                case 1:
+                    <form method="post">
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="LabelText"><label asp-for="HostOsuId"></label></div>
+                                        <input asp-for="HostOsuId" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="LabelText"><label asp-for="TourneyName"></label></div>
+                                        <input asp-for="TourneyName" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="LabelText"><label asp-for="TourneyAcronym"></label></div>
+                                        <input asp-for="TourneyAcronym" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="LabelText"><label asp-for="TourneyThread"></label></div>
+                                        <input asp-for="TourneyThread" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="LabelText"><label asp-for="CountryCode"></label></div>
+                                        <input asp-for="CountryCode" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="LabelText"><label asp-for="StartDate"></label></div>
+                                        <input asp-for="StartDate" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="LabelText"><label asp-for="EndDate"></label></div>
+                                        <input asp-for="EndDate" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="LabelText"><label asp-for="RankMin"></label></div>
+                                        <input asp-for="RankMin" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group">
+                                        <div class="LabelText"><label asp-for="RankMax"></label></div>
+                                        <input asp-for="RankMax" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="form-group">
+                            <button class="SimpleButton">Next</button>
+                        </div>
+                        <div class="form-group">
+                            <input asp-for="TotalTeams" readonly hidden value="@Model.TotalTeams" />
+                            <input asp-for="MaxPlayersPerTeam" readonly hidden value="@Model.MaxPlayersPerTeam" />
+                        </div>
+                    </form>
+                    break;
+
+                case 2:
+                    <form method="post">
+                        <table>
+                            <tr>
+                                @for (int i = 0; i < Model.MaxPlayersPerTeam; i++)
+                                {
+                                    <th></th>
+                                }
+                            </tr>
+                            @for (int i = 0; i < Model.TotalTeams; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="form-group">
+                                            <label class="LabelText"><label asp-for="TeamNames"></label></label>
+                                            <input asp-for="TeamNames" value="null" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <label class="LabelText"><label asp-for="Placement"></label></label>
+                                            <input asp-for="Placement" value="0" />
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    @for (int x = 0; x < Model.MaxPlayersPerTeam; x++)
+                                    {
+                                        <td>
+                                            <div class="form-group">
+                                                <input asp-for="UserIds" value="0" />
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </table>
+                        <div class="form-group">
+                            <button class="SimpleButton">Submit</button>
+                        </div>
+                        <div class="form-group">
+                            <input asp-for="HostOsuId" readonly hidden value="@Model.HostOsuId" />
+                            <input asp-for="TourneyName" readonly hidden value="@Model.TourneyName" />
+                            <input asp-for="TourneyAcronym" readonly hidden value="@Model.TourneyAcronym" />
+                            <input asp-for="TourneyThread" readonly hidden value="@Model.TourneyThread" />
+                            <input asp-for="CountryCode" readonly hidden value="@Model.CountryCode" />
+                            <input asp-for="StartDate" readonly hidden value="@Model.StartDate" />
+                            <input asp-for="EndDate" readonly hidden value="@Model.EndDate" />
+                            <input asp-for="RankMin" readonly hidden value="@Model.RankMin" />
+                            <input asp-for="TotalTeams" readonly hidden value="@Model.TotalTeams" />
+                            <input asp-for="MaxPlayersPerTeam" readonly hidden value="@Model.MaxPlayersPerTeam" />
+                        </div>
+                    </form>
+                    break;
+
+                case 3:
+                    @:Submitted tourney data for tourney @Model.TourneyName (@Model.TourneyAcronym)
+                    break;
+            }
+        </div>
+    </center>
+

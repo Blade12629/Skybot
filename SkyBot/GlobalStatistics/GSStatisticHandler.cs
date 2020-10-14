@@ -284,13 +284,14 @@ namespace SkyBot.GlobalStatistics
             {
                 object badgeCount = -1;
 
-                WebRateLimit.RateLimit.Increment(() =>
+                WebRateLimit.RateLimit.Increment<int>(() =>
                 {
                     badgeCount = bg.Count(osuId);
-                }, o =>
-                {
-                    badgeCount = bg.Count(osuId);
-                }, badgeCount);
+                });
+                //}, o =>
+                //{
+                //    badgeCount = bg.Count(osuId);
+                //}, badgeCount);
 
                 while ((int)badgeCount == -1)
                     System.Threading.Tasks.Task.Delay(5).ConfigureAwait(false).GetAwaiter().GetResult();

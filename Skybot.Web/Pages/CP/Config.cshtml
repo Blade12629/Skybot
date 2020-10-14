@@ -7,7 +7,8 @@
 
     <center>
         Config
-        @if(!string.IsNullOrEmpty(Model.NotificationMessage))
+        <br />
+        @if (!string.IsNullOrEmpty(Model.NotificationMessage))
         {
             @Model.NotificationMessage;
         }
@@ -102,7 +103,7 @@
                             <td>
                                 <div class="form-group" style="padding-left:5%">
                                     <div class="LabelText"><label asp-for="CommandChannelId"></label></div>
-                                    <input asp-for="CommandChannelId" style="text-align:center"; value="@Model.CommandChannelId" />
+                                    <input asp-for="CommandChannelId" style="text-align:center" ; value="@Model.CommandChannelId" />
                                 </div>
                             </td>
                         </tr>

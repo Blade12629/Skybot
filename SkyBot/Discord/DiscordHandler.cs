@@ -150,20 +150,27 @@ public sealed class DiscordHandler : IDisposable
 
             string[] lines = e.Message.Content.Split('\n');
 
-            string stageLine = lines.First(l => l.StartsWith("Stage -", StringComparison.CurrentCultureIgnoreCase));
-            int stageIndex = stageLine.IndexOf("-", StringComparison.CurrentCultureIgnoreCase);
+            string stageLine = lines.FirstOrDefault(l => l.StartsWith("Stage -", StringComparison.CurrentCultureIgnoreCase));
 
-            string stage = stageLine.Remove(0, stageIndex + 1).TrimStart(' ').Trim(' ');
-            string mpLink = lines.First(l => l.StartsWith("MP link:", StringComparison.CurrentCultureIgnoreCase)).Split(' ')[2].Trim('>').Trim('<');
+            if (!string.IsNullOrEmpty(stageLine))
+            {
+                int stageIndex = stageLine.IndexOf("-", StringComparison.CurrentCultureIgnoreCase);
 
-            var history = OsuHistoryEndPoint.GetData.FromUrl(mpLink, null);
+                string stage = stageLine.Remove(0, stageIndex + 1).TrimStart(' ').Trim(' ');
+                string mpLink = lines.FirstOrDefault(l => l.StartsWith("MP link:", StringComparison.CurrentCultureIgnoreCase)).Split(' ')[2].Trim('>').Trim('<');
 
-            var warmupMaps = c.WarmupBeatmaps.Where(wb => wb.DiscordGuildId == dgc.GuildId);
+                if (!string.IsNullOrEmpty(mpLink))
+                {
+                    var history = OsuHistoryEndPoint.GetData.FromUrl(mpLink, null);
 
-            var result = SkyBot.Analyzer.OsuAnalyzer.CreateStatistic(history, e.Guild, (int)(history.CurrentGameId ?? 0), dgc.AnalyzeWarmupMatches, stage, true, beatmapsToIgnore: warmupMaps.Select(wm => wm.BeatmapId).ToArray());
-            var embed = SkyBot.Analyzer.OsuAnalyzer.GetMatchResultEmbed(result.MatchId);
+                    var warmupMaps = c.WarmupBeatmaps.Where(wb => wb.DiscordGuildId == dgc.GuildId);
 
-            e.Channel.SendMessageAsync(embed: embed);
+                    var result = SkyBot.Analyzer.OsuAnalyzer.CreateStatistic(history, e.Guild, (int)(history.CurrentGameId ?? 0), dgc.AnalyzeWarmupMatches, stage, true, beatmapsToIgnore: warmupMaps.Select(wm => wm.BeatmapId).ToArray());
+                    var embed = SkyBot.Analyzer.OsuAnalyzer.GetMatchResultEmbed(result.MatchId);
+
+                    e.Channel.SendMessageAsync(embed: embed);
+                }
+            }
         }
         catch (Exception ex)
         {

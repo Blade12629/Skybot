@@ -1,0 +1,30 @@
+﻿@page
+@model Skybot.Web.UserSettingsModel
+@{
+    ViewData["Title"] = "UserSettings";
+    Layout = "~/Pages/_LayoutCP.cshtml";
+}
+
+    <center>
+        <h1>UserSettings</h1>
+        <br />
+        <br />
+        <div class="SimpleBox">
+            <center>
+                @if(!string.IsNullOrEmpty(Model.NotificationMessage))
+                {
+                    @Model.NotificationMessage
+                }
+                <form method="post">
+                    <div class="form-group">
+                        <div class="LabelText">Select Discord Server</div>
+                        @Html.DropDownListFor(m => m.SelectedDiscordGuildId, Model.DiscordGuildIds, "Select Server")
+                    </div>
+                    <div class="form-group">
+                        <button class="SimpleButton">Change</button>
+                    </div>
+                </form>
+            </center>
+        </div>
+    </center>
+

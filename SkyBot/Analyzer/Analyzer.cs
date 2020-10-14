@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Globalization;
 using OsuHistoryEndPoint.Data;
 using System.Diagnostics;
+using SkyBot.Database.Models;
 
 namespace SkyBot.Analyzer
 {
@@ -32,6 +33,10 @@ namespace SkyBot.Analyzer
                 throw new ArgumentNullException(nameof(history));
             else if (guild == null)
                 throw new ArgumentNullException(nameof(guild));
+
+            AnalyzerMods mods;
+            using (DBContext c = new DBContext())
+                mods = c.AnalyzerMods.FirstOrDefault(m => m.DiscordGuildId == (long)guild.Id);
 
             string matchName = GetData.GetMatchNames(history)[0];
 
@@ -56,8 +61,49 @@ namespace SkyBot.Analyzer
 
                 int teamRedWinsCurrent = 0;
                 int teamBlueWinsCurrent = 0;
-                for (int x = 0; x < games[i].Scores.Length ; x++)
+                for (int x = 0; x < games[i].Scores.Length; x++)
                 {
+                    if (mods != null)
+                    {
+                        for (int y = 0; y < games[i].Scores[x].Mods.Length; y++)
+                        {
+                            double multiVal = 1.0;
+                            switch(games[i].Scores[x].Mods[y].ToLower(CultureInfo.CurrentCulture))
+                            {
+                                default:
+                                    break;
+
+                                case "nf":
+                                    multiVal = mods.NF;
+                                    break;
+
+                                case "ez":
+                                    multiVal = mods.EZ;
+                                    break;
+
+                                case "hr":
+                                    multiVal = mods.HR;
+                                    break;
+
+                                case "dt":
+                                case "nc":
+                                    multiVal = mods.DTNC;
+                                    break;
+
+                                case "hd":
+                                    multiVal = mods.HD;
+                                    break;
+
+                                case "fl":
+                                    multiVal = mods.FL;
+                                    break;
+                            }
+
+                            if (multiVal != 1.0)
+                                games[i].Scores[x].Score = (int)(games[i].Scores[x].Score * multiVal);
+                        }
+                    }
+
                     switch (games[i].Scores[x].Match.Team.ToLower(CultureInfo.CurrentCulture))
                     {
                         case "red":
