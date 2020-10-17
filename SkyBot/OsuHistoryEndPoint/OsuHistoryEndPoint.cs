@@ -256,12 +256,12 @@ namespace OsuHistoryEndPoint
                 string[] urlSplit = url.Split('/');
 
                 History history;
-                string json;
+                string json = null;
                 if (!long.TryParse(urlSplit[urlSplit.Length - 1], out long mId))
                     throw new ArgumentException(SkyBot.Resources.HistoryEPCouldNotParseMatchIdUrl, nameof(url));
 
                 url = url.TrimEnd('/') + "/history";
-                json = wc.DownloadString(url);
+                GetJson(url);
                 history = JsonConvert.DeserializeObject<History>(json);
 
                 List<History> histories = new List<History>(2);
@@ -269,9 +269,36 @@ namespace OsuHistoryEndPoint
                 HistoryEvent firstEvent = history.Events[0];
                 while(firstEvent.Detail == null || !firstEvent.Detail.Type.Equals("match-created", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    json = wc.DownloadString($"{url}?before={firstEvent.EventId}");
+                    GetJson($"{url}?before={firstEvent.EventId}");
                     histories.Add(JsonConvert.DeserializeObject<History>(json));
                     firstEvent = histories[histories.Count - 1].Events[0];
+                }
+
+                void GetJson(string url)
+                {
+                    try
+                    {
+                        json = wc.DownloadString(url);
+                    }
+                    catch (System.Net.WebException we)
+                    {
+                        try
+                        {
+                            wc.Headers.Clear();
+                            json = wc.DownloadString(url);
+                        }
+                        finally
+                        {
+                            if (wc.Headers.Count == 0)
+                                wc.Headers[System.Net.HttpRequestHeader.Accept] = "application/json";
+                        }
+                    }
+                    finally
+                    {
+                        if (wc.Headers.Count == 0)
+                            wc.Headers[System.Net.HttpRequestHeader.Accept] = "application/json";
+                    }
+
                 }
 
                 if (histories.Count > 0)

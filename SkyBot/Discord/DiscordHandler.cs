@@ -76,12 +76,12 @@ public sealed class DiscordHandler : IDisposable
             if (bans.Count > 0)
             {
                 if (dgc.DebugChannel != 0)
-                    args.Guild.GetChannel((ulong)dgc.DebugChannel).SendMessageAsync($"Banned user detected ({args.Member.Mention} ({args.Member.Id})").ConfigureAwait(false);
+                    await args.Guild.GetChannel((ulong)dgc.DebugChannel).SendMessageAsync($"Banned user detected ({args.Member.Mention} ({args.Member.Id})").ConfigureAwait(false);
 
                 if (dgc.BlacklistRoleId != 0)
                 {
                     var drole = args.Guild.GetRole((ulong)dgc.BlacklistRoleId);
-                    args.Member.GrantRoleAsync(drole, "blacklisted").ConfigureAwait(false);
+                    await args.Member.GrantRoleAsync(drole, "blacklisted").ConfigureAwait(false);
                 }
 
                 return;

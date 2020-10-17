@@ -464,7 +464,8 @@ namespace SkyBot.Discord.CommandSystem
         public static void SetAccessLevel(ulong discordUserId, ulong discordGuildId, AccessLevel newAccess)
         {
             using DBContext c = new DBContext();
-            Permission perm = c.Permission.FirstOrDefault(p => p.DiscordUserId == (long)discordUserId);
+            Permission perm = c.Permission.FirstOrDefault(p => p.DiscordUserId == (long)discordUserId &&
+                                                               p.DiscordGuildId == (long)discordGuildId);
 
             if (perm == null)
             {
