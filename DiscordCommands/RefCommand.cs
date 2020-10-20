@@ -136,9 +136,31 @@ namespace DiscordCommands
         {
             _lobby = new LobbyController(Program.IRC);
             _lobby.OnLobbyCreated += (s, e) => args.Channel.SendMessageAsync($"Room testmatch ({_lobby?.Settings.ChannelName ?? "null"}) created").ConfigureAwait(false);
-            _controller = new MatchController(_lobby, DateTime.UtcNow.AddMinutes(20), "test match", new List<string>() { },
-                                              new List<string>() { },
-                                              userB, userA, 2, 4, args.Channel.Id);
+
+            MatchSettings settings = new MatchSettings()
+            {
+                MatchStartTime = DateTime.UtcNow.AddMinutes(0),
+                MatchCreationDelay = TimeSpan.FromMinutes(0),
+                MatchInviteDelay = TimeSpan.FromMinutes(0),
+                MatchEndDelay = TimeSpan.FromMinutes(4),
+                PlayersReadyUpDelay = TimeSpan.FromMinutes(1),
+
+                MatchName = "test match",
+
+                PlayersBlue = null,
+                PlayersRed = null,
+                CaptainBlue = userA,
+                CaptainRed = userB,
+
+                TotalWarmups = 2,
+                TotalRounds = 4,
+                SubmissionChannel = args.Channel.Id,
+                IsTestRun = true
+            };
+
+            _controller = new MatchController(_lobby, settings);
+            _lobby.CreateMatch(settings.MatchName);
+
 
             System.Threading.Tasks.Task.Run(() =>
             {

@@ -163,32 +163,39 @@ namespace DiscordCommands
 
         private static void OnPlayerProfile(DiscordHandler client, CommandEventArg args)
         {
-            using DBContext c = new DBContext();
-            (string, long) userParsed = TryParseIdOrUsernameString(args.Parameters);
-
-            long osuUserId = -1;
-
-            if (userParsed.Item1 != null)
-                osuUserId = c.SeasonPlayer.FirstOrDefault(sp => sp.LastOsuUsername.Equals(userParsed.Item1, StringComparison.CurrentCultureIgnoreCase) &&
-                                                                sp.DiscordGuildId == (long)args.Guild.Id).OsuUserId;
-            else if (userParsed.Item2 != -1)
-                osuUserId = userParsed.Item2;
-
-            if (osuUserId == -1)
+            try
             {
-                client.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
-                return;
+                using DBContext c = new DBContext();
+                (string, long) userParsed = TryParseIdOrUsernameString(args.Parameters);
+
+                long osuUserId = -1;
+
+                if (userParsed.Item1 != null)
+                    osuUserId = c.SeasonPlayer.FirstOrDefault(sp => sp.LastOsuUsername.Equals(userParsed.Item1, StringComparison.CurrentCultureIgnoreCase) &&
+                                                                    sp.DiscordGuildId == (long)args.Guild.Id).OsuUserId;
+                else if (userParsed.Item2 != -1)
+                    osuUserId = userParsed.Item2;
+
+                if (osuUserId == -1)
+                {
+                    client.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
+                    return;
+                }
+
+                SeasonPlayerCardCache spcc = GetPlayer(args.Guild, osuUserId);
+
+                if (spcc == null)
+                {
+                    client.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
+                    return;
+                }
+
+                args.Channel.SendMessageAsync(embed: GetPlayerEmbed(spcc.Username, spcc.TeamName, spcc.OsuUserId, spcc.AverageAccuracy, (int)spcc.AverageScore, spcc.AverageMisses, (int)spcc.AverageCombo, spcc.AveragePerformance, spcc.MatchMvps, spcc.OverallRating));
             }
-
-            SeasonPlayerCardCache spcc = GetPlayer(args.Guild, osuUserId);
-
-            if (spcc == null)
+            catch (Exception)
             {
-                client.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
-                return;
+                client.SendSimpleEmbed(args.Channel, "Profile not found");
             }
-
-            args.Channel.SendMessageAsync(embed: GetPlayerEmbed(spcc.Username, spcc.TeamName, spcc.OsuUserId, spcc.AverageAccuracy, (int)spcc.AverageScore, spcc.AverageMisses, (int)spcc.AverageCombo, spcc.AveragePerformance, spcc.MatchMvps, spcc.OverallRating));
         }
 
         private static void OnTeamProfile(DiscordHandler client, CommandEventArg args)

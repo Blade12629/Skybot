@@ -9,50 +9,44 @@ namespace SkyBot.Osu.AutoRef.Match
 {
     public class MatchController
     {
-        public bool IsFinished { get; private set; }
+        public bool IsFinished { get; set; }
         public bool IsLobbyCreated => _isLobbyCreated;
-        public DateTime MatchStartTime => _matchStartTime;
+        public DateTime MatchStartTime => _settings.MatchStartTime;
         public TimeSpan RunningSince => DateTime.UtcNow.Subtract(_matchCreationTime);
         public int WorkflowIteration { get => _workflowIndex; set => _workflowIndex = value; }
         public int WorkflowMaxIterations { get => _workflow.Count; }
 
 
-        private LobbyController _controller;
-        private MatchSettings _settings;
+        LobbyController _controller;
+        MatchSettings _settings;
 
 
-        private DateTime _matchStartTime;
-        private DateTime _matchCreationTime;
-        private DateTime _matchInvitationTime;
-        private string _matchName;
-        private ulong _submissionChannel;
+        DateTime _matchCreationTime;
+        DateTime _matchInvitationTime;
 
-        private bool _isLobbyCreated;
+        string _matchName;
 
-        private List<string> _playersBlue;
-        private List<string> _playersRed;
+        bool _isLobbyCreated;
 
-        private string _captainBlue;
-        private string _captainRed;
-        private string _captainBlueDisplay;
-        private string _captainRedDisplay;
+        List<string> _playersBlue;
+        List<string> _playersRed;
 
-        private int _totalPlayers;
-        private int _totalWarmups;
-        private int _totalRounds;
+        string _captainBlue;
+        string _captainRed;
+        string _captainBlueDisplay;
+        string _captainRedDisplay;
 
-        private LobbyColor _nextPick;
-        private List<long> _bannedMaps;
+        LobbyColor _nextPick;
+        List<long> _bannedMaps;
 
-        private List<LobbyScore> _totalScores;
-        private List<LobbyScore> _latestScores;
+        List<LobbyScore> _totalScores;
+        List<LobbyScore> _latestScores;
 
-        private int _blueWins;
-        private int _redWins;
+        int _blueWins;
+        int _redWins;
 
-        private List<Action> _workflow;
-        private int _workflowIndex;
-        bool _isTestRun;
+        List<Action> _workflow;
+        int _workflowIndex;
         /*
             Warmup Phase: HeadToHead, ScoreV2
             Play Phase: TeamVs, ScoreV2
@@ -60,75 +54,111 @@ namespace SkyBot.Osu.AutoRef.Match
             Red team second slots
          */
 
-        public MatchController(LobbyController controller, DateTime matchStartTime, string matchName,
-                               List<string> playersRed, List<string> playersBlue, string captainRed,
-                               string captainBlue, int totalWarmups, int totalRounds, ulong submissionChannel)
-        {
-            _matchStartTime = matchStartTime;
-            _matchCreationTime = matchStartTime.Subtract(TimeSpan.FromMinutes(15));
-            _matchInvitationTime = matchStartTime.Subtract(TimeSpan.FromMinutes(5));
+            //TODO: make lobby settings getting refreshed regularly
 
-            _submissionChannel = submissionChannel;
-            _controller = controller;
-            _matchStartTime = matchStartTime;
-            _matchName = matchName;
+        public MatchController(LobbyController controller, MatchSettings settings)
+        {
+            _settings = settings;
+
             controller.OnLobbyCreated += OnLobbyCreated;
             controller.OnScoreReceived += OnScoreReceived;
 
-            _latestScores = new List<LobbyScore>();
-            _totalScores = new List<LobbyScore>();
+            _controller = controller;
 
-            if (playersBlue != null)
+            if (settings.PlayersBlue != null)
             {
-                _playersBlue = playersBlue;
+                _playersBlue = settings.PlayersBlue.ToList();
                 FixNames(_playersBlue);
             }
             else
                 _playersBlue = new List<string>();
 
-            if (playersRed != null)
+            if (settings.PlayersRed != null)
             {
-                _playersRed = playersRed;
+                _playersRed = settings.PlayersRed.ToList();
                 FixNames(_playersRed);
             }
             else
                 _playersRed = new List<string>();
 
-            _captainBlue = FixName(captainBlue);
-            _captainRed = FixName(captainRed);
-
-            _captainBlueDisplay = _captainBlue.Replace('_', ' ');
-            _captainRedDisplay = _captainRed.Replace('_', ' ');
+            _captainBlue = FixName(settings.CaptainBlue);
+            _captainRed = FixName(settings.CaptainRed);
 
             _playersBlue.Remove(_captainBlue);
             _playersRed.Remove(_captainRed);
 
-            _totalPlayers = _playersBlue.Count + 1 + _playersRed.Count + 1;
-            _totalRounds = totalRounds;
-            _totalWarmups = totalWarmups;
+            _captainBlueDisplay = _captainBlue.Replace('_', ' ');
+            _captainRedDisplay = _captainRed.Replace('_', ' ');
+
+
+            _latestScores = new List<LobbyScore>();
+            _totalScores = new List<LobbyScore>();
             _bannedMaps = new List<long>();
 
-            CreateWorkflow();
+            _matchCreationTime = settings.MatchStartTime.Subtract(settings.MatchCreationDelay);
+            _matchInvitationTime = settings.MatchStartTime.Subtract(settings.MatchInviteDelay);
+
+            if (settings.IsTestRun)
+                CreateTestWorkflow();
+            else
+                CreateWorkflow();
         }
 
-        private void AddScore(LobbyScore score)
+        void AddScore(LobbyScore score)
         {
             _totalScores.Add(score);
             _latestScores.Add(score);
         }
 
-        private void OnScoreReceived(object sender, LobbyScore e)
+        void OnScoreReceived(object sender, LobbyScore e)
         {
             AddScore(new LobbyScore(FixName(e.Username), e.Score, e.Passed));
         }
 
-        private void CreateWorkflow()
+        void CreateTestWorkflow()
         {
             _workflow = new List<Action>()
             {
-                new Action(WaitForLobbyCreation),
                 new Action(InitSetup),
+
+                new Action(DisableSettingsUpdate),
                 new Action(WaitForLobbyInvites),
+
+                new Action(EnableSettingsUpdate),
+                new Action(InvitePlayers),
+                new Action(WaitForPlayersToJoin),
+                new Action(SetTeamColors),
+                new Action(WaitForMatchStartTime),
+                new Action(() => SendMessage("Welcome to Skybot's auto-ref (Alpha 0.1.1)")),
+                new Action(() => SendMessage($"Blue captain: {_captainBlueDisplay ?? "null"} | Red captain: {_captainRedDisplay ?? "null"}")),
+                new Action(Setup),
+
+                new Action(DisableSettingsUpdate),
+                new Action(() => WaitFor(DateTime.UtcNow.AddSeconds(2))),
+                new Action(GetBans),
+                new Action(TestPickMap)
+            };
+        }
+
+        void TestPickMap()
+        {
+            Logger.Log("TestPickMap");
+            long mapId = PickNextMap();
+            SendMessage($"Map {mapId} was picked");
+            SendMessage($"Test run has ended and lobby will close in {_settings.MatchEndDelay.TotalSeconds} seconds");
+            CloseLobby();
+        }
+
+        void CreateWorkflow()
+        {
+            _workflow = new List<Action>()
+            {
+                new Action(InitSetup),
+
+                new Action(DisableSettingsUpdate),
+                new Action(WaitForLobbyInvites),
+
+                new Action(EnableSettingsUpdate),
                 new Action(InvitePlayers),
                 new Action(WaitForPlayersToJoin),
                 new Action(SortPlayers),
@@ -137,24 +167,24 @@ namespace SkyBot.Osu.AutoRef.Match
                 new Action(() => SendMessage("Welcome to Skybot's auto-ref (Alpha 0.1.1)")),
                 new Action(() => SendMessage($"Blue captain: {_captainBlueDisplay} | Red captain: {_captainRedDisplay}")),
                 new Action(Setup),
+
+                new Action(DisableSettingsUpdate),
+                new Action(() => WaitFor(DateTime.UtcNow.AddSeconds(2))),
                 new Action(GetBans),
+
+                new Action(EnableSettingsUpdate),
                 new Action(PlayPhase),
+
+                new Action(DisableSettingsUpdate),
                 new Action(SubmitResults),
                 new Action(CloseLobby)
             };
 
-            if (_totalWarmups > 0)
+            if (_settings.TotalWarmups > 0)
             {
                 _workflow.Insert(10, new Action(SetupWarmup));
                 _workflow.Insert(11, new Action(PlayWarmup));
             }
-        }
-
-        public void SetupTestWorkflow()
-        {
-            _isTestRun = true;
-            _matchCreationTime = _matchStartTime.Subtract(TimeSpan.FromMinutes(3));
-            _matchInvitationTime = _matchStartTime.Subtract(TimeSpan.FromMinutes(1));
         }
 
         public void Run()
@@ -186,11 +216,22 @@ namespace SkyBot.Osu.AutoRef.Match
             return true;
         }
 
-        private void SubmitResults()
+        void EnableSettingsUpdate()
         {
-            Logger.Log("Submitting Results");
-            WaitFor(DateTime.UtcNow);
+            _controller.IsSettingsWatcherPaused = false;
+        }
+
+
+        void DisableSettingsUpdate()
+        {
+            _controller.IsSettingsWatcherPaused = true;
+        }
+
+        void SubmitResults()
+        {
+            Logger.Log("SubmitResults");
             SendMessage("Submitting Results");
+
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
                 Title = "Match " + _matchName,
@@ -204,50 +245,46 @@ namespace SkyBot.Osu.AutoRef.Match
 
             builder.AddField($"MP Link: https://osu.ppy.sh/community/matches/{_controller.Settings.MatchId}", Resources.InvisibleCharacter);
 
-            Program.DiscordHandler.GetChannelAsync(_submissionChannel).ConfigureAwait(false).GetAwaiter().GetResult()
+            Program.DiscordHandler.GetChannelAsync(_settings.SubmissionChannel).ConfigureAwait(false).GetAwaiter().GetResult()
                                   .SendMessageAsync(embed: builder.Build());
         }
 
-        private void CloseLobby()
+        void CloseLobby()
         {
-            Logger.Log("Closing lobby");
-            SendMessage("Match ended, you have 240 seconds to leave");
-            Task.Delay(240 * 1000).ConfigureAwait(false).GetAwaiter().GetResult();
+            Logger.Log("CloseLobby");
+            SendMessage($"Match ended, you have {_settings.MatchEndDelay.TotalSeconds} seconds to leave");
+            Task.Delay(_settings.MatchEndDelay).ConfigureAwait(false).GetAwaiter().GetResult();
 
-            WaitFor(DateTime.UtcNow);
             _controller.CloseMatch();
 
             IsFinished = true;
         }
 
-        private void SetupWarmup()
+        void SetupWarmup()
         {
-            Logger.Log("Setting up for warmup");
-            _controller.SetWinConditions(TeamMode.HeadToHead, WinCondition.ScoreV2, _totalPlayers);
+            Logger.Log("SetupWarmup");
+            _controller.SetWinConditions(TeamMode.HeadToHead, WinCondition.ScoreV2, _settings.TotalPlayers);
         }
 
-        private void InitSetup()
+        void InitSetup()
         {
-            Logger.Log("Initial setup");
-            WaitFor(DateTime.UtcNow);
+            Logger.Log("InitSetup");
             _controller.SetMatchLock(true);
             _controller.SetWinConditions(TeamMode.TeamVs, WinCondition.ScoreV2, 16);
         }
 
-        private void Setup()
+        void Setup()
         {
-            Logger.Log("Setting up for play phase");
-            WaitFor(DateTime.UtcNow);
-            _controller.SetWinConditions(TeamMode.TeamVs, WinCondition.ScoreV2, _totalPlayers);
+            Logger.Log("Setup");
+            _controller.SetWinConditions(TeamMode.TeamVs, WinCondition.ScoreV2, _settings.TotalPlayers);
             _latestScores.Clear();
             _totalScores.Clear();
-            _controller.RefreshSettings();
         }
 
-        private void SortPlayers()
+        void SortPlayers()
         {
-            Logger.Log("Sorting players");
-            int playersPerTeam = _totalPlayers / 2;
+            Logger.Log("SortPlayers");
+            int playersPerTeam = _settings.TotalPlayers / 2;
 
             List<LobbySlot> blueSlots = _controller.Slots.Where(s => s.Key > 0 && s.Key <= playersPerTeam).Select(p => p.Value).ToList();
             List<string> bluePlayers = _playersBlue.ToList();
@@ -270,7 +307,6 @@ namespace SkyBot.Osu.AutoRef.Match
                 }
                 else
                 {
-                    WaitFor(DateTime.UtcNow);
                     _controller.SetSlot(slot.Nickname, nextFreeSlot);
                     nextFreeSlot++;
                 }
@@ -281,7 +317,6 @@ namespace SkyBot.Osu.AutoRef.Match
                 LobbySlot nextSlot = blueSlots[0];
                 blueSlots.RemoveAt(0);
 
-                WaitFor(DateTime.UtcNow);
                 _controller.SetSlot(bluePlayers[i], nextSlot.Slot);
             }
 
@@ -308,87 +343,66 @@ namespace SkyBot.Osu.AutoRef.Match
 
                 _controller.SetSlot(player, redSlots[i].Slot);
             }
-
-            _controller.RefreshSettings();
         }
 
-        private void SetTeamColors()
+        void SetTeamColors()
         {
-            Logger.Log("Setting team colors");
-
+            Logger.Log("SetTeamColors");
             SetColors(_playersBlue, LobbyColor.Blue);
-            WaitFor(DateTime.UtcNow);
             _controller.SetTeam(_captainBlue, LobbyColor.Blue);
 
             SetColors(_playersRed, LobbyColor.Red);
-            WaitFor(DateTime.UtcNow);
             _controller.SetTeam(_captainRed, LobbyColor.Red);
-
-            WaitFor(DateTime.UtcNow);
-            _controller.RefreshSettings();
 
             void SetColors(List<string> users, LobbyColor color)
             {
                 for (int i = 0; i < users.Count; i++)
                 {
-                    WaitFor(DateTime.UtcNow);
                     _controller.SetTeam(users[i], color);
                 }
             }
         }
 
-        private void PlayWarmup()
+        void PlayWarmup()
         {
-            Logger.Log("Starting warmup phase");
+            Logger.Log("PlayWarmup");
             SendMessage("Rolls for warmups");
             SetNextPlayerPick();
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < _settings.TotalWarmups; i++)
             {
                 long mapId = PickNextMap();
-                WaitForPlayersReady(TimeSpan.FromSeconds(120));
+                WaitForPlayersReady(_settings.PlayersReadyUpDelay);
                 PlayMap(mapId);
                 WaitForMapEnd();
             }
 
             SendMessage("Warmups finished");
-            Logger.Log("Warmups finished");
         }
 
-        private void PlayPhase()
+        void PlayPhase()
         {
-            Logger.Log("Play phase");
-            WaitFor(DateTime.UtcNow);
-            SendMessage("Play phase");
-            SendMessage("Rolls for play phase");
+            Logger.Log("PlayPhase");
+            SendMessage("Play phase, Rolls for play phase");
 
             SetNextPlayerPick();
 
-            for (int i = 0; i < _totalRounds; i++)
+            for (int i = 0; i < _settings.TotalRounds; i++)
             {
-                WaitFor(DateTime.UtcNow);
                 long mapId = PickNextMap();
-                WaitFor(DateTime.UtcNow);
-                WaitForPlayersReady(TimeSpan.FromSeconds(120));
-                WaitFor(DateTime.UtcNow);
+                WaitForPlayersReady(_settings.PlayersReadyUpDelay);
                 PlayMap(mapId);
-                WaitFor(DateTime.UtcNow);
                 WaitForMapEnd();
-                WaitFor(DateTime.UtcNow);
                 GetWins();
             }
 
             SendMessage("End of play phase");
-            Logger.Log("End of play phase");
         }
 
-        private void GetBans()
+        void GetBans()
         {
-            Logger.Log("Ban phase");
-            SendMessage("Ban phase");
-
-            WaitFor(DateTime.UtcNow);
-            SendMessage("Rolls for ban phase");
+            Logger.Log("GetBans");
+            SendMessage("Ban phase, Rolls for ban phase");
             SetNextPlayerPick();
 
             for (int i = 0; i < 2; i++)
@@ -396,17 +410,15 @@ namespace SkyBot.Osu.AutoRef.Match
                 long mapId = PickNextMap();
                 _bannedMaps.Add(mapId);
 
-                WaitFor(DateTime.UtcNow);
-                SendMessage($"Banned map id {mapId}");
+                SendMessage($"Removed map id {mapId}");
             }
 
-            WaitFor(DateTime.UtcNow);
             SendMessage("End of ban phase");
-            Logger.Log("End of ban phase");
         }
 
-        private void PlayMap(long mapId)
+        void PlayMap(long mapId)
         {
+            Logger.Log("PlayMap");
             SendCommand($"!mp map {mapId} 0");
             SendMessage("You have 120 seconds to ready up before the game will be force started");
 
@@ -418,19 +430,20 @@ namespace SkyBot.Osu.AutoRef.Match
             SendCommand("!mp start");
         }
 
-        private void WaitForMapEnd()
+        void WaitForMapEnd()
         {
+            Logger.Log("WaitForMapEnd");
             SendMessage("Waiting for map end");
 
-            while (_latestScores.Count < _totalPlayers)
+            while (_latestScores.Count < _settings.TotalPlayers)
                 Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
-            WaitFor(DateTime.UtcNow);
 
             SendMessage("Map ended");
         }
 
-        private void GetWins()
+        void GetWins()
         {
+            Logger.Log("GetWins");
             SendMessage("Getting wins...");
 
             long blueScore = 0;
@@ -457,23 +470,22 @@ namespace SkyBot.Osu.AutoRef.Match
             else if (redScore > blueScore)
                 _redWins++;
 
-            WaitFor(DateTime.UtcNow);
             SendMessage($"Current wins: Blue {_blueWins} vs {_redWins} Red");
         }
 
         /// <param name="timeout">Time until we return with false</param>
         /// <returns>All players ready</returns>
-        private bool WaitForPlayersReady(TimeSpan timeout)
+        bool WaitForPlayersReady(TimeSpan timeout)
         {
+            Logger.Log("WaitForPlayersReady");
             Stopwatch elapsedTime = new Stopwatch();
             elapsedTime.Start();
 
             int readyCount = 0;
-            while((readyCount = _controller.Slots.Count(s => s.Value.IsReady)) < _totalPlayers &&
+            while((readyCount = _controller.Slots.Count(s => s.Value.IsReady)) < _settings.TotalPlayers &&
                   elapsedTime.Elapsed < timeout)
             {
-                _controller.RefreshSettings();
-                Task.Delay(2500).ConfigureAwait(false).GetAwaiter().GetResult();
+                Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
             }
 
             elapsedTime.Stop();
@@ -484,35 +496,35 @@ namespace SkyBot.Osu.AutoRef.Match
             return true;
         }
 
-        private void WaitForMatchStartTime()
+        void WaitForMatchStartTime()
         {
-            Logger.Log("Waiting for match to start");
+            Logger.Log("WaitForMatchStartTime");
             SendMessage("Waiting for match to start");
-            WaitFor(_matchStartTime);
         }
 
-        private long PickNextMap()
+        long PickNextMap()
         {
+            Logger.Log("PickNextMap");
             long? beatmap = null;
             string nextPick = _nextPick == LobbyColor.Red ? _captainRed : _captainBlue;
             string nextPickDisplay = _nextPick == LobbyColor.Red ? _captainRedDisplay : _captainBlueDisplay;
 
-            WaitFor(DateTime.UtcNow);
+            _nextPick = _nextPick == LobbyColor.Red ? LobbyColor.Blue : LobbyColor.Red;
+
             while (!(beatmap = _controller.RequestPick(nextPick, $"{nextPickDisplay} Pick a map via !pick <mapId>")).HasValue)
             {
-                WaitFor(DateTime.UtcNow);
                 Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
             }
 
             return beatmap.Value;
         }
 
-        private void SendMessage(string message)
+        void SendMessage(string message)
         {
             _controller.SendChannelMessage($"——— {message} ———");
         }
 
-        private void SendCommand(string command)
+        void SendCommand(string command)
         {
             _controller.SendChannelMessage(command);
         }
@@ -520,8 +532,9 @@ namespace SkyBot.Osu.AutoRef.Match
         /// <summary>
         /// Sets which captain can pick next
         /// </summary>
-        private void SetNextPlayerPick()
+        void SetNextPlayerPick()
         {
+            Logger.Log("SetNextPlayerPick");
             while (!SetPick())
                 Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
 
@@ -529,47 +542,47 @@ namespace SkyBot.Osu.AutoRef.Match
             {
                 (long, long) rolls = GetCaptainRolls();
 
-                WaitFor(DateTime.UtcNow);
-
                 if (rolls.Item1 > rolls.Item2)
                 {
                     _nextPick = LobbyColor.Blue;
                     SendMessage($"{_captainBlueDisplay} won the roll!");
+                    return true;
                 }
                 else if (rolls.Item2 > rolls.Item1)
                 {
                     _nextPick = LobbyColor.Red;
                     SendMessage($"{_captainRedDisplay} won the roll!");
+                    return true;
                 }
                 else
+                {
+                    SendMessage("Invalid roll result");
                     return false;
-
-                WaitFor(DateTime.UtcNow);
-                SendMessage("Invalid roll result");
-
-                return true;
+                }
             }
         }
 
         /// <returns>(Blue, Red)</returns>
-        private (long, long) GetCaptainRolls()
+        (long, long) GetCaptainRolls()
         {
+            Logger.Log("GetCaptainRoll");
             LobbyRoll blueRoll = GetRoll(_captainBlue);
             LobbyRoll redRoll = GetRoll(_captainRed);
 
             return (blueRoll.Rolled, redRoll.Rolled);
         }
 
-        private LobbyRoll GetRoll(string from)
+        LobbyRoll GetRoll(string from)
         {
-            WaitFor(DateTime.UtcNow);
+            Logger.Log("GetRoll");
             LobbyRoll roll = _controller.RequestRoll(from);
 
             return roll;
         }
 
-        private void OnLobbyCreated(object sender, EventArgs args)
+        void OnLobbyCreated(object sender, EventArgs args)
         {
+            Logger.Log("OnLobbyCreated");
             _controller.OnLobbyCreated -= OnLobbyCreated;
             _isLobbyCreated = true;
         }
@@ -577,38 +590,32 @@ namespace SkyBot.Osu.AutoRef.Match
         /// <summary>
         /// Waits until <see cref="_matchCreationTime"/>, creates a lobby and waits for the lobby to be created
         /// </summary>
-        private void WaitForLobbyCreation()
+        void WaitForLobbyCreation()
         {
-            Logger.Log("Waiting for lobby to create");
+            Logger.Log("WaitForLobbyCreation");
             WaitFor(_matchCreationTime);
-
-            WaitFor(DateTime.UtcNow);
-            Logger.Log("Creating lobby");
             _controller.CreateMatch(_matchName);
 
-            Logger.Log("Waiting for lobby to be created");
-            
             while(!_isLobbyCreated)
                 Task.Delay(50).ConfigureAwait(false).GetAwaiter().GetResult();
-
-            WaitFor(DateTime.UtcNow);
-
-            Logger.Log("Lobby created");
         }
 
-        private void WaitForLobbyInvites()
+        void WaitForLobbyInvites()
         {
-            Logger.Log("Waiting until we can invite players");
+            Logger.Log("WaitForLobbyInvites");
             WaitFor(_matchInvitationTime);
         }
 
         /// <summary>
         /// Waits until the specified time
         /// </summary>
-        /// <param name="date"></param>
+        /// <param name="date">if left empty will use <see cref="DateTime.UtcNow"/></param>
         /// <param name="waitIfNotInLobby">Should we wait until we are reconnected again</param>
-        private void WaitFor(DateTime date, bool waitIfNotInLobby = true)
+        void WaitFor(DateTime date = default, bool waitIfNotInLobby = true)
         {
+            if (date == default)
+                date = DateTime.UtcNow;
+
             if (DateTime.UtcNow < date)
             {
                 TimeSpan waitTime = date.Subtract(DateTime.UtcNow);
@@ -623,10 +630,8 @@ namespace SkyBot.Osu.AutoRef.Match
             }
         }
 
-        private void InvitePlayers()
+        void InvitePlayers()
         {
-            Logger.Log("Inviting players");
-
             if (_playersBlue.Count > 0)
                 InvitePlayers(_playersBlue);
 
@@ -636,44 +641,37 @@ namespace SkyBot.Osu.AutoRef.Match
             InvitePlayer(_captainBlue);
             InvitePlayer(_captainRed);
 
-            Logger.Log("Invited players");
-
             void InvitePlayers(List<string> nicknames)
             {
-                WaitFor(DateTime.UtcNow);
                 for (int i = 0; i < nicknames.Count; i++)
                     InvitePlayer(nicknames[i]);
             }
         }
 
-        private void InvitePlayer(string nickname)
+        void InvitePlayer(string nickname)
         {
-            WaitFor(DateTime.UtcNow);
+            Logger.Log("InvitePlayer " + nickname);
             _controller.Invite(nickname);
         }
 
         /// <summary>
         /// Waits until all players have joined
         /// </summary>
-        private void WaitForPlayersToJoin()
+        void WaitForPlayersToJoin()
         {
-            Logger.Log("Waiting for players to join");
-
-            while (_controller.Slots.Count(s => s.Value.Nickname != null) < _totalPlayers)
-                Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
-            
-            WaitFor(DateTime.UtcNow);
-
-            Logger.Log("All players joined");
+            while (_controller.Slots.Count(s => s.Value.Nickname != null) < _settings.TotalPlayers)
+            {
+                Task.Delay(250).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
         }
 
-        private void FixNames(List<string> names)
+        void FixNames(List<string> names)
         {
             for (int i = 0; i < names.Count; i++)
                 names[i] = FixName(names[i]);
         }
 
-        private static string FixName(string name)
+        static string FixName(string name)
         {
             return name.Replace(' ', '_');
         }

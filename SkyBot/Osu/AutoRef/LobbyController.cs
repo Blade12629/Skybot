@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using IRCClient = SkyBot.Osu.IRC.OsuIrcClient;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace SkyBot.Osu.AutoRef
 {
@@ -21,25 +21,38 @@ namespace SkyBot.Osu.AutoRef
         public event EventHandler<LobbySlot> OnSlotUpdated;
         public event EventHandler OnSettingUpdated;
 
-        public bool IsClosed { get; private set; }
+        public bool IsClosed { get; set; }
         public LobbySetting Settings => _settings.Copy();
         public IReadOnlyDictionary<int, LobbySlot> Slots => _slots;
-        public bool RefreshedSettings { get; private set; }
-        public IRCClient IRC => _irc;
-        public bool IsInLobby { get; private set; }
+        public IRC.OsuIrcClient IRC => _irc;
+        public bool IsInLobby { get; set; }
+        public bool IsSettingsWatcherPaused
+        {
+            get => _isSettingsWatcherPaused;
+            set => _isSettingsWatcherPaused = value;
+        }
 
-        private IRCClient _irc;
-        private string _tempMatchName;
+        Task _settingsWatcher;
+        CancellationTokenSource _settingsWatcherSource;
+        bool _keepWatching;
+        DateTime _lastRefreshRequest;
 
-        private LobbySetting _settings;
-        private readonly object _settingsLock = new object();
+        volatile bool _isSettingsWatcherPaused;
 
-        private ConcurrentDictionary<int, LobbySlot> _slots;
+        //public LobbyUpdateState UpdateState { get; private set; }
 
-        private Dictionary<string, Action<string>> _settingParsers;
-        private ConcurrentQueue<ChatInteraction> _chatInteractions;
+        readonly IRC.OsuIrcClient _irc;
+        string _tempMatchName;
 
-        public LobbyController(IRCClient irc)
+        LobbySetting _settings;
+        readonly object _settingsLock = new object();
+
+        ConcurrentDictionary<int, LobbySlot> _slots;
+
+        Dictionary<string, Action<string>> _settingParsers;
+        ConcurrentQueue<ChatInteraction> _chatInteractions;
+
+        public LobbyController(IRC.OsuIrcClient irc)
         {
             _irc = irc;
             _chatInteractions = new ConcurrentQueue<ChatInteraction>();
@@ -63,19 +76,9 @@ namespace SkyBot.Osu.AutoRef
             irc.OnAfterReconnect += (s, e) => ReJoin();
         }
 
-        private void ReJoin()
-        {
-            IRC.SendCommandAsync("JOIN", _settings.ChannelName).ConfigureAwait(false).GetAwaiter().GetResult();
-
-            //Simple re-join implementation after we reconnected
-
-            Task.Delay(1500).ConfigureAwait(false).GetAwaiter().GetResult();
-            IsInLobby = true;
-        }
-
         public void RefreshSettings()
         {
-            RefreshedSettings = false;
+            //UpdateState = LobbyUpdateState.Refreshing;
 
             for (int i = 0; i < 16; i++)
                 _slots[i + 1].Reset();
@@ -111,7 +114,9 @@ namespace SkyBot.Osu.AutoRef
         {
             if (IsClosed)
                 return;
+            
 
+            Logger.Log(message);
             _irc.SendMessageAsync(_settings.ChannelName, message).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
@@ -122,6 +127,7 @@ namespace SkyBot.Osu.AutoRef
 
             _irc.OnChannelMessageReceived -= ReadChannelMessage;
             SendChannelMessage("!mp close");
+            StopSettingsWatcher();
             IsClosed = true;
         }
 
@@ -290,7 +296,6 @@ namespace SkyBot.Osu.AutoRef
             return mapId;
         }
 
-
         public void RequestChatInteraction(string nickname, string messageStart, Action<string> action)
         {
             _chatInteractions.Enqueue(new ChatInteraction(nickname, messageStart, action));
@@ -313,8 +318,56 @@ namespace SkyBot.Osu.AutoRef
         }
 
 
+        void StartSettingsWatcher()
+        {
+            if (_keepWatching)
+                return;
 
-        private void OnMatchCreated(long matchId, string matchName)
+            _keepWatching = true;
+            _settingsWatcherSource = new CancellationTokenSource();
+            _settingsWatcher = new Task(WatchSettings, _settingsWatcherSource.Token);
+
+            _settingsWatcher.Start();
+        }
+
+        void WatchSettings()
+        {
+            while(_keepWatching)
+            {
+                if (IsSettingsWatcherPaused || _lastRefreshRequest.AddSeconds(12.5) > DateTime.UtcNow)
+                {
+                    Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
+                    continue;
+                }
+
+                if (!_keepWatching)
+                    return;
+
+                RefreshSettings();
+                _lastRefreshRequest = DateTime.UtcNow;
+            }
+        }
+
+        void StopSettingsWatcher()
+        {
+            if (!_keepWatching)
+                return;
+
+            _keepWatching = false;
+            _settingsWatcherSource.Cancel();
+        }
+
+        void ReJoin()
+        {
+            IRC.SendCommandAsync("JOIN", _settings.ChannelName).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            //Simple re-join implementation after we reconnected
+
+            Task.Delay(1500).ConfigureAwait(false).GetAwaiter().GetResult();
+            IsInLobby = true;
+        }
+
+        void OnMatchCreated(long matchId, string matchName)
         {
             _irc.OnPrivateBanchoMessageReceived -= ReadPrivBanchoMessage;
             _irc.OnChannelMessageReceived += ReadChannelMessage;
@@ -326,9 +379,11 @@ namespace SkyBot.Osu.AutoRef
             }
 
             OnLobbyCreated?.Invoke(this, new EventArgs());
+            RefreshSettings();
+            StartSettingsWatcher();
         }
 
-        private static string TryParseSetting(ref string input, string token)
+        static string TryParseSetting(ref string input, string token)
         {
             int index = input.IndexOf(token, StringComparison.CurrentCultureIgnoreCase);
 
@@ -349,7 +404,7 @@ namespace SkyBot.Osu.AutoRef
             return result;
         }
 
-        private bool TryUpdateSetting(string line)
+        bool TryUpdateSetting(string line)
         {
             const string _SLOT = "slot";
             const string _READY = "Ready";
@@ -391,13 +446,12 @@ namespace SkyBot.Osu.AutoRef
 
                 index = line.IndexOf('[', StringComparison.CurrentCultureIgnoreCase);
 
+                LobbyColor color = LobbyColor.None;
                 string role = null;
                 List<string> mods = new List<string>();
                 if (index > -1)
                 {
                     line = line.Remove(0, index + 1);
-
-                    LobbyColor color = LobbyColor.None;
                     if (line.StartsWith(_TEAM_BLUE, StringComparison.CurrentCultureIgnoreCase))
                     {
                         color = LobbyColor.Blue;
@@ -436,6 +490,7 @@ namespace SkyBot.Osu.AutoRef
                 slot.ProfileUrl = profileUrl;
                 slot.Nickname = nickname;
                 slot.Role = role;
+                slot.Team = color;
 
                 if (slot.Mods.Count > 0)
                     slot.Mods.Clear();
@@ -480,7 +535,7 @@ namespace SkyBot.Osu.AutoRef
             return true;
         }
 
-        private bool TryReadScore(string line)
+        bool TryReadScore(string line)
         {
             const string _SCORE_TEXT = "finished playing (Score: ";
 
@@ -505,7 +560,7 @@ namespace SkyBot.Osu.AutoRef
             return true;
         }
 
-        private void ReadPrivBanchoMessage(object sender, IrcPrivateMessageEventArgs args)
+        void ReadPrivBanchoMessage(object sender, IrcPrivateMessageEventArgs args)
         {
             const string _MP_START = "/mp/";
             if (!args.Message.StartsWith("created ", StringComparison.CurrentCultureIgnoreCase) ||
@@ -527,9 +582,16 @@ namespace SkyBot.Osu.AutoRef
             _tempMatchName = null;
         }
 
-        private void ReadChannelMessage(object sender, IrcChannelMessageEventArgs args)
+        void ReadChannelMessage(object sender, IrcChannelMessageEventArgs args)
         {
             Logger.Log($"Message from {args.Sender} to {args.Destination}: {args.Message}");
+
+            if (args.Sender.Equals("skyfly", StringComparison.CurrentCultureIgnoreCase) &&
+                args.Message.Equals("!close lobby", StringComparison.CurrentCultureIgnoreCase))
+            {
+                CloseMatch();
+                return;
+            }
 
             for (int i = 0; i < _chatInteractions.Count; i++)
             {
@@ -553,11 +615,16 @@ namespace SkyBot.Osu.AutoRef
             }
         }
 
-        private void ReadChannelBanchoMessage(object sender, IrcChannelMessageEventArgs args)
+        void ReadChannelBanchoMessage(object sender, IrcChannelMessageEventArgs args)
         {
             if (TryUpdateSetting(args.Message) || TryReadScore(args.Message))
                 return;
-
         }
+    }
+
+    public enum LobbyUpdateState
+    {
+        Refreshed,
+        Refreshing,
     }
 }
