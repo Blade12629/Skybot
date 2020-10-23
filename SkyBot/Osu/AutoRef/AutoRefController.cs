@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -143,31 +144,83 @@ namespace SkyBot.Osu.AutoRef
 
         public void SortPlayers()
         {
-
+            throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Set ref specific setting
+        /// Sorts players, this requires a max of 10 players and no players above slot 10
         /// </summary>
-        public void SetSetting(string setting, bool value)
+        /// <param name="players"></param>
+        /// <param name="slotStart"></param>
+        public void SortTeams(List<string> teamA, string teamACap, List<string> teamB, string teamBCap, int playersPerTeam)
         {
+            int nextFreeSlot = 11;
 
-        }
+            Slot slot1 = _lc.Slots[1];
 
-        /// <summary>
-        /// Set ref specific setting
-        /// </summary>
-        public void SetSetting(string setting, long value)
-        {
+            //Move player away and captain to slot
+            if (slot1.IsUsed && !slot1.Nickname.Equals(teamACap, StringComparison.CurrentCultureIgnoreCase))
+            {
+                Move(slot1.Nickname);
+                _lc.MovePlayer(teamACap, 0);
+            }
+            //Move captain if not in slot
+            else
+                _lc.MovePlayer(teamACap, 0);
 
-        }
+            for (int i = 0; i < teamA.Count; i++)
+            {
+                Slot slot = _lc.Slots[i + 2];
 
-        /// <summary>
-        /// Set ref specific setting
-        /// </summary>
-        public void SetSetting(string setting, string value)
-        {
+                if (!slot.IsUsed)
+                {
+                    _lc.MovePlayer(teamA[i], slot.Id);
+                }
+                else if (!slot.Nickname.Equals(teamA[i], StringComparison.CurrentCultureIgnoreCase))
+                {
+                    Move(slot.Nickname);
+                    _lc.MovePlayer(teamA[i], slot.Id);
+                }
+            }
 
+            int capRedSlotId = playersPerTeam + 1;
+            Slot slot2 = _lc.Slots[capRedSlotId];
+
+            //Move player away and captain to slot
+            if (slot2.IsUsed && !slot1.Nickname.Equals(teamBCap, StringComparison.CurrentCultureIgnoreCase))
+            {
+                Move(slot2.Nickname);
+                _lc.MovePlayer(teamBCap, capRedSlotId);
+            }
+            //Move captain if not in slot
+            else
+                _lc.MovePlayer(teamBCap, capRedSlotId);
+
+            //Get wrong slots
+            List<string> playersRed = teamB.ToList();
+            List<int> freeSlots = new List<int>();
+
+            for (int id = capRedSlotId + 1; id < playersPerTeam * 2; id++)
+            {
+                Slot slot = _lc.Slots[id];
+
+                if (slot.IsUsed)
+                    playersRed.Remove(slot.Nickname);
+                else
+                    freeSlots.Add(slot.Id);
+            }
+
+            for (int i = 0; i < freeSlots.Count; i++)
+            {
+                _lc.MovePlayer(playersRed[0], freeSlots[i]);
+                playersRed.RemoveAt(0);
+            }
+
+            void Move(string player)
+            {
+                _lc.MovePlayer(player, nextFreeSlot);
+                nextFreeSlot++;
+            }
         }
 
         void OnMessageReceived(object sender, ChatMessage e)

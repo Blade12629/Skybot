@@ -156,9 +156,103 @@ namespace SkyBot.Osu.AutoRef
         /// </summary>
         /// <param name="map">Map id to set</param>
         /// <param name="mode">Gamemode</param>
-        public void SetMap(long map, int mode = 0)
+        public void SetMap(long map, int? mode = null)
         {
-            SendCommand(MPCommand.Map, map, mode);
+            if (mode.HasValue)
+                SendCommand(MPCommand.Map, map, mode);
+            else
+                SendCommand(MPCommand.Map, map);
+        }
+
+        /// <summary>
+        /// Sets the team of the player
+        /// </summary>
+        /// <param name="player">Player to change team for</param>
+        /// <param name="color">Team to change to</param>
+        public void SetTeam(string player, SlotColor color)
+        {
+            SendCommand(MPCommand.Team, player, color.ToString().ToLower(CultureInfo.CurrentCulture));
+        }
+
+        /// <summary>
+        /// Starts the map after <paramref name="delay"/> seconds
+        /// </summary>
+        /// <param name="delay">Start delay</param>
+        public void StartMap(TimeSpan delay)
+        {
+            SendCommand(MPCommand.Start, (int)delay.TotalSeconds);
+        }
+
+        /// <summary>
+        /// Starts a timer
+        /// </summary>
+        /// <param name="delay">Timer delay</param>
+        public void StartTimer(TimeSpan delay)
+        {
+            SendCommand(MPCommand.Timer, (int)delay.TotalSeconds);
+        }
+
+        /// <summary>
+        /// Kicks a player
+        /// </summary>
+        /// <param name="player">Player to kick</param>
+        public void Kick(string player)
+        {
+            SendCommand(MPCommand.Kick, player);
+        }
+
+        /// <summary>
+        /// Adds refs to the game
+        /// </summary>
+        /// <param name="players">Refs to add</param>
+        public void AddRefs(params string[] players)
+        {
+            if (players == null || players.Length == 0)
+                return;
+
+            StringBuilder builder = new StringBuilder();
+
+            for (int i = 0; i < players.Length; i++)
+                builder.Append($"{players[i]} ");
+
+            builder.Remove(builder.Length - 1, 1);
+
+            SendCommand(MPCommand.AddRef, builder.ToString());
+        }
+
+        /// <summary>
+        /// Removes refs from the game
+        /// </summary>
+        /// <param name="players">Refs to remove</param>
+        public void RemoveRefs(params string[] players)
+        {
+            if (players == null || players.Length == 0)
+                return;
+
+            StringBuilder builder = new StringBuilder();
+
+            for (int i = 0; i < players.Length; i++)
+                builder.Append($"{players[i]} ");
+
+            builder.Remove(builder.Length - 1, 1);
+
+            SendCommand(MPCommand.RemoveRef, builder.ToString());
+        }
+
+        /// <summary>
+        /// Lists all refs
+        /// </summary>
+        public void ListRefs()
+        {
+            SendCommand(MPCommand.ListRefs);
+        }
+
+        /// <summary>
+        /// Aborts the currently running timer
+        /// </summary>
+        public void AbortTimer()
+        {
+            SendCommand(MPCommand.Aborttimer);
         }
 
         /// <summary>
@@ -372,82 +466,6 @@ namespace SkyBot.Osu.AutoRef
             }
         }
 
-        /// <summary>
-        /// Sorts players, this requires a max of 10 players and no players above slot 10
-        /// </summary>
-        /// <param name="players"></param>
-        /// <param name="slotStart"></param>
-        public void SortTeams(List<string> teamA, string teamACap, List<string> teamB, string teamBCap, int playersPerTeam)
-        {
-            int nextFreeSlot = 11;
-
-            Slot slot1 = _slots[1];
-
-            //Move player away and captain to slot
-            if (slot1.IsUsed && !slot1.Nickname.Equals(teamACap, StringComparison.CurrentCultureIgnoreCase))
-            {
-                Move(slot1.Nickname);
-                MovePlayer(teamACap, 0);
-            }
-            //Move captain if not in slot
-            else
-                MovePlayer(teamACap, 0);
-
-            for (int i = 0; i < teamA.Count; i++)
-            {
-                Slot slot = _slots[i + 2];
-
-                if (!slot.IsUsed)
-                {
-                    MovePlayer(teamA[i], slot.Id);
-                }
-                else if (!slot.Nickname.Equals(teamA[i], StringComparison.CurrentCultureIgnoreCase))
-                {
-                    Move(slot.Nickname);
-                    MovePlayer(teamA[i], slot.Id);
-                }
-            }
-
-            int capRedSlotId = playersPerTeam + 1;
-            Slot slot2 = _slots[capRedSlotId];
-
-            //Move player away and captain to slot
-            if (slot2.IsUsed && !slot1.Nickname.Equals(teamBCap, StringComparison.CurrentCultureIgnoreCase))
-            {
-                Move(slot2.Nickname);
-                MovePlayer(teamBCap, capRedSlotId);
-            }
-            //Move captain if not in slot
-            else
-                MovePlayer(teamBCap, capRedSlotId);
-
-            //Get wrong slots
-            List<string> playersRed = teamB.ToList();
-            List<int> freeSlots = new List<int>();
-
-            for (int id = capRedSlotId + 1; id < playersPerTeam * 2; id++)
-            {
-                Slot slot = _slots[id];
-
-                if (slot.IsUsed)
-                    playersRed.Remove(slot.Nickname);
-                else
-                    freeSlots.Add(slot.Id);
-            }
-
-            for (int i = 0; i < freeSlots.Count; i++)
-            {
-                MovePlayer(playersRed[0], freeSlots[i]);
-                playersRed.RemoveAt(0);
-            }
-
-            void Move(string player)
-            {
-                MovePlayer(player, nextFreeSlot);
-                nextFreeSlot++;
-            }
-        }
-
         void MessageReceived(object sender, IrcChannelMessageEventArgs e)
         {
             ChatMessage msg = new ChatMessage(e.Sender, e.Message);
@@ -524,5 +542,4 @@ namespace SkyBot.Osu.AutoRef
             MatchCreated(matchId);
         }
     }
-
 }
