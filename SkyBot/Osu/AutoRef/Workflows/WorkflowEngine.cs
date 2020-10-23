@@ -77,7 +77,7 @@ namespace SkyBot.Osu.AutoRef.Workflows
         void AddObjects(WorkflowWrapper workflow)
         {
             _engine = _engine.SetValue("Lobby", new LobbyWrapper(_lc))
-                             .SetValue("RefWrapper", new RefWrapper(_arc))
+                             .SetValue("Ref", new RefWrapper(_arc))
                              .SetValue("Convert", new ConvertWrapper())
                              .SetValue("Workflow", _workflowWrapper)
                              .SetValue("Random", SkyBot.Program.Random)
