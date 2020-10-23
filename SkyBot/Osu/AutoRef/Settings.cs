@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SkyBot.Osu.AutoRef
 {
-    public class LobbySetting
+    public class Settings
     {
         public long MatchId { get; set; }
         public string ChannelName => $"#mp_{MatchId}";
@@ -15,7 +15,7 @@ namespace SkyBot.Osu.AutoRef
         public WinCondition WinCondition { get; set; }
         public long Mods { get; set; }
 
-        public LobbySetting(long matchId, string roomName, string historyUrl, 
+        public Settings(long matchId, string roomName, string historyUrl, 
                             long currentBeatmapId, TeamMode teamMode, WinCondition winCondition, 
                             long mods)
         {
@@ -28,13 +28,13 @@ namespace SkyBot.Osu.AutoRef
             Mods = mods;
         }
 
-        public LobbySetting()
+        public Settings()
         {
         }
 
-        public LobbySetting Copy()
+        public Settings Copy()
         {
-            return new LobbySetting(MatchId, RoomName, HistoryUrl, CurrentBeatmapId,
+            return new Settings(MatchId, RoomName, HistoryUrl, CurrentBeatmapId,
                                     TeamMode, WinCondition, Mods);
         }
 

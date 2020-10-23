@@ -8,171 +8,241 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics;
+using IRCClient = SkyBot.Osu.IRC.OsuIrcClient;
+using SkyBot.Osu.AutoRef.Chat;
 
 namespace SkyBot.Osu.AutoRef
 {
     public class LobbyController
     {
-        public event EventHandler OnLobbyCreated;
-        /// <summary>
-        /// (username, score, passed)
-        /// </summary>
-        public event EventHandler<LobbyScore> OnScoreReceived;
-        public event EventHandler<LobbySlot> OnSlotUpdated;
-        public event EventHandler OnSettingUpdated;
+        public event EventHandler OnBeforeCreating;
+        public event EventHandler OnBeforeClosing;
+        public event EventHandler OnBeforeTick;
+        public event EventHandler OnAfterTick;
+        public event EventHandler<Exception> OnException;
+        public event EventHandler OnAllPlayersReady;
 
-        public bool IsClosed { get; set; }
-        public LobbySetting Settings => _settings.Copy();
-        public IReadOnlyDictionary<int, LobbySlot> Slots => _slots;
-        public IRC.OsuIrcClient IRC => _irc;
-        public bool IsInLobby { get; set; }
-        public bool IsSettingsWatcherPaused
+        public event EventHandler OnCreated;
+        public event EventHandler<ChatMessage> OnMessageReceived;
+
+        public bool IsClosed { get; private set; }
+        public Settings Settings { get; private set; }
+        public IReadOnlyDictionary<int, Slot> Slots => _slots;
+        public IReadOnlyList<Score> Scores => _totalScores;
+        public List<Score> LatestScores => _latestScores;
+        public List<ChatMessageAction> ChatMessageActions { get; private set; }
+
+        Dictionary<int, Slot> _slots;
+        List<Score> _totalScores;
+        List<Score> _latestScores;
+
+        IRCClient _irc;
+
+        Task _tickTask;
+        CancellationTokenSource _tickSource;
+        bool _shouldTick;
+        int _tickDelay;
+        ConcurrentQueue<Action> _tickQueue;
+
+        public LobbyController(IRCClient irc, int tickDelay = 100)
         {
-            get => _isSettingsWatcherPaused;
-            set => _isSettingsWatcherPaused = value;
-        }
-
-        Task _settingsWatcher;
-        CancellationTokenSource _settingsWatcherSource;
-        bool _keepWatching;
-        DateTime _lastRefreshRequest;
-
-        volatile bool _isSettingsWatcherPaused;
-
-        //public LobbyUpdateState UpdateState { get; private set; }
-
-        readonly IRC.OsuIrcClient _irc;
-        string _tempMatchName;
-
-        LobbySetting _settings;
-        readonly object _settingsLock = new object();
-
-        ConcurrentDictionary<int, LobbySlot> _slots;
-
-        Dictionary<string, Action<string>> _settingParsers;
-        ConcurrentQueue<ChatInteraction> _chatInteractions;
-
-        public LobbyController(IRC.OsuIrcClient irc)
-        {
+            ChatMessageActions = ChatActions.ToList(this);
+            Settings = new Settings();
+            IsClosed = true;
+            _slots = new Dictionary<int, Slot>();
             _irc = irc;
-            _chatInteractions = new ConcurrentQueue<ChatInteraction>();
-            _settings = new LobbySetting();
-            _slots = new ConcurrentDictionary<int, LobbySlot>();
+            _tickDelay = tickDelay;
+            _totalScores = new List<Score>();
+            _latestScores = new List<Score>();
 
             for (int i = 0; i < 16; i++)
-                _slots.TryAdd(i + 1, new LobbySlot(i + 1));
+                _slots.Add(i + 1, new Slot(i + 1));
+        }
 
-            _settingParsers = new Dictionary<string, Action<string>>()
+        public void CreateLobby(string roomName)
+        {
+            if (_shouldTick)
+                return;
+
+            _shouldTick = true;
+            OnBeforeCreating?.Invoke(this, null);
+
+            Settings.Reset();
+            Settings.RoomName = roomName;
+            _tickSource = new CancellationTokenSource();
+            _tickTask = new Task(Tick, _tickSource.Token);
+            _tickQueue = new ConcurrentQueue<Action>();
+
+            CreateMatch();
+
+            _tickTask.Start();
+        }
+
+        public void EnqueueCloseLobby()
+        {
+            if (!_shouldTick)
+                return;
+
+            OnBeforeClosing?.Invoke(this, null);
+            Close();
+
+            _tickQueue.Enqueue(() =>
             {
-                { "room name: ", new Action<string>(s => _settings.RoomName = s) },
-                { "history: ", new Action<string>(s => _settings.HistoryUrl = s) },
-                { "team mode: ", new Action<string>(s => _settings.TeamMode = Enum.Parse<TeamMode>(s)) },
-                { "win condition: ", new Action<string>(s => _settings.WinCondition = Enum.Parse<WinCondition>(s)) }
-            };
-
-            OnLobbyCreated += (s, e) => IsInLobby = true;
-
-            irc.OnBeforeReconnect += (s, e) => IsInLobby = false;
-            irc.OnAfterReconnect += (s, e) => ReJoin();
+                _shouldTick = false;
+                _tickSource.Cancel();
+                _irc.OnChannelMessageReceived -= MessageReceived;
+            });
         }
 
-        public void RefreshSettings()
+        #region MP Commands
+        /// <summary>
+        /// Sends a command at the next tick
+        /// </summary>
+        /// <param name="cmd">Command to send</param>
+        /// <param name="parameters">Command parameters</param>
+        public void SendCommand(MPCommand cmd, params object[] parameters)
         {
-            //UpdateState = LobbyUpdateState.Refreshing;
+            StringBuilder cmdBuilder = new StringBuilder("!mp ");
 
-            for (int i = 0; i < 16; i++)
-                _slots[i + 1].Reset();
-
-            SendChannelMessage("!mp settings");
-        }
-
-        public void SetTeam(string username, LobbyColor team)
-        {
-            SendChannelMessage($"!mp team {username} {team.ToString().ToLower(CultureInfo.CurrentCulture)}");
-        }
-
-        public void SetSlot(string username, int slot)
-        {
-            SendChannelMessage($"!mp move {username} {slot}");
-        }
-
-        public void CreateMatch(string matchName)
-        {
-            lock(_settings)
+            switch (cmd)
             {
-                _settings.Reset();
-                IsClosed = false;
+                case MPCommand.None:
+                    return;
+
+                case MPCommand.CreateMatch:
+                    cmdBuilder.Append("make");
+                    break;
+
+                default:
+                    cmdBuilder.Append(cmd.ToString().ToLower(CultureInfo.CurrentCulture));
+                    break;
+
             }
 
-            _tempMatchName = matchName;
-            _irc.OnPrivateBanchoMessageReceived += ReadPrivBanchoMessage;
+            if (parameters != null)
+            {
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    cmdBuilder.Append(' ');
+                    cmdBuilder.Append(parameters[i].ToString());
+                }
+            }
 
-            _irc.SendMessageAsync("banchobot", $"!mp make {matchName}").ConfigureAwait(false);
+            SendMessage(cmdBuilder.ToString());
         }
 
-        public void SendChannelMessage(string message)
+        /// <summary>
+        /// Moves a player to another slot
+        /// </summary>
+        /// <param name="player">Player to move</param>
+        /// <param name="slot">Slot to move player to</param>
+        public void MovePlayer(string player, int slot)
         {
-            if (IsClosed)
-                return;
-            
-
-            Logger.Log(message);
-            _irc.SendMessageAsync(_settings.ChannelName, message).ConfigureAwait(false).GetAwaiter().GetResult();
+            SendCommand(MPCommand.Move, player, slot);
         }
 
-        public void CloseMatch()
-        {
-            if (IsClosed)
-                return;
-
-            _irc.OnChannelMessageReceived -= ReadChannelMessage;
-            SendChannelMessage("!mp close");
-            StopSettingsWatcher();
-            IsClosed = true;
-        }
-
+        /// <summary>
+        /// Invites a player
+        /// </summary>
+        /// <param name="nickname">Nickname to invite</param>
         public void Invite(string nickname)
         {
-            SendChannelMessage($"!mp invite {nickname}");
+            SendCommand(MPCommand.Invite, nickname);
         }
 
+        /// <summary>
+        /// Sets the current map
+        /// </summary>
+        /// <param name="map">Map id to set</param>
+        /// <param name="mode">Gamemode</param>
         public void SetMap(long map, int mode = 0)
         {
-            SendChannelMessage($"!mp map {map} {mode}");
+            SendCommand(MPCommand.Map, map, mode);
         }
 
+        /// <summary>
+        /// Sets the current mods
+        /// </summary>        
         /// <param name="mods">null for nomod</param>
-        public void SetMods(string mods = null)
+        public void SetMods(string mods = null, bool freemod = false)
         {
-            SendChannelMessage($"!mp mods {(mods == null ? "None" : mods)}");
+            string modStr;
+            if (mods == null)
+            {
+                if (freemod)
+                    modStr = "Freemod";
+                else
+                    modStr = "None";
+            }
+            else
+            {
+                if (freemod)
+                    modStr = $"{mods} Freemod";
+                else
+                    modStr = mods;
+            }
+
+            SendCommand(MPCommand.Mods, modStr);
         }
 
+        /// <summary>
+        /// Removes all mods and enables freemod
+        /// </summary>
         public void SetFreemod()
         {
             SetMods("Freemod");
         }
 
+        /// <summary>
+        /// Set the lobby mods to nomod
+        /// </summary>
         public void SetNomod()
         {
             SetMods("None");
         }
 
+        /// <summary>
+        /// Adds a ref
+        /// </summary>
+        /// <param name="nickname">Ref to add</param>
         public void AddRef(string nickname)
         {
-            SendChannelMessage($"!mp addref {nickname}");
+            SendCommand(MPCommand.AddRef, nickname);
         }
 
+        /// <summary>
+        /// Removes a ref
+        /// </summary>
+        /// <param name="nickname">Ref to remove</param>
         public void RemoveRef(string nickname)
         {
-            SendChannelMessage($"!mp removeref {nickname}");
+            SendCommand(MPCommand.RemoveRef, nickname);
         }
 
-        public void SetMatchLock(bool locked)
+        /// <summary>
+        /// Locks the match
+        /// </summary>
+        public void LockMatch()
         {
-            SendChannelMessage($"!mp {(locked ? "lock" : "unlock")}");
+            SendCommand(MPCommand.Lock);
         }
 
-        public void SetWinConditions(TeamMode teamMode, WinCondition? condition, int? slots)
+        /// <summary>
+        /// Unlocks the match
+        /// </summary>
+        public void UnlockMatch()
+        {
+            SendCommand(MPCommand.Unlock);
+        }
+
+        /// <summary>
+        /// Sets the win conditions
+        /// </summary>
+        /// <param name="teamMode">Team mode</param>
+        /// <param name="condition">Win condition</param>
+        /// <param name="slots">Amount of slots</param>
+        public void SetLobby(TeamMode teamMode, WinCondition? condition, int? slots)
         {
             StringBuilder builder = new StringBuilder($"!mp set {(int)teamMode}");
 
@@ -181,450 +251,278 @@ namespace SkyBot.Osu.AutoRef
             if (slots.HasValue)
                 builder.Append($" {slots}");
 
-            SendChannelMessage(builder.ToString());
+            SendCommand(MPCommand.Set, builder.ToString());
         }
 
+        /// <summary>
+        /// Sets the host
+        /// </summary>
         /// <param name="nickname">Null to return host to the bot</param>
         public void SetHost(string nickname = null)
         {
-            SendChannelMessage($"!mp host {(nickname == null ? "clearhost" : nickname)}");
+            SendCommand(MPCommand.Host, nickname == null ? "clearhost" : nickname);
         }
 
-        public void AbortMatch()
+        /// <summary>
+        /// Aborts the current map
+        /// </summary>
+        public void AbortMap()
         {
-            SendChannelMessage("!mp abort");
+            SendCommand(MPCommand.Abort);
         }
 
-        public int GetSlotForUser(string nickname)
+        public void RefreshSettings()
         {
-            if (string.IsNullOrEmpty(nickname))
-                return -1;
-
-            var pair = _slots.FirstOrDefault(p => p.Value.Nickname.Equals(nickname, StringComparison.CurrentCultureIgnoreCase));
-
-            if (pair.Value == null)
-                return -1;
-
-            return pair.Key;
+            SendCommand(MPCommand.Settings);
         }
 
-        public LobbyRoll RequestRoll(string from)
+        void CreateMatch()
         {
-            const string _ROLL_CMD = "!roll";
+            _irc.OnPrivateBanchoMessageReceived += PrivateBanchoMessageReceived;
+            _irc.SendMessageAsync("banchobot", $"!mp make {Settings.RoomName}").ConfigureAwait(false).GetAwaiter().GetResult();
+        }
 
-            int rolled = -1;
-            int min = 0;
-            int max = 100;
+        void Close()
+        {
+            SendCommand(MPCommand.Close);
+            IsClosed = true;
+        }
+        #endregion
 
-            bool doneFirst = false;
-            bool doneSecond = false;
+        /// <summary>
+        /// Sends a message at the next tick
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        public void SendMessage(string message)
+        {
+            _tickQueue.Enqueue(new Action(() => _irc.SendMessageAsync(Settings.ChannelName, message).ConfigureAwait(false)));
+        }
 
-            RequestChatInteraction(from, _ROLL_CMD, s =>
+        public Slot GetSlot(string user)
+        {
+            return _slots.Values.FirstOrDefault(s => s.Nickname != null && s.Nickname.Equals(user, StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        public void UserMoved(string user, int slot)
+        {
+            Slot s = GetSlot(user);
+            Slot sn = _slots[slot];
+
+            s.Move(sn);
+        }
+
+        public void UserJoined(string user, int slot, SlotColor? team)
+        {
+            Slot s = _slots[slot];
+            s.Nickname = user;
+            s.Color = team;
+        }
+
+        public void UserLeft(string user)
+        {
+            Slot s = GetSlot(user);
+            s.Reset();
+        }
+
+        public void UserScore(string username, long score, bool passed)
+        {
+            _latestScores.Add(new Score(username, score, passed));
+        }
+
+#pragma warning disable CA1822 // Mark members as static
+        public void SlotUpdated(Slot slot)
+#pragma warning restore CA1822 // Mark members as static
+        {
+            return;
+        }
+
+        public void AllPlayersReady()
+        {
+            var slots = _slots.Values.Where(s => s.IsUsed);
+
+            foreach (var slot in slots)
+                slot.IsReady = true;
+        }
+
+        public async Task<bool> WaitForAllPlayersReady(TimeSpan timeout)
+        {
+            long delta = 0;
+            bool finished = false;
+
+            OnAllPlayersReady += _OnAllPlayersReady_;
+
+            while(!finished && delta < timeout.TotalMilliseconds)
             {
-                s = s.Remove(0, _ROLL_CMD.Length).TrimStart(' ');
-
-                if (s.Length == 0)
-                {
-                    doneFirst = true;
-                    return;
-                }
-
-                int index = s.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-
-                if (index > -1)
-                {
-                    if (int.TryParse(s.Substring(0, index), out int min_))
-                        min = min_;
-                    if (int.TryParse(s.Remove(0, index + 1), out int max_))
-                        max = max_;
-                }
-                else if (int.TryParse(s, out int max_))
-                    max = max_;
-
-                doneFirst = true;
-            });
-
-            RequestChatInteraction("banchobot", $"{from} rolls", new Action<string>(s =>
-            {
-                string[] split = s.Remove(0, from.Length + 1).Split(' ');
-                rolled = int.Parse(split[1], CultureInfo.CurrentCulture);
-
-                doneSecond = true;
-            }));
-
-            SendChannelMessage($"{from} please roll via !roll");
-
-            while (!doneSecond && !doneFirst)
-                Task.Delay(1).ConfigureAwait(false).GetAwaiter().GetResult();
-
-            return new LobbyRoll(from, min, max, rolled);
-        }
-
-        public long? RequestPick(string from, string message = null)
-        {
-            bool done = false;
-            long? mapId = null;
-
-            RequestChatInteraction(from, "!pick ", new Action<string>(s =>
-            {
-                int index = s.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-
-                if (index == -1)
-                {
-                    done = true;
-                    return;
-                }
-
-                string msg = s.Remove(0, index + 1);
-
-                if (!long.TryParse(msg, out long beatmapId))
-                {
-                    done = true;
-                    return;
-                }
-
-                mapId = beatmapId;
-                done = true;
-            }));
-
-            if (!string.IsNullOrEmpty(message))
-                SendChannelMessage(message);
-
-            while (!done)
-                Task.Delay(1).ConfigureAwait(false).GetAwaiter().GetResult();
-
-            return mapId;
-        }
-
-        public void RequestChatInteraction(string nickname, string messageStart, Action<string> action)
-        {
-            _chatInteractions.Enqueue(new ChatInteraction(nickname, messageStart, action));
-        }
-
-        public void RequestAndWaitForChatInteraction(string nickname, string messageStart, Action<string> action)
-        {
-            object token = false;
-
-            Action<string> newAction = new Action<string>(s =>
-            {
-                action(s);
-                token = true;
-            });
-
-            _chatInteractions.Enqueue(new ChatInteraction(nickname, messageStart, newAction));
-
-            while (!(bool)token)
-                Task.Delay(1).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-
-        void StartSettingsWatcher()
-        {
-            if (_keepWatching)
-                return;
-
-            _keepWatching = true;
-            _settingsWatcherSource = new CancellationTokenSource();
-            _settingsWatcher = new Task(WatchSettings, _settingsWatcherSource.Token);
-
-            _settingsWatcher.Start();
-        }
-
-        void WatchSettings()
-        {
-            while(_keepWatching)
-            {
-                if (IsSettingsWatcherPaused || _lastRefreshRequest.AddSeconds(12.5) > DateTime.UtcNow)
-                {
-                    Task.Delay(100).ConfigureAwait(false).GetAwaiter().GetResult();
-                    continue;
-                }
-
-                if (!_keepWatching)
-                    return;
-
-                RefreshSettings();
-                _lastRefreshRequest = DateTime.UtcNow;
-            }
-        }
-
-        void StopSettingsWatcher()
-        {
-            if (!_keepWatching)
-                return;
-
-            _keepWatching = false;
-            _settingsWatcherSource.Cancel();
-        }
-
-        void ReJoin()
-        {
-            IRC.SendCommandAsync("JOIN", _settings.ChannelName).ConfigureAwait(false).GetAwaiter().GetResult();
-
-            //Simple re-join implementation after we reconnected
-
-            Task.Delay(1500).ConfigureAwait(false).GetAwaiter().GetResult();
-            IsInLobby = true;
-        }
-
-        void OnMatchCreated(long matchId, string matchName)
-        {
-            _irc.OnPrivateBanchoMessageReceived -= ReadPrivBanchoMessage;
-            _irc.OnChannelMessageReceived += ReadChannelMessage;
-
-            lock (_settingsLock)
-            {
-                _settings.MatchId = matchId;
-                _settings.RoomName = matchName;
+                await Task.Delay(50).ConfigureAwait(false);
+                delta += 50;
             }
 
-            OnLobbyCreated?.Invoke(this, new EventArgs());
-            RefreshSettings();
-            StartSettingsWatcher();
-        }
-
-        static string TryParseSetting(ref string input, string token)
-        {
-            int index = input.IndexOf(token, StringComparison.CurrentCultureIgnoreCase);
-
-            if (index == -1)
-                return null;
-
-            input = input.Remove(0, index + token.Length);
-            index = input.IndexOf(',', StringComparison.CurrentCultureIgnoreCase);
-
-            string result = input;
-
-            if (index > -1)
-            {
-                result = result.Substring(0, index);
-                input = input.Remove(0, index + 1);
-            }
-
-            return result;
-        }
-
-        bool TryUpdateSetting(string line)
-        {
-            const string _SLOT = "slot";
-            const string _READY = "Ready";
-            const string _NOT_READY = "Not Ready";
-            const string _TEAM_RED = "Team Red";
-            const string _TEAM_BLUE = "Team Blue";
-            const string _SPLITTER = " / ";
-            const string _HOST_ROLE = "Host";
-
-            if (line.StartsWith(_SLOT, StringComparison.CurrentCultureIgnoreCase))
-            {
-                line = line.Remove(0, _SLOT.Length).TrimStart(' ');
-
-                int slotId = 0;
-                int slotIdLength = 1;
-
-                if (char.IsNumber(line[1]))
-                    slotIdLength = 2;
-
-                slotId = int.Parse(line.Substring(0, slotIdLength), CultureInfo.CurrentCulture);
-                line = line.Remove(0, slotIdLength).TrimStart(' ');
-
-                bool isReady = false;
-                if (line.StartsWith(_READY, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    isReady = true;
-                    line = line.Remove(0, _READY.Length).TrimStart(' ');
-                }
-                else
-                    line = line.Remove(0, _NOT_READY.Length).TrimStart(' ');
-
-                int index = line.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                string profileUrl = line.Substring(0, index);
-                line = line.Remove(0, index + 1);
-
-                index = line.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                string nickname = line.Substring(0, index).Replace(' ', '_');
-                line = line.Remove(0, index).TrimStart(' ');
-
-                index = line.IndexOf('[', StringComparison.CurrentCultureIgnoreCase);
-
-                LobbyColor color = LobbyColor.None;
-                string role = null;
-                List<string> mods = new List<string>();
-                if (index > -1)
-                {
-                    line = line.Remove(0, index + 1);
-                    if (line.StartsWith(_TEAM_BLUE, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        color = LobbyColor.Blue;
-                        line = line.Remove(0, _TEAM_BLUE.Length);
-                    }
-                    else if (line.StartsWith(_TEAM_RED, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        color = LobbyColor.Red;
-                        line = line.Remove(0, _TEAM_RED.Length);
-                    }
-
-                    if (line.StartsWith(_SPLITTER, StringComparison.CurrentCultureIgnoreCase))
-                        line = line.Remove(0, _SPLITTER.Length);
-
-                    if (line.StartsWith(_HOST_ROLE, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        role = _HOST_ROLE;
-                        line = line.Remove(0, _HOST_ROLE.Length);
-                    }
-
-                    if (line.StartsWith(_SPLITTER, StringComparison.CurrentCultureIgnoreCase))
-                        line = line.Remove(0, _SPLITTER.Length);
-
-                    string[] split;
-                    if (line.Contains(',', StringComparison.CurrentCultureIgnoreCase))
-                        split = line.TrimEnd(']').Split(',');
-                    else
-                        split = new string[1] { line.TrimEnd(']') };
-
-                    mods.AddRange(split);
-                }
-
-                LobbySlot slot = _slots[slotId];
-
-                slot.IsReady = isReady;
-                slot.ProfileUrl = profileUrl;
-                slot.Nickname = nickname;
-                slot.Role = role;
-                slot.Team = color;
-
-                if (slot.Mods.Count > 0)
-                    slot.Mods.Clear();
-
-                if (mods.Count > 0)
-                    slot.Mods.AddRange(mods);
-
-                OnSlotUpdated?.Invoke(this, slot);
+            if (finished)
                 return true;
-            }
-
-            for (int i = 0; i < 2; i++)
+            else
             {
-                var pair = _settingParsers.FirstOrDefault(p => line.StartsWith(p.Key, StringComparison.CurrentCultureIgnoreCase));
+                OnAllPlayersReady -= _OnAllPlayersReady_;
+                return false;
+            }
 
-                if (pair.Key == null || pair.Value == null)
+            void _OnAllPlayersReady_(object sender, EventArgs e)
+            {
+                OnAllPlayersReady -= _OnAllPlayersReady_;
+                finished = true;
+            }
+        }
+
+        /// <summary>
+        /// Sorts players, this requires a max of 10 players and no players above slot 10
+        /// </summary>
+        /// <param name="players"></param>
+        /// <param name="slotStart"></param>
+        public void SortTeams(List<string> teamA, string teamACap, List<string> teamB, string teamBCap, int playersPerTeam)
+        {
+            int nextFreeSlot = 11;
+
+            Slot slot1 = _slots[1];
+
+            //Move player away and captain to slot
+            if (slot1.IsUsed && !slot1.Nickname.Equals(teamACap, StringComparison.CurrentCultureIgnoreCase))
+            {
+                Move(slot1.Nickname);
+                MovePlayer(teamACap, 0);
+            }
+            //Move captain if not in slot
+            else
+                MovePlayer(teamACap, 0);
+
+            for (int i = 0; i < teamA.Count; i++)
+            {
+                Slot slot = _slots[i + 2];
+
+                if (!slot.IsUsed)
                 {
-                    if (i == 1)
-                        return true;
-
-                    return false;
+                    MovePlayer(teamA[i], slot.Id);
                 }
-
-                string value = TryParseSetting(ref line, pair.Key);
-                line = line.TrimStart(' ');
-
-                if (value == null)
+                else if (!slot.Nickname.Equals(teamA[i], StringComparison.CurrentCultureIgnoreCase))
                 {
-                    if (i == 1)
-                        return true;
-
-                    return false;
-                }
-
-                lock (_settingsLock)
-                {
-                    pair.Value(value);
+                    Move(slot.Nickname);
+                    MovePlayer(teamA[i], slot.Id);
                 }
             }
 
-            OnSettingUpdated?.Invoke(this, new EventArgs());
-            return true;
+            int capRedSlotId = playersPerTeam + 1;
+            Slot slot2 = _slots[capRedSlotId];
+
+            //Move player away and captain to slot
+            if (slot2.IsUsed && !slot1.Nickname.Equals(teamBCap, StringComparison.CurrentCultureIgnoreCase))
+            {
+                Move(slot2.Nickname);
+                MovePlayer(teamBCap, capRedSlotId);
+            }
+            //Move captain if not in slot
+            else
+                MovePlayer(teamBCap, capRedSlotId);
+
+            //Get wrong slots
+            List<string> playersRed = teamB.ToList();
+            List<int> freeSlots = new List<int>();
+
+            for (int id = capRedSlotId + 1; id < playersPerTeam * 2; id++)
+            {
+                Slot slot = _slots[id];
+
+                if (slot.IsUsed)
+                    playersRed.Remove(slot.Nickname);
+                else
+                    freeSlots.Add(slot.Id);
+            }
+
+            for (int i = 0; i < freeSlots.Count; i++)
+            {
+                MovePlayer(playersRed[0], freeSlots[i]);
+                playersRed.RemoveAt(0);
+            }
+
+            void Move(string player)
+            {
+                MovePlayer(player, nextFreeSlot);
+                nextFreeSlot++;
+            }
         }
 
-        bool TryReadScore(string line)
+        void MessageReceived(object sender, IrcChannelMessageEventArgs e)
         {
-            const string _SCORE_TEXT = "finished playing (Score: ";
+            ChatMessage msg = new ChatMessage(e.Sender, e.Message);
 
-            int index = line.IndexOf(_SCORE_TEXT, StringComparison.CurrentCultureIgnoreCase);
+            for (int i = 0; i < ChatMessageActions.Count; i++)
+            {
+                if (ChatMessageActions[i].Invoke(msg))
+                {
+                    if (ChatMessageActions[i].RemoveOnSuccess)
+                        ChatMessageActions.RemoveAt(i);
 
-            if (index == -1)
-                return false;
+                    return;
+                }
+            }
 
-            string username = line.Substring(0, index - 1);
-            string msg = line.Remove(0, username.Length + 1 + _SCORE_TEXT.Length);
-
-            index = msg.IndexOf(',', StringComparison.CurrentCultureIgnoreCase);
-
-            string scoreStr = msg.Substring(0, index);
-            string passedStr = msg.Remove(0, index + 1).TrimEnd('.').TrimEnd(')');
-
-            long score = int.Parse(scoreStr, CultureInfo.CurrentCulture);
-            bool passed = passedStr.Equals("passed", StringComparison.CurrentCultureIgnoreCase);
-
-            OnScoreReceived?.Invoke(this, new LobbyScore(username, score, passed));
-
-            return true;
+            OnMessageReceived?.Invoke(this, msg);
         }
 
-        void ReadPrivBanchoMessage(object sender, IrcPrivateMessageEventArgs args)
+        void MatchCreated(long matchId)
+        {
+            _irc.OnPrivateBanchoMessageReceived -= PrivateBanchoMessageReceived;
+            _irc.OnChannelMessageReceived += MessageReceived;
+            Settings.MatchId = matchId;
+            IsClosed = false;
+
+            OnCreated?.Invoke(this, null);
+        }
+
+        void Tick()
+        {
+            while (_shouldTick)
+            {
+                OnBeforeTick?.Invoke(this, null);
+
+                while (_tickQueue.TryDequeue(out Action a))
+                {
+                    if (!_shouldTick)
+                        return;
+
+                    try
+                    {
+                        a?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        OnException?.Invoke(this, ex);
+                    }
+                }
+
+                OnAfterTick?.Invoke(this, null);
+
+                Task.Delay(_tickDelay).ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+        }
+
+        void PrivateBanchoMessageReceived(object sender, IrcPrivateMessageEventArgs e)
         {
             const string _MP_START = "/mp/";
-            if (!args.Message.StartsWith("created ", StringComparison.CurrentCultureIgnoreCase) ||
-                !args.Message.EndsWith(_tempMatchName, StringComparison.CurrentCultureIgnoreCase))
+            if (!e.Message.StartsWith("created ", StringComparison.CurrentCultureIgnoreCase) ||
+                !e.Message.EndsWith(Settings.RoomName, StringComparison.CurrentCultureIgnoreCase))
                 return;
 
-            int index = args.Message.IndexOf(_MP_START, StringComparison.CurrentCultureIgnoreCase);
-            string msg = args.Message.Remove(0, index + _MP_START.Length);
+            int index = e.Message.IndexOf(_MP_START, StringComparison.CurrentCultureIgnoreCase);
+            string msg = e.Message.Remove(0, index + _MP_START.Length);
 
             index = msg.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-            
+
             if (!long.TryParse(msg.Substring(0, index), out long matchId))
             {
                 Logger.Log("Failed to parse match id", LogLevel.Error);
                 return;
             }
 
-            OnMatchCreated(matchId, _tempMatchName);
-            _tempMatchName = null;
-        }
-
-        void ReadChannelMessage(object sender, IrcChannelMessageEventArgs args)
-        {
-            Logger.Log($"Message from {args.Sender} to {args.Destination}: {args.Message}");
-
-            if (args.Sender.Equals("skyfly", StringComparison.CurrentCultureIgnoreCase) &&
-                args.Message.Equals("!close lobby", StringComparison.CurrentCultureIgnoreCase))
-            {
-                CloseMatch();
-                return;
-            }
-
-            for (int i = 0; i < _chatInteractions.Count; i++)
-            {
-                if (!_chatInteractions.TryDequeue(out ChatInteraction action))
-                    break;
-
-                if (action.Nickname.Equals(args.Sender, StringComparison.CurrentCultureIgnoreCase) &&
-                    args.Message.StartsWith(action.MessageStart, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    action.Action(args.Message);
-                    return;
-                }
-
-                _chatInteractions.Enqueue(action);
-            }
-
-            if (args.Sender.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase))
-            {
-                ReadChannelBanchoMessage(sender, args);
-                return;
-            }
-        }
-
-        void ReadChannelBanchoMessage(object sender, IrcChannelMessageEventArgs args)
-        {
-            if (TryUpdateSetting(args.Message) || TryReadScore(args.Message))
-                return;
+            MatchCreated(matchId);
         }
     }
 
-    public enum LobbyUpdateState
-    {
-        Refreshed,
-        Refreshing,
-    }
 }

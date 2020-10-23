@@ -4,16 +4,16 @@ using System.Text;
 
 namespace SkyBot.Osu.AutoRef
 {
-    public class LobbyScore
+    public class Score
     {
         public string Username { get; }
-        public long Score { get; }
+        public long UserScore { get; }
         public bool Passed { get; }
 
-        public LobbyScore(string username, long score, bool passed)
+        public Score(string username, long score, bool passed)
         {
             Username = username;
-            Score = score;
+            UserScore = score;
             Passed = passed;
         }
     }

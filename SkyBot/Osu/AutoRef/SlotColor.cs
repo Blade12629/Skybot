@@ -4,9 +4,8 @@ using System.Text;
 
 namespace SkyBot.Osu.AutoRef
 {
-    public enum LobbyColor
+    public enum SlotColor
     {
-        None,
         Blue,
         Red
     }
