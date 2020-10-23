@@ -12,6 +12,11 @@ namespace SkyBot.Osu.AutoRef.Workflows
     public class WorkflowEngine
     {
         public CancellationTokenSource CancellationTokenSource { get; private set; }
+        public WorkflowWrapper Wrapper
+        {
+            get => _workflowWrapper;
+            set => _workflowWrapper = value;
+        }
 
         Engine _engine;
         LobbyController _lc;

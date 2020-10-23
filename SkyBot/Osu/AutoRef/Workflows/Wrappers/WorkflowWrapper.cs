@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
@@ -11,6 +12,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             get => _index;
             set => _index = Math.Max(0, Math.Min(_steps.Count - 1, value));
         }
+        public int TotalSteps => _steps.Count;
 
         int _index;
         List<Action> _steps;
@@ -23,6 +25,18 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         public void AddStep(Action step)
         {
             _steps.Add(step);
+        }
+
+        public void InsertStep(Action step, int index)
+        {
+            if (_steps.Count == 0)
+                AddStep(step);
+            else if (index >= _steps.Count)
+                index = _steps.Count - 1;
+            else if (index < 0)
+                index = 0;
+
+            _steps.Insert(index, step);
         }
 
         public void AddSteps(IEnumerable<Action> steps)
@@ -39,6 +53,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         public void ClearSteps()
         {
             _steps.Clear();
+            _index = 0;
         }
 
         public Action GetNextStep()
@@ -72,6 +87,24 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
                 return null;
 
             return _steps[_index];
+        }
+
+        public Action GetStep(int index)
+        {
+            if (_steps.Count == 0)
+                return null;
+
+            if (index < 0)
+                return _steps[0];
+            else if (index >= _steps.Count)
+                return _steps[_steps.Count - 1];
+
+            return _steps[index];
+        }
+
+        public List<Action> GetAllSteps()
+        {
+            return _steps.ToList();
         }
     }
 }
