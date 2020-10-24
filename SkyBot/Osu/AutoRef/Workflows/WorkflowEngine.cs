@@ -12,16 +12,10 @@ namespace SkyBot.Osu.AutoRef.Workflows
     public class WorkflowEngine
     {
         public CancellationTokenSource CancellationTokenSource { get; private set; }
-        public WorkflowWrapper Wrapper
-        {
-            get => _workflowWrapper;
-            set => _workflowWrapper = value;
-        }
 
         Engine _engine;
         LobbyController _lc;
         AutoRefController _arc;
-        WorkflowWrapper _workflowWrapper;
 
         public WorkflowEngine(LobbyController lc, AutoRefController arc)
         {
@@ -29,17 +23,28 @@ namespace SkyBot.Osu.AutoRef.Workflows
             _arc = arc;
         }
 
-        public WorkflowWrapper Interpret(string script)
+        public WorkflowWrapper Interpret(string script, out Exception ex)
         {
             WorkflowWrapper workflow = new WorkflowWrapper();
-            Setup(workflow);
 
-            return _workflowWrapper;
+            try
+            {
+                Setup(workflow);
+                _engine.Execute(script);
+            }
+            catch (Exception ex_)
+            {
+                ex = ex_;
+                return null;
+            }
+
+            ex = null;
+            return workflow;
         }
 
         void Setup(WorkflowWrapper workflow)
         {
-            _workflowWrapper = new WorkflowWrapper();
+            workflow = new WorkflowWrapper();
             CancellationTokenSource = new CancellationTokenSource();
 
             _engine = new Engine(o =>
@@ -84,7 +89,7 @@ namespace SkyBot.Osu.AutoRef.Workflows
             _engine = _engine.SetValue("Lobby", new LobbyWrapper(_lc))
                              .SetValue("Ref", new RefWrapper(_arc))
                              .SetValue("Convert", new ConvertWrapper())
-                             .SetValue("Workflow", _workflowWrapper)
+                             .SetValue("Workflow", workflow)
                              .SetValue("Random", SkyBot.Program.Random)
                              .SetValue("RND", SkyBot.Program.Random);
         }

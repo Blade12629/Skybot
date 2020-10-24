@@ -40,6 +40,7 @@ namespace SkyBot.Osu.AutoRef
         public event EventHandler<Exception> OnException;
 
         public LobbyController LC => _lc;
+        public AutoRefSettings Settings { get; set; }
 
         LobbyController _lc;
         ConcurrentQueue<Action> _tickQueue;
