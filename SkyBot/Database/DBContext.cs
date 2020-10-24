@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using SkyBot.Database.Models.Customs;
 using SkyBot.Database.Models.Web;
+using SkyBot.Database.Models.AutoRef;
 
 public class DBContext : DbContext
 {
@@ -42,8 +43,9 @@ public class DBContext : DbContext
 
     public virtual DbSet<AnalyzerMods> AnalyzerMods { get; set; }
 
-
     public virtual DbSet<WebUser> WebUser { get; set; }
+
+    public virtual DbSet<AutoRefConfig> AutoRefConfig { get; set; }
 
 
     public DBContext()
@@ -929,7 +931,63 @@ public class DBContext : DbContext
         });
     }
 
-    void CreateAnalyzerMods(ModelBuilder modelBuilder)
+    void CreateAutoRefModels(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AutoRefConfig>(entity =>
+        {
+            entity.ToTable("auto_ref_config");
+
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.DiscordGuildId)
+                .HasColumnName("discord_guild_id")
+                .HasColumnType("bigint(20)");
+
+            entity.Property(e => e.Key)
+                .HasColumnName("key")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.TeamMode)
+                .HasColumnName("team_mode")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.WinCondition)
+                .HasColumnName("win_condition")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.BestOf)
+                .HasColumnName("best_of")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.TotalWarmups)
+                .HasColumnName("total_warmups")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.Script0)
+                .HasColumnName("script0")
+                .HasColumnType("longtext");
+            
+            entity.Property(e => e.Script1)
+                .HasColumnName("script1")
+                .HasColumnType("longtext");
+            
+            entity.Property(e => e.Script2)
+                .HasColumnName("script2")
+                .HasColumnType("longtext");
+            
+            entity.Property(e => e.Script3)
+                .HasColumnName("script3")
+                .HasColumnType("longtext");
+
+            entity.Property(e => e.CurrentScript)
+                .HasColumnName("current_script")
+                .HasColumnType("int(11)");
+        });
+    }
+
+    void CreateAnalyzerModels(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AnalyzerMods>(entity =>
         {
@@ -981,16 +1039,8 @@ public class DBContext : DbContext
         });
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    void CreateMiscModels(ModelBuilder modelBuilder)
     {
-        CreateConfigModels(modelBuilder);
-        CreateUserRelatedModels(modelBuilder);
-        CreateSeasonModels(modelBuilder);
-        CreatePlayerProfileModels(modelBuilder);
-        CreateCustomModels(modelBuilder);
-        CreateWebModels(modelBuilder);
-        CreateAnalyzerMods(modelBuilder);
-
         modelBuilder.Entity<ByteTable>(entity =>
         {
             entity.ToTable("byte_table");
@@ -1007,6 +1057,19 @@ public class DBContext : DbContext
                 .HasColumnName("data")
                 .HasColumnType("longblob");
         });
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        CreateConfigModels(modelBuilder);
+        CreateUserRelatedModels(modelBuilder);
+        CreateSeasonModels(modelBuilder);
+        CreatePlayerProfileModels(modelBuilder);
+        CreateCustomModels(modelBuilder);
+        CreateWebModels(modelBuilder);
+        CreateAnalyzerModels(modelBuilder);
+        CreateAutoRefModels(modelBuilder);
+        CreateMiscModels(modelBuilder);
     }
 
     public void CreateDefaultTables()

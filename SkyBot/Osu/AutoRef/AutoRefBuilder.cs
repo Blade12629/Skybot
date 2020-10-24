@@ -4,31 +4,6 @@ using System.Text;
 
 namespace SkyBot.Osu.AutoRef
 {
-    //public static class Example
-    //{
-    //    public static void AutoRefExample()
-    //    {
-    //        //Load any workflow script
-    //        string script = null;
-
-    //        //Get your irc instance
-    //        IRC.OsuIrcClient irc = null;
-
-    //        //Setup the builder
-    //        AutoRefBuilder builder = new AutoRefBuilder(irc, script)
-    //        {
-    //            CaptainBlue = "1234",
-    //            CaptainRed = "xz"
-    //        };
-
-    //        //Create the controller (applies settings and interprets the workflow script to create the workflow)
-    //        AutoRefController controller = builder.Build();
-
-    //        //Start the controller and run our workflow
-    //        controller.Start(lobbyName: "ABC vs XYZ");
-    //    }
-    //}
-
     public class AutoRefBuilder
     {
         public IRC.OsuIrcClient IRC { get; set; }
