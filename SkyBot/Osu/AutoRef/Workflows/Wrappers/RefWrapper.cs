@@ -36,5 +36,45 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         {
             _arc.RequestResponse(from, startsWith, action);
         }
+    
+        /// <summary>
+        /// Sorts each player by their team, captains will get the first slot
+        /// </summary>
+        public void SortPlayers()
+        {
+            _arc.SortPlayers();
+        }
+
+        /// <summary>
+        /// Gets the last roll
+        /// </summary>
+        public RollWrapper GetLastRoll()
+        {
+            return _arc.LastRoll;
+        }
+
+        /// <summary>
+        /// Returns if the last roll is a valid roll
+        /// </summary>
+        public bool IsLastRollValid()
+        {
+            return _arc.LastRollValid;
+        }
+
+        /// <summary>
+        /// Gets the last pick
+        /// </summary>
+        public long GetLastPick()
+        {
+            return _arc.LastPick;
+        }
+
+        /// <summary>
+        /// Returns if the last pick is a valid pick
+        /// </summary>
+        public bool IsLastPickValid()
+        {
+            return _arc.LastPickValid;
+        }
     }
 }

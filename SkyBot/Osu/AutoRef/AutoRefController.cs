@@ -42,8 +42,14 @@ namespace SkyBot.Osu.AutoRef
         public LobbyController LC => _lc;
         public AutoRefSettings Settings { get; set; }
 
+        public bool LastRollValid => !_lastRollInvalid;
+        public Roll LastRoll => _lastRoll;
+
+        public bool LastPickValid => !_lastPickInvalid;
+        public long LastPick => _lastPick;
+
         LobbyController _lc;
-        ConcurrentQueue<Action> _tickQueue;
+        List<Func<bool>> _tickQueue;
         Queue<ChatInteraction> _interactionsQueue;
 
         bool _lastRollInvalid;
@@ -59,14 +65,14 @@ namespace SkyBot.Osu.AutoRef
             _lc.OnMessageReceived += OnMessageReceived;
         }
 
-        public void AddTicks(List<Action> ticks)
+        public void AddTicks(List<Func<bool>> ticks)
         {
-            ticks.ForEach(t => _tickQueue.Enqueue(t));
+            _tickQueue.AddRange(ticks);
         }
 
         public void Start(string lobbyName)
         {
-            _tickQueue = new ConcurrentQueue<Action>();
+            _tickQueue = new List<Func<bool>>();
             _interactionsQueue = new Queue<ChatInteraction>();
             _lc.CreateLobby(lobbyName);
         }
@@ -245,8 +251,11 @@ namespace SkyBot.Osu.AutoRef
 
         void Tick(object sender, EventArgs e)
         {
-            if (_tickQueue.TryDequeue(out Action a))
-                a?.Invoke();
+            if (_tickQueue.Count == 0)
+                return;
+
+            if (_tickQueue[0].Invoke())
+                _tickQueue.RemoveAt(0);
         }
     }
 }

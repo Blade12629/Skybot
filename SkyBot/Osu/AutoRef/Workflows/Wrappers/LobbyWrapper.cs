@@ -320,13 +320,15 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             _lc.SetFreemod();
         }
 
+
+
         /// <summary>
         /// Gets all latest scores
         /// </summary>
         /// <returns></returns>
-        public Score[] GetLatestScores()
+        public ScoreWrapper[] GetLatestScores()
         {
-            return _lc.LatestScores.ToArray();
+            return _lc.LatestScores.Select(s => (ScoreWrapper)s).ToArray();
         }
 
         /// <summary>
@@ -341,9 +343,9 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         /// Gets all scores
         /// </summary>
         /// <returns></returns>
-        public Score[] GetAllScores()
+        public ScoreWrapper[] GetAllScores()
         {
-            return _lc.Scores.ToArray();
+            return _lc.Scores.Select(s => (ScoreWrapper)s).ToArray();
         }
 
         /// <summary>
@@ -385,6 +387,31 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
                 _lc.SendMessage(message);
             else
                 _lc.SendMessage($"——— {message} ———");
+        }
+
+        /// <summary>
+        /// Gets the amount of players currently in the lobby
+        /// </summary>
+        public int GetTotalPlayers()
+        {
+            return _lc.Slots.Count(s => s.Value.IsUsed);
+        }
+
+        /// <summary>
+        /// Gets a slot
+        /// </summary>
+        /// <param name="slot">slot id, starting at 1</param>
+        public SlotWrapper GetSlot(int slot)
+        {
+            return _lc.Slots[slot];
+        }
+
+        /// <summary>
+        /// Gets a slot
+        /// </summary>
+        public SlotWrapper GetSlot(string user)
+        {
+            return _lc.GetSlot(user);
         }
     }
 }

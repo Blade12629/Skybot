@@ -15,19 +15,19 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         public int TotalSteps => _steps.Count;
 
         int _index;
-        List<Action> _steps;
+        List<Func<bool>> _steps;
 
         internal WorkflowWrapper()
         {
-            _steps = new List<Action>();
+            _steps = new List<Func<bool>>();
         }
 
-        public void AddStep(Action step)
+        public void AddStep(Func<bool> step)
         {
             _steps.Add(step);
         }
 
-        public void InsertStep(Action step, int index)
+        public void InsertStep(Func<bool> step, int index)
         {
             if (_steps.Count == 0)
                 AddStep(step);
@@ -39,12 +39,12 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             _steps.Insert(index, step);
         }
 
-        public void AddSteps(IEnumerable<Action> steps)
+        public void AddSteps(IEnumerable<Func<bool>> steps)
         {
             _steps.AddRange(steps);
         }
 
-        public void AddSteps(ReadOnlySpan<Action> steps)
+        public void AddSteps(ReadOnlySpan<Func<bool>> steps)
         {
             for (int i = 0; i < steps.Length; i++)
                 AddStep(steps[i]);
@@ -56,7 +56,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             _index = 0;
         }
 
-        public Action GetNextStep()
+        public Func<bool> GetNextStep()
         {
             if (_steps.Count == 0 || _steps.Count - 1 == _index)
                 return null;
@@ -65,7 +65,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             return GetCurrentStep();
         }
 
-        public Action GetFirstStep()
+        public Func<bool> GetFirstStep()
         {
             if (_steps.Count == 0)
                 return null;
@@ -73,7 +73,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             return _steps[0];
         }
 
-        public Action GetLastStep()
+        public Func<bool> GetLastStep()
         {
             if (_steps.Count == 0)
                 return null;
@@ -81,7 +81,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             return _steps[_steps.Count - 1];
         }
 
-        public Action GetCurrentStep()
+        public Func<bool> GetCurrentStep()
         {
             if (_steps.Count == 0)
                 return null;
@@ -89,7 +89,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             return _steps[_index];
         }
 
-        public Action GetStep(int index)
+        public Func<bool> GetStep(int index)
         {
             if (_steps.Count == 0)
                 return null;
@@ -102,7 +102,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             return _steps[index];
         }
 
-        public List<Action> GetAllSteps()
+        public List<Func<bool>> GetAllSteps()
         {
             return _steps.ToList();
         }
