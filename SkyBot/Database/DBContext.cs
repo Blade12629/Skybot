@@ -945,6 +945,10 @@ public class DBContext : DbContext
                 .HasColumnName("discord_guild_id")
                 .HasColumnType("bigint(20)");
 
+            entity.Property(e => e.DiscordNotifyChannelId)
+                .HasColumnName("discord_notify_channel_id")
+                .HasColumnType("bigint(20)");
+
             entity.Property(e => e.Key)
                 .HasColumnName("key")
                 .HasColumnType("longtext");
@@ -963,6 +967,10 @@ public class DBContext : DbContext
 
             entity.Property(e => e.TotalWarmups)
                 .HasColumnName("total_warmups")
+                .HasColumnType("int(11)");
+
+            entity.Property(e => e.PlayersPerTeam)
+                .HasColumnName("players_per_team")
                 .HasColumnType("int(11)");
 
             entity.Property(e => e.Script0)

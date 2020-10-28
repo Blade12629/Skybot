@@ -50,6 +50,28 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         }
 
         /// <summary>
+        /// Converts a nickname to an irc nickname
+        /// </summary>
+        /// <returns>Example: User 1 -> User_1</returns>
+#pragma warning disable CA1822 // Mark members as static
+        public string ToIrcNick(string user)
+#pragma warning restore CA1822 // Mark members as static
+        {
+            return LobbyController.ToIrcNick(user);
+        }
+
+        /// <summary>
+        /// Converts an irc nickname to a nickname
+        /// </summary>
+        /// <returns>Example: User_1 -> User 1</returns>
+#pragma warning disable CA1822 // Mark members as static
+        public string FromIrcNick(string user)
+#pragma warning restore CA1822 // Mark members as static
+        {
+            return LobbyController.FromIrcNick(user);
+        }
+
+        /// <summary>
         /// Sets the lobby team mode and win condition
         /// </summary>
         /// <param name="teamMode"><see cref="TeamMode"/></param>

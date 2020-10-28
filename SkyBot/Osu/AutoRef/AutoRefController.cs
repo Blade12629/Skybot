@@ -60,6 +60,7 @@ namespace SkyBot.Osu.AutoRef
 
         public AutoRefController(LobbyController lc)
         {
+            _tickQueue = new List<Func<bool>>();
             _lc = lc;
             _lc.OnAfterTick += Tick;
             _lc.OnMessageReceived += OnMessageReceived;
@@ -75,6 +76,12 @@ namespace SkyBot.Osu.AutoRef
             _tickQueue = new List<Func<bool>>();
             _interactionsQueue = new Queue<ChatInteraction>();
             _lc.CreateLobby(lobbyName);
+        }
+
+        public void TestRun()
+        {
+            for (int i = 0; i < _tickQueue.Count; i++)
+                _tickQueue[i].Invoke();
         }
 
         public void RequestResponse(string from, string startsWith, Action<string> a)
@@ -149,9 +156,12 @@ namespace SkyBot.Osu.AutoRef
             }));
         }
 
+        /// <summary>
+        /// Sorts the players based on <see cref="Settings"/>
+        /// </summary>
         public void SortPlayers()
         {
-            throw new NotImplementedException();
+            SortTeams(Settings.PlayersBlue, Settings.CaptainBlue, Settings.PlayersRed, Settings.CaptainRed, Settings.PlayersPerTeam);
         }
 
         /// <summary>
@@ -227,6 +237,27 @@ namespace SkyBot.Osu.AutoRef
             {
                 _lc.MovePlayer(player, nextFreeSlot);
                 nextFreeSlot++;
+            }
+        }
+
+        /// <summary>
+        /// Invites all players based on <see cref="Settings"/>
+        /// </summary>
+        public void InvitePlayers()
+        {
+            if (Settings.PlayersBlue != null && Settings.PlayersBlue.Count > 0)
+                Invite(Settings.PlayersBlue);
+
+            if (Settings.PlayersRed != null && Settings.PlayersRed.Count > 0)
+                Invite(Settings.PlayersRed);
+
+            _lc.Invite(Settings.CaptainBlue);
+            _lc.Invite(Settings.CaptainRed);
+
+            void Invite(List<string> players)
+            {
+                foreach (string p in players)
+                    _lc.Invite(p);
             }
         }
 

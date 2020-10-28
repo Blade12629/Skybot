@@ -58,7 +58,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         /// </summary>
         public bool IsLastRollValid()
         {
-            return _arc.LastRollValid;
+            return _arc.LastRollValid && _arc.LastRoll != null;
         }
 
         /// <summary>
@@ -74,7 +74,20 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         /// </summary>
         public bool IsLastPickValid()
         {
-            return _arc.LastPickValid;
+            return _arc.LastPickValid && _arc.LastPick > 0;
+        }
+
+        /// <summary>
+        /// Invites all players
+        /// </summary>
+        public void InviteAllPlayers()
+        {
+            _arc.InvitePlayers();
+        }
+
+        public void DebugLog(string message)
+        {
+            Logger.Log(message);
         }
     }
 }

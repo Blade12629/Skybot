@@ -23,6 +23,13 @@ namespace SkyBot.Osu.AutoRef.Workflows
             _arc = arc;
         }
 
+        public List<Exception> GetErrors()
+        {
+            List<Exception> result = new List<Exception>();
+
+            return result;
+        }
+
         public WorkflowWrapper Interpret(string script, out Exception ex)
         {
             WorkflowWrapper workflow = new WorkflowWrapper();
@@ -44,7 +51,6 @@ namespace SkyBot.Osu.AutoRef.Workflows
 
         void Setup(WorkflowWrapper workflow)
         {
-            workflow = new WorkflowWrapper();
             CancellationTokenSource = new CancellationTokenSource();
 
             _engine = new Engine(o =>

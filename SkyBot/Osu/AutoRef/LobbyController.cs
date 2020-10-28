@@ -95,6 +95,30 @@ namespace SkyBot.Osu.AutoRef
             });
         }
 
+        /// <summary>
+        /// Converts a nickname to an irc nickname
+        /// </summary>
+        /// <returns>Example: User 1 -> User_1</returns>
+        public static string ToIrcNick(string user)
+        {
+            if (string.IsNullOrEmpty(user))
+                return null;
+
+            return user.Replace(' ', '_');
+        }
+
+        /// <summary>
+        /// Converts an irc nickname to a nickname
+        /// </summary>
+        /// <returns>Example: User_1 -> User 1</returns>
+        public static string FromIrcNick(string user)
+        {
+            if (string.IsNullOrEmpty(user))
+                return null;
+
+            return user.Replace('_', ' ');
+        }
+
         #region MP Commands
         /// <summary>
         /// Sends a command at the next tick
