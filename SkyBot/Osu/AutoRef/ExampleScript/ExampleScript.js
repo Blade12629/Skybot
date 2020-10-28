@@ -85,9 +85,9 @@ function PlayPhase() {
 
                 return true;
             }
-
-            return false;
     }
+
+    return false;
 }
 
 function SubmitResult() {
