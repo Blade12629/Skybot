@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using OsuHistoryEndPoint.Data;
+using static SkyBot.Analyzer.OsuAnalyzer;
 
 namespace SkyBot.Analyzer.Results
 {

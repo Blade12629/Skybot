@@ -219,6 +219,7 @@ namespace SkyBot.Analyzer
                 c.SaveChanges();
                 return;
             }
+            return;
 
             Dictionary<long, int> userMvps = new Dictionary<long, int>();
 

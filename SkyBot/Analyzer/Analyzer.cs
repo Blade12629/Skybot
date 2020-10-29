@@ -27,6 +27,295 @@ namespace SkyBot.Analyzer
         /// <param name="stage">Stage</param>
         /// <param name="submitStats">Submit stats to DB</param>
         /// <param name="beatmapsToIgnore">Ignore specific beatmaps</param>
+        //public static AnalyzerResult CreateStatistic(History history, DiscordGuild guild, int matchId, int warmupCount, string stage, bool submitStats, params long[] beatmapsToIgnore)
+        //{
+        //    if (history == null)
+        //        throw new ArgumentNullException(nameof(history));
+        //    else if (guild == null)
+        //        throw new ArgumentNullException(nameof(guild));
+
+        //    AnalyzerMods mods;
+        //    using (DBContext c = new DBContext())
+        //        mods = c.AnalyzerMods.FirstOrDefault(m => m.DiscordGuildId == (long)guild.Id);
+
+        //    string matchName = GetData.GetMatchNames(history)[0];
+
+        //    List<HistoryGame> games = GetData.GetMatches(history);
+        //    //beatmapid, score
+        //    List<(long, HistoryScore)> scores = new List<(long, HistoryScore)>();
+
+        //    int teamRedWins = 0;
+        //    int teamBlueWins = 0;
+
+        //    for (int i = 0; i < games.Count; i++)
+        //    {
+        //        if (games[i].Beatmap == null || string.IsNullOrEmpty(games[i].TeamType) ||
+        //            games[i].TeamType.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase))
+        //            continue;
+        //        else if (beatmapsToIgnore != null && beatmapsToIgnore.Length > 0 && beatmapsToIgnore.Contains((long)(games[i].Beatmap.Id)))
+        //        {
+        //            games.RemoveAt(i);
+        //            i--;
+        //            continue;
+        //        }
+
+        //        int teamRedWinsCurrent = 0;
+        //        int teamBlueWinsCurrent = 0;
+        //        for (int x = 0; x < games[i].Scores.Length; x++)
+        //        {
+        //            if (mods != null)
+        //            {
+        //                for (int y = 0; y < games[i].Scores[x].Mods.Length; y++)
+        //                {
+        //                    double multiVal = 1.0;
+        //                    switch(games[i].Scores[x].Mods[y].ToLower(CultureInfo.CurrentCulture))
+        //                    {
+        //                        default:
+        //                            break;
+
+        //                        case "nf":
+        //                            multiVal = mods.NF;
+        //                            break;
+
+        //                        case "ez":
+        //                            multiVal = mods.EZ;
+        //                            break;
+
+        //                        case "hr":
+        //                            multiVal = mods.HR;
+        //                            break;
+
+        //                        case "dt":
+        //                        case "nc":
+        //                            multiVal = mods.DTNC;
+        //                            break;
+
+        //                        case "hd":
+        //                            multiVal = mods.HD;
+        //                            break;
+
+        //                        case "fl":
+        //                            multiVal = mods.FL;
+        //                            break;
+        //                    }
+
+        //                    if (multiVal != 1.0)
+        //                        games[i].Scores[x].Score = (int)(games[i].Scores[x].Score * multiVal);
+        //                }
+        //            }
+
+        //            switch (games[i].Scores[x].Match.Team.ToLower(CultureInfo.CurrentCulture))
+        //            {
+        //                case "red":
+        //                    teamRedWinsCurrent += games[i].Scores[x].Score;
+        //                    break;
+
+        //                case "blue":
+        //                    teamBlueWinsCurrent += games[i].Scores[x].Score;
+        //                    break;
+
+        //                default:
+        //                    break;
+        //            }
+
+        //            scores.Add((games[i].Beatmap.Id, games[i].Scores[x]));
+        //        }
+
+        //        if (teamRedWinsCurrent > teamBlueWinsCurrent)
+        //            teamRedWins++;
+        //        else if (teamBlueWinsCurrent > teamRedWinsCurrent)
+        //            teamBlueWins++;
+        //    }
+
+        //    var HighestScoreRankingResult = CalculateHighestRankingAndPlayCount(games.ToArray(), history, warmupCount, beatmapsToIgnore);
+
+        //    (string, string) teamNames = GetVersusTeamNames(matchName);
+
+        //    TeamColor winningTeam;
+        //    TeamColor losingTeam;
+        //    if (teamBlueWins > teamRedWins)
+        //    {
+        //        winningTeam = TeamColor.Blue;
+        //        losingTeam = TeamColor.Red;
+        //    }
+        //    else
+        //    {
+        //        winningTeam = TeamColor.Red;
+        //        losingTeam = TeamColor.Blue;
+        //    }
+
+        //    AnalyzerResult result = new AnalyzerResult()
+        //    {
+        //        MatchId = matchId,
+        //        MatchName = matchName,
+        //        HighestScore = HighestScoreRankingResult.Item1[0].Item1,
+        //        HighestScoreBeatmap = HighestScoreRankingResult.Item1[0].Item2,
+        //        HighestScoresRanking = HighestScoreRankingResult.Item1[0].Item3,
+
+        //        HighestAccuracyScore = HighestScoreRankingResult.Item1[1].Item1,
+        //        HighestAccuracyBeatmap = HighestScoreRankingResult.Item1[1].Item2,
+        //        HighestAverageAccuracyRanking = HighestScoreRankingResult.Item1[1].Item3,
+
+        //        WinningTeam = winningTeam == TeamColor.Red ? teamNames.Item2 : teamNames.Item1,
+        //        WinningTeamColor = winningTeam,
+        //        WinningTeamWins = winningTeam == TeamColor.Red ? teamRedWins : teamBlueWins,
+
+        //        LosingTeam = losingTeam == TeamColor.Red ? teamNames.Item2 : teamNames.Item1,
+        //        LosingTeamWins = losingTeam == TeamColor.Red ? teamRedWins : teamBlueWins,
+        //        Scores = scores.ToArray(),
+
+        //        Stage = stage,
+
+        //        TimeStamp = history.Events.Last().TimeStamp
+        //    };
+
+        //    result.HighestScoreUser = HighestScoreRankingResult.Item1[0].Item3.FirstOrDefault(r => r.Player.UserId == result.HighestScore.UserId).Player;
+        //    result.HighestAccuracyUser = HighestScoreRankingResult.Item1[1].Item3.FirstOrDefault(r => r.Player.UserId == result.HighestAccuracyScore.UserId).Player;
+        //    result.Ranks = HighestScoreRankingResult.Item1[0].Item3;
+        //    result.Beatmaps = HighestScoreRankingResult.Item2.Select(b => b.BeatMap).ToArray();
+
+        //    if (submitStats)
+        //    {
+        //        SubmitStats(result, guild, games);
+
+        //        using DBContext c = new DBContext();
+
+        //        for (int i = 0; i < result.Ranks.Length; i++)
+        //            StatisticCache.ForceRefreshPlayerCache(result.Ranks[i].Player.UserId, c, (long)guild.Id, GetOverallRating);
+
+        //        StatisticCache.ForceRefreshTeamCache(result.WinningTeam, c, (long)guild.Id);
+        //        StatisticCache.ForceRefreshTeamCache(result.LosingTeam, c, (long)guild.Id);
+        //    }
+
+        //    return result;
+        //}
+        ///// <summary>
+        ///// calculates the highest ranking players and beatmap play counts
+        ///// </summary>
+        ///// <param name="games"><see cref="GetData.GetMatches(HistoryJson.History)"/></param>
+        ///// <returns>Tuple { Tuple { HighestScore, HighestScoreBeatmap, HighestScoreRanking }[], BeatmapPlayCount } }</returns>
+        //private static Tuple<Tuple<HistoryScore, HistoryBeatmap, Rank[]>[], BeatmapPlayCount[]> CalculateHighestRankingAndPlayCount(HistoryGame[] games, History history, int warmupCount, params long[] beatmapsToIgnore)
+        //{
+        //    HistoryScore highestScore = null;
+        //    HistoryBeatmap highestScoreBeatmap = null;
+        //    List<Player> highestScoreRanking = new List<Player>();
+        //    List<Rank> sortedRanksScore = new List<Rank>();
+
+        //    HistoryScore highestAccuracy = null;
+        //    HistoryBeatmap highestAccuracyBeatmap = null;
+        //    List<Rank> sortedRanksAccuracy = new List<Rank>();
+
+        //    List<BeatmapPlayCount> playCounts = new List<BeatmapPlayCount>();
+
+        //    int warmupCounter = 0;
+
+        //    for (int i = 0; i < games.Length; i++)
+        //    {
+        //        HistoryGame game = games[i];
+
+        //        if (games[i].Beatmap == null || string.IsNullOrEmpty(games[i].TeamType) ||
+        //            games[i].TeamType.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase) ||
+        //            (beatmapsToIgnore != null && beatmapsToIgnore.Length > 0 && beatmapsToIgnore.Contains((long)(games[i].Beatmap.Id))))
+        //            continue;
+
+        //        if (game.Scores == null || game.Scores.Length == 0)
+        //            continue;
+        //        else if (warmupCount > 0 && warmupCounter < warmupCount)
+        //        {
+        //            warmupCounter++;
+        //            continue;
+        //        }
+
+        //        #region playcount
+        //        int playCountIndex = playCounts.FindIndex(bpc => bpc.BeatMap.Id == game.Beatmap.Id);
+
+        //        if (playCountIndex > -1)
+        //            playCounts[playCountIndex].Count++;
+        //        else
+        //            playCounts.Add(new BeatmapPlayCount()
+        //            {
+        //                BeatMap = game.Beatmap,
+        //                Count = 1,
+        //            });
+        //        #endregion
+
+        //        for (int x = 0; x < game.Scores.Length; x++)
+        //        {
+        //            HistoryScore score = game.Scores[x];
+        //            Player CurrentPlayer = highestScoreRanking.Find(player => player.UserId == score.UserId);
+
+        //            if (CurrentPlayer == null)
+        //            {
+        //                CurrentPlayer = new Player();
+        //                CurrentPlayer.UserId = score.UserId;
+        //                CurrentPlayer.UserName = GetData.GetUser(score, history).Username;
+        //                CurrentPlayer.Scores = new HistoryScore[] { score };
+        //                highestScoreRanking.Add(CurrentPlayer);
+        //            }
+        //            else
+        //            {
+        //                List<HistoryScore> scoresPlayer = CurrentPlayer.Scores.ToList();
+        //                scoresPlayer.Add(score);
+        //                CurrentPlayer.Scores = scoresPlayer.ToArray();
+        //            }
+
+        //            if (highestScore == null || score.Score > highestScore.Score)
+        //            {
+        //                highestScore = score;
+        //                highestScoreBeatmap = game.Beatmap;
+        //            }
+
+        //            if (highestAccuracy == null || highestAccuracy.Accuracy < score.Accuracy)
+        //            {
+        //                highestAccuracy = score;
+        //                highestAccuracyBeatmap = game.Beatmap;
+        //            }
+        //        }
+        //    }
+
+        //    highestScoreRanking.ForEach(ob =>
+        //    {
+        //        ob.CalculateAverageAccuracy();
+        //        ob.GetHighestScore();
+        //    });
+
+        //    highestScoreRanking = highestScoreRanking.OrderByDescending(player => player.HighestScore.Score).ToList();
+
+        //    for (int i = 0; i < highestScoreRanking.Count; i++)
+        //    {
+        //        Rank rank = new Rank()
+        //        {
+        //            Player = highestScoreRanking[i],
+        //            Place = i + 1
+        //        };
+
+        //        sortedRanksScore.Add(rank);
+        //    };
+
+        //    sortedRanksAccuracy = sortedRanksScore.OrderByDescending(r => r.Player.AverageAccuracy).ToList();
+
+        //    for (int i = 0; i < sortedRanksAccuracy.Count; i++)
+        //        sortedRanksAccuracy[i].Place = i + 1;
+
+        //    return new Tuple<Tuple<HistoryScore, HistoryBeatmap, Rank[]>[], BeatmapPlayCount[]>(
+        //        new Tuple<HistoryScore, HistoryBeatmap, Rank[]>[]
+        //    {
+        //        new Tuple<HistoryScore, HistoryBeatmap, Rank[]>(highestScore, highestScoreBeatmap, sortedRanksScore.ToArray()),
+        //        new Tuple<HistoryScore, HistoryBeatmap, Rank[]>(highestAccuracy, highestAccuracyBeatmap, sortedRanksAccuracy.ToArray()),
+        //    },
+        //    playCounts.ToArray());
+        //}
+
+        /// <summary>
+        /// Creates a statistic for a osu mp match
+        /// </summary>
+        /// <param name="history">History file</param>
+        /// <param name="guild">Discord guild</param>
+        /// <param name="matchId">Match Id</param>
+        /// <param name="warmupCount">Warmup Map Total Count</param>
+        /// <param name="stage">Stage</param>
+        /// <param name="submitStats">Submit stats to DB</param>
+        /// <param name="beatmapsToIgnore">Ignore specific beatmaps</param>
         public static AnalyzerResult CreateStatistic(History history, DiscordGuild guild, int matchId, int warmupCount, string stage, bool submitStats, params long[] beatmapsToIgnore)
         {
             if (history == null)
@@ -34,84 +323,81 @@ namespace SkyBot.Analyzer
             else if (guild == null)
                 throw new ArgumentNullException(nameof(guild));
 
+            if (beatmapsToIgnore == null)
+                beatmapsToIgnore = Array.Empty<long>();
+
             AnalyzerMods mods;
             using (DBContext c = new DBContext())
                 mods = c.AnalyzerMods.FirstOrDefault(m => m.DiscordGuildId == (long)guild.Id);
 
             string matchName = GetData.GetMatchNames(history)[0];
-
             List<HistoryGame> games = GetData.GetMatches(history);
-            //beatmapid, score
             List<(long, HistoryScore)> scores = new List<(long, HistoryScore)>();
 
-            int teamRedWins = 0;
-            int teamBlueWins = 0;
+            HistoryScore highestScore = null;
+            HistoryBeatmap highestScoreBeatmap = null;
+            List<Player> highestScoreRanking = new List<Player>();
+            List<Rank> sortedRanksScore = new List<Rank>();
+
+            HistoryScore highestAccuracy = null;
+            HistoryBeatmap highestAccuracyBeatmap = null;
+            List<Rank> sortedRanksAccuracy = new List<Rank>();
+
+            List<BeatmapPlayCount> playCounts = new List<BeatmapPlayCount>();
+
+            int redWins = 0, blueWins = 0, warmupCounter = 0;
 
             for (int i = 0; i < games.Count; i++)
             {
-                if (games[i].Beatmap == null || string.IsNullOrEmpty(games[i].TeamType) ||
-                    games[i].TeamType.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase))
-                    continue;
-                else if (beatmapsToIgnore != null && beatmapsToIgnore.Length > 0 && beatmapsToIgnore.Contains((long)(games[i].Beatmap.Id)))
+                if (!IsHistoryGameValid(games[i]) ||
+                         beatmapsToIgnore.Contains(games[i].Beatmap.Id))
                 {
                     games.RemoveAt(i);
                     i--;
                     continue;
                 }
+                else if (warmupCount > 0 && warmupCounter < warmupCount)
+                {
+                    warmupCounter++;
+                    games.RemoveAt(i);
+                    i--;
+                    continue;
+                }
 
-                int teamRedWinsCurrent = 0;
-                int teamBlueWinsCurrent = 0;
+                #region playcount
+                int playCountIndex = playCounts.FindIndex(bpc => bpc.BeatMap.Id == games[i].Beatmap.Id);
+
+                if (playCountIndex > -1)
+                {
+                    playCounts[playCountIndex].Count++;
+                }
+                else
+                {
+                    playCounts.Add(new BeatmapPlayCount()
+                    {
+                        BeatMap = games[i].Beatmap,
+                        Count = 1,
+                    });
+                }
+                #endregion
+
+                int redWinsCurrent = 0, blueWinsCurrent = 0;
                 for (int x = 0; x < games[i].Scores.Length; x++)
                 {
                     if (mods != null)
                     {
-                        for (int y = 0; y < games[i].Scores[x].Mods.Length; y++)
-                        {
-                            double multiVal = 1.0;
-                            switch(games[i].Scores[x].Mods[y].ToLower(CultureInfo.CurrentCulture))
-                            {
-                                default:
-                                    break;
-
-                                case "nf":
-                                    multiVal = mods.NF;
-                                    break;
-
-                                case "ez":
-                                    multiVal = mods.EZ;
-                                    break;
-
-                                case "hr":
-                                    multiVal = mods.HR;
-                                    break;
-
-                                case "dt":
-                                case "nc":
-                                    multiVal = mods.DTNC;
-                                    break;
-
-                                case "hd":
-                                    multiVal = mods.HD;
-                                    break;
-
-                                case "fl":
-                                    multiVal = mods.FL;
-                                    break;
-                            }
-
-                            if (multiVal != 1.0)
-                                games[i].Scores[x].Score = (int)(games[i].Scores[x].Score * multiVal);
-                        }
+                        foreach (string mod in games[i].Scores[x].Mods)
+                            games[i].Scores[x].Score = (int)ApplyMulti(mod, mods, games[i].Scores[x].Score);
                     }
 
                     switch (games[i].Scores[x].Match.Team.ToLower(CultureInfo.CurrentCulture))
                     {
                         case "red":
-                            teamRedWinsCurrent += games[i].Scores[x].Score;
+                            redWinsCurrent += games[i].Scores[x].Score;
                             break;
 
                         case "blue":
-                            teamBlueWinsCurrent += games[i].Scores[x].Score;
+                            blueWinsCurrent += games[i].Scores[x].Score;
                             break;
 
                         default:
@@ -119,21 +405,72 @@ namespace SkyBot.Analyzer
                     }
 
                     scores.Add((games[i].Beatmap.Id, games[i].Scores[x]));
+
+
+                    Player CurrentPlayer = highestScoreRanking.Find(player => player.UserId == games[i].Scores[x].UserId);
+
+                    if (CurrentPlayer == null)
+                    {
+                        CurrentPlayer = new Player();
+                        CurrentPlayer.UserId = games[i].Scores[x].UserId;
+                        CurrentPlayer.UserName = GetData.GetUser(games[i].Scores[x], history).Username;
+                        CurrentPlayer.Scores = new HistoryScore[] { games[i].Scores[x] };
+                        highestScoreRanking.Add(CurrentPlayer);
+                    }
+                    else
+                    {
+                        List<HistoryScore> scoresPlayer = CurrentPlayer.Scores.ToList();
+                        scoresPlayer.Add(games[i].Scores[x]);
+                        CurrentPlayer.Scores = scoresPlayer.ToArray();
+                    }
+
+                    if (highestScore == null || games[i].Scores[x].Score > highestScore.Score)
+                    {
+                        highestScore = games[i].Scores[x];
+                        highestScoreBeatmap = games[i].Beatmap;
+                    }
+
+                    if (highestAccuracy == null || games[i].Scores[x].Accuracy > highestAccuracy.Accuracy)
+                    {
+                        highestAccuracy = games[i].Scores[x];
+                        highestAccuracyBeatmap = games[i].Beatmap;
+                    }
                 }
 
-                if (teamRedWinsCurrent > teamBlueWinsCurrent)
-                    teamRedWins++;
-                else if (teamBlueWinsCurrent > teamRedWinsCurrent)
-                    teamBlueWins++;
+                if (redWinsCurrent > blueWinsCurrent)
+                    redWins++;
+                else if (blueWinsCurrent > redWinsCurrent)
+                    blueWins++;
             }
 
-            var HighestScoreRankingResult = CalculateHighestRankingAndPlayCount(games.ToArray(), history, warmupCount, beatmapsToIgnore);
-                
-            (string, string) teamNames = GetVersusTeamNames(matchName);
+            highestScoreRanking.ForEach(ob =>
+            {
+                ob.CalculateAverageAccuracy();
+                ob.GetHighestScore();
+            });
+
+            highestScoreRanking = highestScoreRanking.OrderByDescending(player => player.HighestScore.Score).ToList();
+            for (int i = 0; i < highestScoreRanking.Count; i++)
+            {
+                Rank rank = new Rank()
+                {
+                    Player = highestScoreRanking[i],
+                    Place = i + 1
+                };
+
+                sortedRanksScore.Add(rank);
+            };
+
+            sortedRanksAccuracy = sortedRanksScore.OrderByDescending(r => r.Player.AverageAccuracy).ToList();
+            for (int i = 0; i < sortedRanksAccuracy.Count; i++)
+            {
+                sortedRanksAccuracy[i].Place = i + 1;
+            }
+
 
             TeamColor winningTeam;
             TeamColor losingTeam;
-            if (teamBlueWins > teamRedWins)
+            if (blueWins > redWins)
             {
                 winningTeam = TeamColor.Blue;
                 losingTeam = TeamColor.Red;
@@ -144,35 +481,37 @@ namespace SkyBot.Analyzer
                 losingTeam = TeamColor.Blue;
             }
 
+            (string, string) teamNames = GetVersusTeamNames(matchName);
+
             AnalyzerResult result = new AnalyzerResult()
             {
                 MatchId = matchId,
                 MatchName = matchName,
-                HighestScore = HighestScoreRankingResult.Item1[0].Item1,
-                HighestScoreBeatmap = HighestScoreRankingResult.Item1[0].Item2,
-                HighestScoresRanking = HighestScoreRankingResult.Item1[0].Item3,
+                HighestScore = highestScore,
+                HighestScoreBeatmap = highestScoreBeatmap,
+                HighestScoresRanking = sortedRanksScore.ToArray(),
+                HighestScoreUser = sortedRanksScore.FirstOrDefault(r => r.Player.UserId == highestScore.UserId).Player,
 
-                HighestAccuracyScore = HighestScoreRankingResult.Item1[1].Item1,
-                HighestAccuracyBeatmap = HighestScoreRankingResult.Item1[1].Item2,
-                HighestAverageAccuracyRanking = HighestScoreRankingResult.Item1[1].Item3,
-                    
+                HighestAccuracyScore = highestAccuracy,
+                HighestAccuracyBeatmap = highestAccuracyBeatmap,
+                HighestAverageAccuracyRanking = sortedRanksAccuracy.ToArray(),
+                HighestAccuracyUser = sortedRanksAccuracy.FirstOrDefault(r => r.Player.UserId == highestAccuracy.UserId).Player,
+
+                Ranks = sortedRanksScore.ToArray(),
+                Beatmaps = playCounts.Select(pc => pc.BeatMap).ToArray(),
+
                 WinningTeam = winningTeam == TeamColor.Red ? teamNames.Item2 : teamNames.Item1,
                 WinningTeamColor = winningTeam,
-                WinningTeamWins = winningTeam == TeamColor.Red ? teamRedWins : teamBlueWins,
+                WinningTeamWins = winningTeam == TeamColor.Red ? redWins : blueWins,
 
                 LosingTeam = losingTeam == TeamColor.Red ? teamNames.Item2 : teamNames.Item1,
-                LosingTeamWins = losingTeam == TeamColor.Red ? teamRedWins : teamBlueWins,
+                LosingTeamWins = losingTeam == TeamColor.Red ? redWins : blueWins,
                 Scores = scores.ToArray(),
 
                 Stage = stage,
 
                 TimeStamp = history.Events.Last().TimeStamp
             };
-
-            result.HighestScoreUser = HighestScoreRankingResult.Item1[0].Item3.FirstOrDefault(r => r.Player.UserId == result.HighestScore.UserId).Player;
-            result.HighestAccuracyUser = HighestScoreRankingResult.Item1[1].Item3.FirstOrDefault(r => r.Player.UserId == result.HighestAccuracyScore.UserId).Player;
-            result.Ranks = HighestScoreRankingResult.Item1[0].Item3;
-            result.Beatmaps = HighestScoreRankingResult.Item2.Select(b => b.BeatMap).ToArray();
 
             if (submitStats)
             {
@@ -188,6 +527,55 @@ namespace SkyBot.Analyzer
             }
 
             return result;
+
+            long ApplyMulti(string mod, AnalyzerMods mods, long score)
+            {
+                double multi = 1.0;
+
+                switch (mod.ToLower(CultureInfo.CurrentCulture))
+                {
+                    default:
+                        break;
+
+                    case "nf":
+                        multi = mods.NF;
+                        break;
+
+                    case "ez":
+                        multi = mods.EZ;
+                        break;
+
+                    case "hr":
+                        multi = mods.HR;
+                        break;
+
+                    case "dt":
+                    case "nc":
+                        multi = mods.DTNC;
+                        break;
+
+                    case "hd":
+                        multi = mods.HD;
+                        break;
+
+                    case "fl":
+                        multi = mods.FL;
+                        break;
+                }
+
+                if (multi != 1.0)
+                    return (long)(score * multi);
+
+                return score;
+            }
+
+            bool IsHistoryGameValid(HistoryGame game)
+            {
+                return game.Beatmap != null &&
+                       !string.IsNullOrEmpty(game.TeamType) &&
+                       !game.TeamType.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase) &&
+                       game.Scores != null && game.Scores.Length > 0;
+            }
         }
 
         /// <summary>
@@ -629,15 +1017,11 @@ namespace SkyBot.Analyzer
             for (int i = 0; i < games.Count; i++)
             {
                 var game = games[i];
+                List<SeasonScore> tmpScores = new List<SeasonScore>();
 
                 playOrder++;
                 for (int x = 0; x < game.Scores.Length; x++)
                 {
-                    if (games[i].Beatmap == null || string.IsNullOrEmpty(games[i].TeamType) ||
-                        games[i].TeamType.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase) ||
-                        (beatmapsToIgnore != null && beatmapsToIgnore.Length > 0 && beatmapsToIgnore.Contains((long)(games[i].Beatmap.Id))))
-                        continue;
-
                     var score = game.Scores[x];
 
                     SeasonPlayer sp = players.First(p => p.OsuUserId == (long)score.UserId);
@@ -670,30 +1054,22 @@ namespace SkyBot.Analyzer
                         BeatmapId = (long)game.Beatmap.Id,
                     };
 
-                    scores.Add(ss);
+                    tmpScores.Add(ss);
                 }
+
+                CalculateGPS(tmpScores);
+                scores.AddRange(tmpScores);
+                tmpScores.Clear();
             }
 
-            CalculateGPS(scores);
+            scores.ForEach(s => s.GeneralPerformanceScore = s.GeneralPerformanceScore / players.Count * 10);
+            SeasonScore highestGPSscoreLosing = scores.Where(s => s.TeamName.Equals(ar.LosingTeam, StringComparison.CurrentCultureIgnoreCase)).Aggregate((i1, i2) => i1.GeneralPerformanceScore > i2.GeneralPerformanceScore ? i1 : i2);
+            highestGPSscoreLosing.HighestGeneralPerformanceScore = true; //lgtm [cs/dereferenced-value-may-be-null]
 
-            SeasonScore teamAHighestGPS = scores[0];
-            SeasonScore teamBHighestGPS = null;
-            for (int i = 1; i < scores.Count; i++)
-            {
-                if (teamAHighestGPS.TeamName.Equals(scores[i].TeamName, StringComparison.CurrentCulture))
-                {
-                    if (teamAHighestGPS.GeneralPerformanceScore < scores[i].GeneralPerformanceScore)
-                        teamAHighestGPS = scores[i];
-                }
-                else if (teamBHighestGPS == null || teamBHighestGPS.GeneralPerformanceScore < scores[i].GeneralPerformanceScore)
-                        teamBHighestGPS = scores[i];
-            }
-
-            teamAHighestGPS.HighestGeneralPerformanceScore = true;
-            teamBHighestGPS.HighestGeneralPerformanceScore = true; //lgtm [cs/dereferenced-value-may-be-null]
+            SeasonScore highestGPSscoreWinning = scores.Where(s => s.TeamName.Equals(ar.WinningTeam, StringComparison.CurrentCultureIgnoreCase)).Aggregate((i1, i2) => i1.GeneralPerformanceScore > i2.GeneralPerformanceScore ? i1 : i2);
+            highestGPSscoreWinning.HighestGeneralPerformanceScore = true; //lgtm [cs/dereferenced-value-may-be-null]
 
             c.SeasonScore.AddRange(scores);
-
             c.SaveChanges();
         }
 
@@ -742,121 +1118,6 @@ namespace SkyBot.Analyzer
             string teamBlue = teamBlueBuilder.ToString().TrimEnd(')');
 
             return (teamRed, teamBlue);
-        }
-
-        /// <summary>
-        /// calculates the highest ranking players and beatmap play counts
-        /// </summary>
-        /// <param name="games"><see cref="GetData.GetMatches(HistoryJson.History)"/></param>
-        /// <returns>Tuple { Tuple { HighestScore, HighestScoreBeatmap, HighestScoreRanking }[], BeatmapPlayCount } }</returns>
-        private static Tuple<Tuple<HistoryScore, HistoryBeatmap, Rank[]>[], BeatmapPlayCount[]> CalculateHighestRankingAndPlayCount(HistoryGame[] games, History history, int warmupCount, params long[] beatmapsToIgnore)
-        {
-            HistoryScore highestScore = null;
-            HistoryBeatmap highestScoreBeatmap = null;
-            List<Player> highestScoreRanking = new List<Player>();
-            List<Rank> sortedRanksScore = new List<Rank>();
-
-            HistoryScore highestAccuracy = null;
-            HistoryBeatmap highestAccuracyBeatmap = null;
-            List<Rank> sortedRanksAccuracy = new List<Rank>();
-
-            List<BeatmapPlayCount> playCounts = new List<BeatmapPlayCount>();
-
-            int warmupCounter = 0;
-
-            for (int i = 0; i < games.Length; i++)
-            {
-                HistoryGame game = games[i];
-
-                if (games[i].Beatmap == null || string.IsNullOrEmpty(games[i].TeamType) ||
-                    games[i].TeamType.Equals("head-to-head", StringComparison.CurrentCultureIgnoreCase) ||
-                    (beatmapsToIgnore != null && beatmapsToIgnore.Length > 0 && beatmapsToIgnore.Contains((long)(games[i].Beatmap.Id))))
-                    continue;
-
-                if (game.Scores == null || game.Scores.Length == 0)
-                    continue;
-                else if (warmupCount > 0 && warmupCounter < warmupCount)
-                {
-                    warmupCounter++;
-                    continue;
-                }
-
-                int playCountIndex = playCounts.FindIndex(bpc => bpc.BeatMap.Id == game.Beatmap.Id);
-
-                if (playCountIndex > -1)
-                    playCounts[playCountIndex].Count++;
-                else
-                    playCounts.Add(new BeatmapPlayCount()
-                    {
-                        BeatMap = game.Beatmap,
-                        Count = 1,
-                    });
-
-                for (int x = 0; x < game.Scores.Length; x++)
-                {
-                    HistoryScore score = game.Scores[x];
-                    Player CurrentPlayer = highestScoreRanking.Find(player => player.UserId == score.UserId);
-
-                    if (CurrentPlayer == null)
-                    {
-                        CurrentPlayer = new Player();
-                        CurrentPlayer.UserId = score.UserId;
-                        CurrentPlayer.UserName = GetData.GetUser(score, history).Username;
-                        CurrentPlayer.Scores = new HistoryScore[] { score };
-                        highestScoreRanking.Add(CurrentPlayer);
-                    }
-                    else
-                    {
-                        List<HistoryScore> scoresPlayer = CurrentPlayer.Scores.ToList();
-                        scoresPlayer.Add(score);
-                        CurrentPlayer.Scores = scoresPlayer.ToArray();
-                    }
-
-                    if (highestScore == null || score.Score > highestScore.Score)
-                    {
-                        highestScore = score;
-                        highestScoreBeatmap = game.Beatmap;
-                    }
-
-                    if (highestAccuracy == null || highestAccuracy.Accuracy < score.Accuracy)
-                    {
-                        highestAccuracy = score;
-                        highestAccuracyBeatmap = game.Beatmap;
-                    }
-                }
-            }
-
-            highestScoreRanking.ForEach(ob =>
-            {
-                ob.CalculateAverageAccuracy();
-                ob.GetHighestScore();
-            });
-
-            highestScoreRanking = highestScoreRanking.OrderByDescending(player => player.HighestScore.Score).ToList();
-
-            for (int i = 0; i < highestScoreRanking.Count; i++)
-            {
-                Rank rank = new Rank()
-                {
-                    Player = highestScoreRanking[i],
-                    Place = i + 1
-                };
-
-                sortedRanksScore.Add(rank);
-            };
-
-            sortedRanksAccuracy = sortedRanksScore.OrderByDescending(r => r.Player.AverageAccuracy).ToList();
-
-            for (int i = 0; i < sortedRanksAccuracy.Count; i++)
-                sortedRanksAccuracy[i].Place = i + 1;
-
-            return new Tuple<Tuple<HistoryScore, HistoryBeatmap, Rank[]>[], BeatmapPlayCount[]>(
-                new Tuple<HistoryScore, HistoryBeatmap, Rank[]>[]
-            {
-                new Tuple<HistoryScore, HistoryBeatmap, Rank[]>(highestScore, highestScoreBeatmap, sortedRanksScore.ToArray()),
-                new Tuple<HistoryScore, HistoryBeatmap, Rank[]>(highestAccuracy, highestAccuracyBeatmap, sortedRanksAccuracy.ToArray()),
-            },
-            playCounts.ToArray());
         }
 
         /// <summary>
@@ -942,16 +1203,8 @@ namespace SkyBot.Analyzer
             CalculateMultiValue(scores, gpsValues, COMBO_MULTI, s => s.MaxCombo, (s1, s2) => s1.MaxCombo == s2.MaxCombo);
             CalculateMultiValue(scores, gpsValues, _300_MULTI, s => s.Count300, (s1, s2) => s1.Count300 == s2.Count300);
 
-            KeyValuePair<long, double> highestGPS = gpsValues.Aggregate((i1, i2) => i1.Value > i2.Value ? i1 : i2);
-            SeasonScore highestGPSscore = scores.Find(s => s.SeasonPlayerId == highestGPS.Key);
-
-            highestGPSscore.HighestGeneralPerformanceScore = true;
-            highestGPSscore.GeneralPerformanceScore = highestGPS.Value;
-
-            gpsValues.Remove(highestGPS.Key);
-
             foreach (var pair in gpsValues)
-                scores.Find(s => s.SeasonPlayerId == pair.Key).GeneralPerformanceScore = pair.Value * 100;
+                scores.Find(s => s.SeasonPlayerId == pair.Key).GeneralPerformanceScore = pair.Value / scores.Count * 1000;
         }
 
         /// <summary>
@@ -959,7 +1212,10 @@ namespace SkyBot.Analyzer
         /// </summary>
         private static void CalculateMultiValue<T>(List<SeasonScore> scores, Dictionary<long, double> gpsValues, double multi, Func<SeasonScore, T> sort, Func<SeasonScore, SeasonScore, bool> equality, bool sortByAscending = true, bool subtract = false)
         {
-            scores = (sortByAscending ? scores.OrderBy(sort) : scores.OrderByDescending(sort)).ToList();
+            if (sortByAscending)
+                scores = scores.OrderBy(sort).ToList();
+            else
+                scores = scores.OrderByDescending(sort).ToList();
 
             int x;
             for (int i = scores.Count - 1; i >= 0; i--)
