@@ -26,12 +26,17 @@ namespace SkyBot.Osu.AutoRef
         public event EventHandler OnCreated;
         public event EventHandler<ChatMessage> OnMessageReceived;
 
+        public DateTime CreationDate { get; private set; }
         public bool IsClosed { get; private set; }
         public Settings Settings { get; private set; }
         public IReadOnlyDictionary<int, Slot> Slots => _slots;
         public IReadOnlyList<Score> Scores => _totalScores;
         public List<Score> LatestScores => _latestScores;
         public List<ChatMessageAction> ChatMessageActions { get; private set; }
+        public bool MapFinished { get; private set; }
+        public int BlueWins { get; private set; }
+        public int RedWins { get; private set; }
+
 
         Dictionary<int, Slot> _slots;
         List<Score> _totalScores;
@@ -204,6 +209,14 @@ namespace SkyBot.Osu.AutoRef
         /// <param name="delay">Start delay</param>
         public void StartMap(TimeSpan delay)
         {
+            MapFinished = false;
+
+            if (_latestScores.Count > 0)
+            {
+                _totalScores.AddRange(_latestScores);
+                _latestScores.Clear();
+            }
+
             SendCommand(MPCommand.Start, (int)delay.TotalSeconds);
         }
 
@@ -445,6 +458,46 @@ namespace SkyBot.Osu.AutoRef
         public void UserScore(string username, long score, bool passed)
         {
             _latestScores.Add(new Score(username, score, passed));
+
+            if (_latestScores.Count == _slots.Count(s => s.Value.IsUsed))
+            {
+                long bluePoints = 0, redPoints = 0;
+
+                for (int i = 0; i < _latestScores.Count; i++)
+                {
+                    Slot s = GetSlot(_latestScores[i].Username);
+
+                    if (s == null)
+                    {
+                        Logger.Log("Unable to find slot for player", LogLevel.Warning);
+                        continue;
+                    }
+
+                    switch(s.Color)
+                    {
+                        case SlotColor.Blue:
+                            bluePoints += _latestScores[i].UserScore;
+                            break;
+
+                        case SlotColor.Red:
+                            redPoints += _latestScores[i].UserScore;
+                            break;
+                    }
+                }
+
+                _totalScores.AddRange(_latestScores);
+                _latestScores.Clear();
+
+                if (bluePoints > redPoints)
+                    BlueWins++;
+                else if (redPoints > bluePoints)
+                    RedWins++;
+                else
+                {
+                    BlueWins++;
+                    RedWins++;
+                }
+            }
         }
 
 #pragma warning disable CA1822 // Mark members as static
@@ -514,6 +567,7 @@ namespace SkyBot.Osu.AutoRef
             _irc.OnChannelMessageReceived += MessageReceived;
             Settings.MatchId = matchId;
             IsClosed = false;
+            CreationDate = DateTime.UtcNow;
 
             OnCreated?.Invoke(this, null);
         }

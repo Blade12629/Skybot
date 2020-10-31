@@ -13,9 +13,12 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             set => _index = Math.Max(0, Math.Min(_steps.Count - 1, value));
         }
         public int TotalSteps => _steps.Count;
+        internal int TickRate { get; private set; }
 
         int _index;
         List<Func<bool>> _steps;
+
+
 
         internal WorkflowWrapper()
         {

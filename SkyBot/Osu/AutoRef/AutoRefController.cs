@@ -48,6 +48,18 @@ namespace SkyBot.Osu.AutoRef
         public bool LastPickValid => !_lastPickInvalid;
         public long LastPick => _lastPick;
 
+        public int WorkflowState { get; set; }
+
+        public SlotColor CurrentCaptain { get; set; }
+
+        public List<long> BannedMaps { get; set; }
+        public List<long> PickedMaps { get; set; }
+        public List<long> Mappool { get; set; }
+        public long TieBreaker { get; set; }
+
+        public int BlueWins => LC.BlueWins;
+        public int RedWins => LC.RedWins;
+
         LobbyController _lc;
         List<Func<bool>> _tickQueue;
         Queue<ChatInteraction> _interactionsQueue;
@@ -57,6 +69,10 @@ namespace SkyBot.Osu.AutoRef
 
         long _lastPick;
         bool _lastPickInvalid;
+
+        int _rollRequest;
+        Roll _blueRoll;
+        Roll _redRoll;
 
         public AutoRefController(LobbyController lc)
         {
@@ -125,6 +141,66 @@ namespace SkyBot.Osu.AutoRef
 
                 _lastRoll = new Roll(from, 0, 100, rolled);
             }));
+
+            SendMessage($"{from} please roll via !roll");
+        }
+
+        public void SendMessage(string message)
+        {
+            _lc.SendMessage($"——— {message} ———");
+        }
+
+        public bool RequestRolls()
+        {
+            switch (_rollRequest)
+            {
+                default:
+                case 0:
+                    RequestRoll(Settings.CaptainBlue);
+                    _rollRequest = 1;
+                    return false;
+
+                case 1:
+                    if (_lastRoll == null)
+                        return false;
+                    else if (_lastRollInvalid)
+                        goto case 0;
+
+                    _blueRoll = _lastRoll;
+                    _rollRequest = 2;
+
+                    return false;
+
+                case 2:
+                    RequestRoll(Settings.CaptainRed);
+                    _rollRequest = 3;
+                    return false;
+
+                case 3:
+                    if (_lastRoll == null)
+                        return false;
+                    else if (_lastRollInvalid)
+                        goto case 2;
+                    else if (_lastRoll.Rolled == _blueRoll.Rolled)
+                    {
+                        _rollRequest = 0;
+                        goto case 0;
+                    }
+
+                    _redRoll = _lastRoll;
+                    _rollRequest = 0;
+
+                    return true;
+            }
+        }
+
+        public SlotColor GetRollWinColor()
+        {
+            if (_blueRoll == null ||
+                _redRoll == null)
+                return SlotColor.Blue;
+
+            return _blueRoll.Rolled > _redRoll.Rolled ? SlotColor.Blue : SlotColor.Red;
         }
 
         /// <summary>
@@ -154,6 +230,8 @@ namespace SkyBot.Osu.AutoRef
 
                 _lastPick = rolled;
             }));
+
+            SendMessage($"{from} please pick a map via !pick mapId");
         }
 
         /// <summary>
@@ -180,10 +258,14 @@ namespace SkyBot.Osu.AutoRef
             {
                 Move(slot1.Nickname);
                 _lc.MovePlayer(teamACap, 0);
+                _lc.SetTeam(teamACap, SlotColor.Blue);
             }
             //Move captain if not in slot
             else
+            {
                 _lc.MovePlayer(teamACap, 0);
+                _lc.SetTeam(teamBCap, SlotColor.Red);
+            }
 
             for (int i = 0; i < teamA.Count; i++)
             {
@@ -198,6 +280,8 @@ namespace SkyBot.Osu.AutoRef
                     Move(slot.Nickname);
                     _lc.MovePlayer(teamA[i], slot.Id);
                 }
+
+                _lc.SetTeam(teamA[i], SlotColor.Blue);
             }
 
             int capRedSlotId = playersPerTeam + 1;
@@ -208,10 +292,14 @@ namespace SkyBot.Osu.AutoRef
             {
                 Move(slot2.Nickname);
                 _lc.MovePlayer(teamBCap, capRedSlotId);
+                _lc.SetTeam(teamBCap, SlotColor.Blue);
             }
             //Move captain if not in slot
             else
+            {
                 _lc.MovePlayer(teamBCap, capRedSlotId);
+                _lc.SetTeam(teamBCap, SlotColor.Blue);
+            }
 
             //Get wrong slots
             List<string> playersRed = teamB.ToList();
@@ -230,6 +318,7 @@ namespace SkyBot.Osu.AutoRef
             for (int i = 0; i < freeSlots.Count; i++)
             {
                 _lc.MovePlayer(playersRed[0], freeSlots[i]);
+                _lc.SetTeam(playersRed[0], SlotColor.Blue);
                 playersRed.RemoveAt(0);
             }
 
@@ -238,6 +327,37 @@ namespace SkyBot.Osu.AutoRef
                 _lc.MovePlayer(player, nextFreeSlot);
                 nextFreeSlot++;
             }
+        }
+
+        public void SubmitResults()
+        {
+            var dchannel = Program.DiscordHandler.GetChannelAsync(Settings.DiscordGuildId, Settings.DiscordNotifyChannelId).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            var embedBuilder = new DSharpPlus.Entities.DiscordEmbedBuilder()
+            {
+                Title = $"Results for match {LC.Settings.RoomName} ({LC.Settings.ChannelName})",
+                Description = Resources.InvisibleCharacter
+            };
+
+            embedBuilder = embedBuilder.AddField("Bans", ToString(BannedMaps))
+                                       .AddField("Picks", ToString(PickedMaps))
+                                       .AddField("Unplayed maps", ToString(Mappool))
+                                       .AddField($"Blue vs Red : {BlueWins} vs {RedWins}", Resources.InvisibleCharacter)
+                                       .AddField("Chatlog", "To be done");
+
+            dchannel.SendMessageAsync(embed: embedBuilder.Build()).ConfigureAwait(false);
+        }
+
+        string ToString<T>(List<T> list)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < list.Count; i++)
+                sb.Append(list[i].ToString() + ", ");
+
+            sb = sb.Remove(sb.Length - 2, 2);
+
+            return sb.ToString();
         }
 
         /// <summary>

@@ -11,21 +11,11 @@ function Wait(duration) {
 function SetupTeams() {
     Lobby.Lock();
     Lobby.SortPlayers();
-    Lobby.SetTeamColors();
     return true;
 }
 
 function RequestRolls() {
     Ref.RequestRolls();
-    return true;
-}
-
-function WaitForRolls() {
-    const firstPick = Ref.GetFirstPick();
-
-    if (firstPick == null)
-        return false;
-
     return true;
 }
 
@@ -35,14 +25,26 @@ function GetPick(ban) {
     if (lastPick == 0 || !Ref.IsLastPickValid())
         return false;
 
-    if (ban)
-        Ref.Ban(lastPick);
-    else
-        Ref.Pick(lastPick);
+    if (ban) {
+        if (!Ref.Ban(lastPick)) {
+            RequestPick();
+            return false;
+        }
+    }
+    else {
+        if (!Ref.Pick(lastPick)) {
+            RequestPick();
+            return false;
+        }
+    }
 
     Ref.SetNextCaptainPick();
 
     return true;
+}
+
+function RequestPick() {
+    Ref.RequestCurrentPick();
 }
 
 function GetBan() {
@@ -57,34 +59,47 @@ function WaitForMapEnd() {
     return Ref.MapFinished();
 }
 
+function Msg(msg) {
+    Ref.SendMessage(msg);
+}
+
 function PlayPhase() {
     var state = Ref.GetState();
+    Workflow.AddStep(Msg("PlayPhase state " + state));
 
     switch (state) {
         default:
             return true;
 
         case 0:
+            Ref.RequestCurrentPick();
+            Ref.SetState(1);
+            return false;
+
+        case 1:
             if (GetPick()) {
-                Ref.SetState(1);
+                Ref.SetState(2);
                 Ref.Play();
             }
 
             return false;
 
-        case 1:
+        case 2:
             if (PickAndSelectMap()) {
-                Ref.SetState(2);
+                Ref.SetState(3);
             }
 
             return false;
 
-        case 2:
+        case 3:
             if (Ref.MapFinished()) {
                 Ref.SetState(0);
+                Ref.SetNextCaptainPick();
 
                 return true;
             }
+
+            return false;
     }
 
     return false;
@@ -94,27 +109,39 @@ function SubmitResult() {
     Ref.SubmitResults();
 }
 
-function Main() {
-    //5 ticks, each time a workflow step gets invoked wait X seconds to invoke the next step
-    //1000 MS / desiredDelay MS = tickrate
-    //This would set our delay to 200 ms, 100 is the minimum and 1 second is the max,
-    //it's totally optional to set this up and the default value is 4 ticks (250 ms delay)
-    Workflow.SetTicks(5); 
+function CloseLobby() {
+    Ref.CloseLobby();
+}
 
+function Main() {
+    Workflow.AddStep(Msg("First step, waiting for lobby creation"));
     Workflow.AddStep(Wait(5 * 60)); //wait till 5 minutes after lobby creation has happened
+    Workflow.AddStep(Msg("Inviting players"));
     Workflow.AddStep(InvitePlayers()); 
 
+    Workflow.AddStep(Msg("Waiting for match start"));
     Workflow.AddStep(Wait(10 * 60));
+    Workflow.AddStep(Msg("Setting up teams"));
     Workflow.AddStep(SetupTeams());
 
+    Workflow.AddStep(Msg("Requesting rolls"));
     Workflow.AddStep(RequestRolls());
-    Workflow.AddStep(WaitForRolls());
 
+    Workflow.AddStep(Msg("Requesting pick"));
+    Workflow.AddStep(RequestPick());
+    Workflow.AddStep(Msg("Getting ban"));
     Workflow.AddStep(GetBan());
+    Workflow.AddStep(Msg("Requesting pick"));
+    Workflow.AddStep(RequestPick());
+    Workflow.AddStep(Msg("Requesting ban"));
     Workflow.AddStep(GetBan());
 
+    Workflow.AddStep(Msg("Play Phase"));
     Workflow.AddStep(PlayPhase());
+    Workflow.AddStep(Msg("Submit results"));
     Workflow.AddStep(SubmitResults());
+    Workflow.AddStep(Msg("Closing lobby"));
+    Workflow.AddStep(CloseLobby());
 }
 
 Main();

@@ -38,6 +38,11 @@ namespace SkyBot
         {
             try
             {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("Te");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("st");
+
                 Logger.Log("Starting Skybot", LogLevel.Info);
                 StartedOn = DateTime.UtcNow;
                 LastUpdatedOn = new DateTimeOffset(GetLastUpdateDate(), TimeSpan.Zero);
