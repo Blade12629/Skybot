@@ -264,7 +264,7 @@ namespace SkyBot.Osu.AutoRef
             else
             {
                 _lc.MovePlayer(teamACap, 0);
-                _lc.SetTeam(teamBCap, SlotColor.Red);
+                _lc.SetTeam(teamACap, SlotColor.Blue);
             }
 
             for (int i = 0; i < teamA.Count; i++)
@@ -292,13 +292,13 @@ namespace SkyBot.Osu.AutoRef
             {
                 Move(slot2.Nickname);
                 _lc.MovePlayer(teamBCap, capRedSlotId);
-                _lc.SetTeam(teamBCap, SlotColor.Blue);
+                _lc.SetTeam(teamBCap, SlotColor.Red);
             }
             //Move captain if not in slot
             else
             {
                 _lc.MovePlayer(teamBCap, capRedSlotId);
-                _lc.SetTeam(teamBCap, SlotColor.Blue);
+                _lc.SetTeam(teamBCap, SlotColor.Red);
             }
 
             //Get wrong slots
@@ -318,7 +318,7 @@ namespace SkyBot.Osu.AutoRef
             for (int i = 0; i < freeSlots.Count; i++)
             {
                 _lc.MovePlayer(playersRed[0], freeSlots[i]);
-                _lc.SetTeam(playersRed[0], SlotColor.Blue);
+                _lc.SetTeam(playersRed[0], SlotColor.Red);
                 playersRed.RemoveAt(0);
             }
 
