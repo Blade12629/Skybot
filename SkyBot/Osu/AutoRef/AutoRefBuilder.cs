@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SkyBot.Database.Models.AutoRef;
+using System.Linq;
 
 namespace SkyBot.Osu.AutoRef
 {
@@ -78,6 +80,46 @@ namespace SkyBot.Osu.AutoRef
 
             arc.AddTicks(wrapper.GetAllSteps());
             arc.TestRun();
+        }
+
+        public bool LoadByKeyAndId(string key, ulong discordGuildId)
+        {
+            using DBContext c = new DBContext();
+            AutoRefConfig arc = c.AutoRefConfig.FirstOrDefault(cfg => cfg.DiscordGuildId == (long)discordGuildId && cfg.Key.Equals(key, StringComparison.CurrentCultureIgnoreCase));
+
+            if (arc == null)
+                return false;
+
+            switch(arc.CurrentScript)
+            {
+                default:
+                    return false;
+
+                case 0:
+                    if (string.IsNullOrEmpty(arc.Script0))
+                        return false;
+                    break;
+                case 1:
+                    if (string.IsNullOrEmpty(arc.Script1))
+                        return false;
+                    break;
+                case 2:
+                    if (string.IsNullOrEmpty(arc.Script2))
+                        return false;
+                    break;
+                case 3:
+                    if (string.IsNullOrEmpty(arc.Script3))
+                        return false;
+                    break;
+            }
+
+            TotalWarmups = arc.TotalWarmups;
+            BestOf = arc.BestOf;
+            DiscordGuildId = (ulong)arc.DiscordGuildId;
+            DiscordNotifyChannelId = (ulong)arc.DiscordNotifyChannelId;
+            PlayersPerTeam = arc.PlayersPerTeam;
+
+            return true;
         }
 
         public AutoRefController Build(out Exception ex)
