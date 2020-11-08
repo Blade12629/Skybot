@@ -23,10 +23,13 @@ namespace SkyBot.Osu.AutoRef
         public ulong DiscordNotifyChannelId { get; set; }
         public int PlayersPerTeam { get; set; }
 
-
-        public AutoRefBuilder(IRC.OsuIrcClient irc, string script)
+        public AutoRefBuilder(IRC.OsuIrcClient irc)
         {
             IRC = irc;
+        }
+
+        public AutoRefBuilder(IRC.OsuIrcClient irc, string script) : this(irc)
+        {
             Script = script;
         }
 
@@ -98,18 +101,26 @@ namespace SkyBot.Osu.AutoRef
                 case 0:
                     if (string.IsNullOrEmpty(arc.Script0))
                         return false;
+
+                    Script = arc.Script0;
                     break;
                 case 1:
                     if (string.IsNullOrEmpty(arc.Script1))
                         return false;
+
+                    Script = arc.Script1;
                     break;
                 case 2:
                     if (string.IsNullOrEmpty(arc.Script2))
                         return false;
+
+                    Script = arc.Script2;
                     break;
                 case 3:
                     if (string.IsNullOrEmpty(arc.Script3))
                         return false;
+
+                    Script = arc.Script3;
                     break;
             }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
@@ -91,6 +92,11 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         public void InviteAllPlayers()
         {
             _arc.InvitePlayers();
+        }
+
+        public bool WaitForPlayers()
+        {
+            return _arc.LC.Slots.Count(s => s.Value.IsUsed) == _arc.Settings.PlayersBlue.Count + _arc.Settings.PlayersRed.Count + 2;
         }
 
         public void DebugLog(string message)

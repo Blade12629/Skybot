@@ -407,7 +407,7 @@ namespace SkyBot.Analyzer
                     scores.Add((games[i].Beatmap.Id, games[i].Scores[x]));
 
 
-                    Player CurrentPlayer = highestScoreRanking.Find(player => player.UserId == games[i].Scores[x].UserId);
+                    Player CurrentPlayer = highestScoreRanking.FirstOrDefault(player => player.UserId == games[i].Scores[x].UserId);
 
                     if (CurrentPlayer == null)
                     {
@@ -989,10 +989,12 @@ namespace SkyBot.Analyzer
                 Rank rank = ar.Ranks[i];
                 Player player = rank.Player;
 
-                SeasonPlayer sp = c.SeasonPlayer.FirstOrDefault(sp => sp.DiscordGuildId == (long)guild.Id && sp.OsuUserId == (long)player.UserId);
+                SeasonPlayer sp = c.SeasonPlayer.FirstOrDefault(sp => sp.DiscordGuildId == (long)guild.Id && 
+                                                                      sp.OsuUserId == (long)player.UserId);
 
                 if (sp != null)
                 {
+                    sp.TeamName = player.HighestScore.Match.Team.Equals("red", StringComparison.CurrentCultureIgnoreCase) ? versusNames.Item2 : versusNames.Item1;
                     players.Add(sp);
                     continue;
                 }
@@ -1029,11 +1031,13 @@ namespace SkyBot.Analyzer
                                                                         ss.PlayedAt == (game.EndTime.HasValue ? game.EndTime.Value : game.StartTime));
 
                     if (ss != null)
-                        continue;
-
-                    ss = new SeasonScore()
                     {
-                        Id = 0,
+                        tmpScores.Add(ss);
+                        continue;
+                    }
+
+                    ss = c.SeasonScore.Add(new SeasonScore()
+                    {
                         Accuracy = (float)score.Accuracy,
                         Score = score.Score,
                         SeasonPlayerId = sp.Id,
@@ -1052,7 +1056,7 @@ namespace SkyBot.Analyzer
                         TeamVs = true,
                         PlayOrder = playOrder,
                         BeatmapId = (long)game.Beatmap.Id,
-                    };
+                    }).Entity;
 
                     tmpScores.Add(ss);
                 }
@@ -1063,11 +1067,21 @@ namespace SkyBot.Analyzer
             }
 
             scores.ForEach(s => s.GeneralPerformanceScore = s.GeneralPerformanceScore / players.Count * 10);
-            SeasonScore highestGPSscoreLosing = scores.Where(s => s.TeamName.Equals(ar.LosingTeam, StringComparison.CurrentCultureIgnoreCase)).Aggregate((i1, i2) => i1.GeneralPerformanceScore > i2.GeneralPerformanceScore ? i1 : i2);
-            highestGPSscoreLosing.HighestGeneralPerformanceScore = true; //lgtm [cs/dereferenced-value-may-be-null]
 
-            SeasonScore highestGPSscoreWinning = scores.Where(s => s.TeamName.Equals(ar.WinningTeam, StringComparison.CurrentCultureIgnoreCase)).Aggregate((i1, i2) => i1.GeneralPerformanceScore > i2.GeneralPerformanceScore ? i1 : i2);
-            highestGPSscoreWinning.HighestGeneralPerformanceScore = true; //lgtm [cs/dereferenced-value-may-be-null]
+            List<SeasonScore> losingTeamScores = scores.Where(s => s.TeamName.Equals(ar.LosingTeam, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            List<SeasonScore> winningTeamScores = scores.Where(s => s.TeamName.Equals(ar.WinningTeam, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+            if (losingTeamScores.Count > 0)
+            {
+                SeasonScore highestGPSscoreLosing = losingTeamScores.Aggregate((i1, i2) => i1.GeneralPerformanceScore > i2.GeneralPerformanceScore ? i1 : i2);
+                highestGPSscoreLosing.HighestGeneralPerformanceScore = true; //lgtm [cs/dereferenced-value-may-be-null]
+            }
+
+            if (winningTeamScores.Count > 0)
+            {
+                SeasonScore highestGPSscoreWinning = winningTeamScores.Aggregate((i1, i2) => i1.GeneralPerformanceScore > i2.GeneralPerformanceScore ? i1 : i2);
+                highestGPSscoreWinning.HighestGeneralPerformanceScore = true; //lgtm [cs/dereferenced-value-may-be-null]
+            }
 
             c.SeasonScore.AddRange(scores);
             c.SaveChanges();

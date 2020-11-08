@@ -974,19 +974,19 @@ public class DBContext : DbContext
                 .HasColumnType("int(11)");
 
             entity.Property(e => e.Script0)
-                .HasColumnName("script0")
+                .HasColumnName("script_0")
                 .HasColumnType("longtext");
             
             entity.Property(e => e.Script1)
-                .HasColumnName("script1")
+                .HasColumnName("script_1")
                 .HasColumnType("longtext");
             
             entity.Property(e => e.Script2)
-                .HasColumnName("script2")
+                .HasColumnName("script_2")
                 .HasColumnType("longtext");
             
             entity.Property(e => e.Script3)
-                .HasColumnName("script3")
+                .HasColumnName("script_3")
                 .HasColumnType("longtext");
 
             entity.Property(e => e.CurrentScript)

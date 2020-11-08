@@ -61,6 +61,7 @@ function WaitForMapEnd() {
 
 function Msg(msg) {
     Ref.SendMessage(msg);
+    return true;
 }
 
 function PlayPhase() {
@@ -123,6 +124,8 @@ function Main() {
     Workflow.AddStep(Wait(10 * 60));
     Workflow.AddStep(Msg("Setting up teams"));
     Workflow.AddStep(SetupTeams());
+
+    //TODO: add warmup maps (note warmups have to be submitted before match starts)
 
     Workflow.AddStep(Msg("Requesting rolls"));
     Workflow.AddStep(RequestRolls());
