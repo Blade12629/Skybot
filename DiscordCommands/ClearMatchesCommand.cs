@@ -12,15 +12,15 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.ClearMatchesCommand;
+        public string Command => "clearmatches";
 
         public AccessLevel AccessLevel => AccessLevel.Admin;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => ResourcesCommands.ClearMatchesCommandDescription;
+        public string Description => "Clears all matches that are linked to the current server";
 
-        public string Usage => ResourcesCommands.ClearMatchesCommandUsage;
+        public string Usage => "{prefix}clearmatches";
 
         public int MinParameters => 0;
         public bool AllowOverwritingAccessLevel => true;
@@ -29,12 +29,12 @@ namespace DiscordCommands
         {
             if (OsuAnalyzer.ClearMatches(args.Guild)) 
             {
-                args.Channel.SendMessageAsync($"{ResourcesCommands.ClearMatchesCommandMatchesRemoved}\n" + ResourceStats.CacheUpdating);
+                args.Channel.SendMessageAsync($"All matches removed\nCache is getting updated, this might take a moment");
                 OsuAnalyzer.UpdateCaches(args.Guild);
-                args.Channel.SendMessageAsync(ResourceStats.CacheUpdated);
+                args.Channel.SendMessageAsync("Cache was updated");
             }
             else
-                args.Channel.SendMessageAsync(ResourcesCommands.ClearMatchesCommandMatchesNotFound);
+                args.Channel.SendMessageAsync("No matches found");
         }
     }
 }

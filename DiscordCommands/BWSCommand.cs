@@ -11,11 +11,11 @@ namespace DiscordCommands
 {
     public class BWSCommand : ICommand
     {
-        public string Command => ResourcesCommands.BWSCommand;
+        public string Command => "bws";
 
-        public string Description => ResourcesCommands.BWSCommandDescription;
+        public string Description => "Calculates the bws rank";
 
-        public string Usage => ResourcesCommands.BWSCommandUsage;
+        public string Usage => "{prefix}bws <rank> <badgeCount>";
 
         public bool IsDisabled { get; set; }
 
@@ -30,13 +30,13 @@ namespace DiscordCommands
         {
             if (!int.TryParse(args.Parameters[0], out int rank))
             {
-                HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandFailedParseRank, args.Parameters[0]));
+                HelpCommand.ShowHelp(args.Channel, this, $"Could not parse the rank {args.Parameters[0]}");
                 return;
             }
 
             if (!int.TryParse(args.Parameters[1], out int badgeCount))
             {
-                HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.BWSCommandFailedParseBadgeCount, args.Parameters[1]));
+                HelpCommand.ShowHelp(args.Channel, this, $"Could not parse the badge count {args.Parameters[1]}");
                 return;
             }
 

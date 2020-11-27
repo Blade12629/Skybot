@@ -14,15 +14,21 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.SyncCommand;
+        public string Command => "sync";
 
         public AccessLevel AccessLevel => AccessLevel.User;
 
         public CommandType CommandType => CommandType.None;
 
-        public string Description => ResourcesCommands.SyncCommandDescription;
+        public string Description => "Synchronizes you/Force synchronize someone/synchronize all users";
 
-        public string Usage => ResourcesCommands.SyncCommandUsage;
+        public string Usage =>  "{prefix}sync\n\n" +
+                                "Moderator:\n" +
+                                "{prefix}sync [discordUserId/Mention]\n\n" +
+                                "Host:\n" +
+                                "{prefix}sync @@all\n";
+
+
         public bool AllowOverwritingAccessLevel => false;
 
         public int MinParameters => 0;
@@ -68,7 +74,7 @@ namespace DiscordCommands
                 if ((mentionId = DiscordHandler.ExtractMentionId(args.ParameterString)) > 0)
                 {
                     if (System.Threading.Tasks.Task.Run(async () => await VerificationManager.SynchronizeVerification(mentionId, args.Guild.Id, args.Config).ConfigureAwait(false)).ConfigureAwait(false).GetAwaiter().GetResult())
-                        args.Channel.SendMessageAsync($"{ResourcesCommands.SyncCommandSyncSuccess} {args.ParameterString}");
+                        args.Channel.SendMessageAsync($"Synchronized {args.ParameterString}");
                     else
                         args.Channel.SendMessageAsync($"Failed to synchronize " + args.ParameterString);
                 }
@@ -81,7 +87,7 @@ namespace DiscordCommands
             System.Threading.Tasks.Task.Run(async () => await VerificationManager.SynchronizeVerification((ulong)args.User.Id).ConfigureAwait(false)).ConfigureAwait(false).GetAwaiter().GetResult();
 
 
-            args.Channel.SendMessageAsync($"{ResourcesCommands.SyncCommandSyncSuccess} {args.User.Mention}");
+            args.Channel.SendMessageAsync($"Synchronized {args.User.Mention}");
         }
     }
 }

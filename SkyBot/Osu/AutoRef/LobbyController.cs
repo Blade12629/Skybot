@@ -27,6 +27,7 @@ namespace SkyBot.Osu.AutoRef
         public event EventHandler<ChatMessage> OnMessageReceived;
 
         public DateTime CreationDate { get; private set; }
+        public bool IsCreated { get; private set; }
         public bool IsClosed { get; private set; }
         public Settings Settings { get; private set; }
         public IReadOnlyDictionary<int, Slot> Slots => _slots;
@@ -132,6 +133,9 @@ namespace SkyBot.Osu.AutoRef
         /// <param name="parameters">Command parameters</param>
         public void SendCommand(MPCommand cmd, params object[] parameters)
         {
+            if (!IsCreated)
+                throw new Exception("MP Lobby doesn't exist, cannot send mp command");
+
             StringBuilder cmdBuilder = new StringBuilder("!mp ");
 
             switch (cmd)
@@ -426,6 +430,9 @@ namespace SkyBot.Osu.AutoRef
         /// <param name="message">Message to send</param>
         public void SendMessage(string message)
         {
+            if (!IsCreated)
+                throw new Exception("MP Lobby doesn't exist, cannot send mp command");
+
             _tickQueue.Enqueue(new Action(() => _irc.SendMessageAsync(Settings.ChannelName, message).ConfigureAwait(false)));
         }
 
@@ -513,6 +520,8 @@ namespace SkyBot.Osu.AutoRef
 
             foreach (var slot in slots)
                 slot.IsReady = true;
+
+            OnAllPlayersReady?.Invoke(this, null);
         }
 
         public async Task<bool> WaitForAllPlayersReady(TimeSpan timeout)
@@ -568,7 +577,8 @@ namespace SkyBot.Osu.AutoRef
             Settings.MatchId = matchId;
             IsClosed = false;
             CreationDate = DateTime.UtcNow;
-
+            IsCreated = true;
+            
             OnCreated?.Invoke(this, null);
         }
 

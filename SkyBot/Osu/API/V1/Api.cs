@@ -69,9 +69,9 @@ namespace SkyBot.Osu.API.V1
         public static async Task<JsonGetUser> GetUser(object user, int mode = 0, string type = "id", int eventDays = 1)
         {
             if (user == null)
-                throw new ArgumentException(Resources.CannotBeNullEmptyException, nameof(user));
+                throw new ArgumentException(ResourceExceptions.CannotBeNullEmptyException, nameof(user));
             if (string.IsNullOrEmpty(type))
-                throw new ArgumentException(Resources.CannotBeNullEmptyException, nameof(type));
+                throw new ArgumentException(ResourceExceptions.CannotBeNullEmptyException, nameof(type));
 
             if (type.Equals("id", StringComparison.CurrentCultureIgnoreCase) && !(user is int))
                 throw new ArgumentException("string type is 'id'" + Environment.NewLine +

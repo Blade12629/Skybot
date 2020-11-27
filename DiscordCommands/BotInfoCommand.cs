@@ -13,15 +13,15 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.BotInfoCommand;
+        public string Command => "botinfo";
 
         public AccessLevel AccessLevel => AccessLevel.User;
 
         public CommandType CommandType => CommandType.None;
 
-        public string Description => ResourcesCommands.BotInfoCommandDescription;
+        public string Description => "Displays general infos about the bot";
 
-        public string Usage => ResourcesCommands.BotInfoCommandUsage;
+        public string Usage => "{prefix}botinfo";
 
         public int MinParameters => 0;
         public bool AllowOverwritingAccessLevel => false;

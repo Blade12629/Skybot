@@ -195,7 +195,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         }
 
         /// <summary>
-        /// Sets the current workflow state
+        /// Sets the current workflow state (Used to communicate between steps, see <see cref="GetState"/>)
         /// </summary>
         /// <param name="state">New workflow state</param>
         public void SetState(int state)
@@ -204,7 +204,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         }
 
         /// <summary>
-        /// Gets the current workflow state
+        /// Gets the current workflow state (Used to communicate between steps, see <see cref="SetState(int)"/>)
         /// </summary>
         /// <returns>Workflow state</returns>
         public int GetState()
@@ -220,10 +220,26 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
             _arc.SubmitResults();
         }
 
+        /// <summary>
+        /// Same as Lobby.SendMessage
+        /// </summary>
         public void SendMessage(string msg)
         {
+            if (string.IsNullOrEmpty(msg))
+                throw new ArgumentNullException(nameof(msg));
+            else if (msg.StartsWith('!'))
+                throw new Exception("Cannot execute commands through SendMessage");
+
             Logger.Log(msg);
             _arc.SendMessage(msg);
+        }
+
+        /// <summary>
+        /// Sends a message to the discord notify channel
+        /// </summary>
+        public void SendDiscordMessage(string msg)
+        {
+            _arc.SendDiscordMessage(msg);
         }
     }
 }

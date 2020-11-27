@@ -36,6 +36,9 @@ namespace SkyBot.Osu.AutoRef.Workflows
 
             try
             {
+                if (!SecurityCheck(script, out Exception ex__))
+                    throw ex__;
+
                 Setup(workflow);
                 _engine.Execute(script);
             }
@@ -47,6 +50,73 @@ namespace SkyBot.Osu.AutoRef.Workflows
 
             ex = null;
             return workflow;
+        }
+
+        bool SecurityCheck(string script, out Exception ex)
+        {
+            const string WORKFLOW_START = "Workflow.AddStep(";
+            if (string.IsNullOrEmpty(script))
+            {
+                ex = new InterpreterException("General", "Script is null or empty");
+                return false;
+            }
+
+            script = script.Trim(' ', '\n');
+
+            if (script.Contains("require(", StringComparison.CurrentCultureIgnoreCase))
+            {
+                ex = new InterpreterException("Security", "Use of require() detected");
+                return false;
+            }
+
+            //Make sure user won't accidently invoke the function instead of adding it
+            #region addstep check
+            //Workflow.AddStep(() => Msg("Inviting players"));
+            //Workflow.AddStep(InvitePlayers);
+
+            for(int prevIndex = 0; ; )
+            {
+                int index = script.IndexOf(WORKFLOW_START, prevIndex, StringComparison.CurrentCultureIgnoreCase);
+
+                if (index == -1)
+                    break;
+
+                prevIndex = index;
+                int end = script.IndexOf(");", index, StringComparison.CurrentCultureIgnoreCase);
+
+                if (end == -1)
+                {
+                    ex = new InterpreterException("SecurityCheck", "Unable to find end of Workflow.AddStep");
+                    return false;
+                }
+
+                //()=>Msg("Invitingplayers")
+                //InvitePlayers
+                string sub = script.Substring(index + WORKFLOW_START.Length, end - index - WORKFLOW_START.Length).Trim(' ');
+
+                if (string.IsNullOrEmpty(sub))
+                {
+                    ex = new InterpreterException("SecurityCheck", "Unable to find Workflow.AddStep parameters");
+                    return false;
+                }
+                else if (sub.StartsWith("()=>", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    index = script.IndexOf(WORKFLOW_START, end, StringComparison.CurrentCultureIgnoreCase);
+                    continue;
+                }
+                else
+                {
+                    if (sub.EndsWith(')'))
+                    {
+                        ex = new InterpreterException("Invocation", "You cannot invoke functions through Workflow.AddStep(Function());");
+                        return false;
+                    }
+                }
+            }
+            #endregion
+
+            ex = null;
+            return true;
         }
 
         void Setup(WorkflowWrapper workflow)
@@ -96,13 +166,16 @@ namespace SkyBot.Osu.AutoRef.Workflows
                              .SetValue("Ref", new RefWrapper(_arc))
                              .SetValue("Convert", new ConvertWrapper())
                              .SetValue("Workflow", workflow)
-                             .SetValue("Random", SkyBot.Program.Random)
-                             .SetValue("RND", SkyBot.Program.Random);
+                             .SetValue("Random", Program.Random)
+                             .SetValue("RND", Program.Random);
         }
 
         void AddFunctions()
         {
             _engine = _engine.SetValue("ToString", new Func<object, string>(o => o.ToString()));
+            _engine = _engine.SetValue("GetType", new Func<object, Type>(o => o.GetType()));
+            _engine = _engine.SetValue("Equals", new Func<object, object, bool>((a, b) => a == null ? false : b == null ? false : a.Equals(b)));
+            _engine = _engine.SetValue("CurrentTimeUtc", new Func<DateTime>(() => DateTime.UtcNow));
         }
     }
 }

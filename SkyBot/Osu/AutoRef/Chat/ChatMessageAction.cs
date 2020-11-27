@@ -42,6 +42,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                 new UserMoved(lc),
                 new UserScore(lc),
                 new UpdateSettings(lc),
+                new AllUsersReady(lc)
             };
         }
 

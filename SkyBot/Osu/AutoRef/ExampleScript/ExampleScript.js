@@ -66,7 +66,7 @@ function Msg(msg) {
 
 function PlayPhase() {
     var state = Ref.GetState();
-    Workflow.AddStep(Msg("PlayPhase state " + state));
+    Msg("PlayPhase state " + state);
 
     switch (state) {
         default:
@@ -115,36 +115,79 @@ function CloseLobby() {
 }
 
 function Main() {
-    Workflow.AddStep(Msg("First step, waiting for lobby creation"));
-    Workflow.AddStep(Wait(5 * 60)); //wait till 5 minutes after lobby creation has happened
-    Workflow.AddStep(Msg("Inviting players"));
-    Workflow.AddStep(InvitePlayers()); 
+    Workflow.AddStep(() => Msg("First step, waiting for lobby creation"));
+    Workflow.AddStep(() => Wait(5 * 60)); //wait till 5 minutes after lobby creation has happened
+    Workflow.AddStep(() => Msg("Inviting players"));
+    Workflow.AddStep(InvitePlayers); 
 
-    Workflow.AddStep(Msg("Waiting for match start"));
-    Workflow.AddStep(Wait(10 * 60));
-    Workflow.AddStep(Msg("Setting up teams"));
-    Workflow.AddStep(SetupTeams());
+    Workflow.AddStep(() => Msg("Waiting for match start"));
+    Workflow.AddStep(() => Wait(10 * 60));
+    Workflow.AddStep(() => Msg("Setting up teams"));
+    Workflow.AddStep(SetupTeams);
 
-    //TODO: add warmup maps (note warmups have to be submitted before match starts)
+    //TODO: gaf-related: add warmup maps (note warmups have to be submitted before match starts)
 
-    Workflow.AddStep(Msg("Requesting rolls"));
-    Workflow.AddStep(RequestRolls());
+    Workflow.AddStep(() => Msg("Requesting rolls"));
+    Workflow.AddStep(RequestRolls);
 
-    Workflow.AddStep(Msg("Requesting pick"));
-    Workflow.AddStep(RequestPick());
-    Workflow.AddStep(Msg("Getting ban"));
-    Workflow.AddStep(GetBan());
-    Workflow.AddStep(Msg("Requesting pick"));
-    Workflow.AddStep(RequestPick());
-    Workflow.AddStep(Msg("Requesting ban"));
-    Workflow.AddStep(GetBan());
+    Workflow.AddStep(() => Msg("Requesting pick"));
+    Workflow.AddStep(RequestPick);
+    Workflow.AddStep(() => Msg("Getting ban"));
+    Workflow.AddStep(GetBan);
+    Workflow.AddStep(() => Msg("Requesting pick"));
+    Workflow.AddStep(RequestPick);
+    Workflow.AddStep(() => Msg("Requesting ban"));
+    Workflow.AddStep(GetBan);
 
-    Workflow.AddStep(Msg("Play Phase"));
-    Workflow.AddStep(PlayPhase());
-    Workflow.AddStep(Msg("Submit results"));
-    Workflow.AddStep(SubmitResults());
-    Workflow.AddStep(Msg("Closing lobby"));
-    Workflow.AddStep(CloseLobby());
+    Workflow.AddStep(() => Msg("Play Phase"));
+    Workflow.AddStep(PlayPhase);
+    Workflow.AddStep(() => Msg("Submit results"));
+    Workflow.AddStep(SubmitResults);
+    Workflow.AddStep(() => Msg("Closing lobby"));
+    Workflow.AddStep(CloseLobby);
 }
 
-Main();
+function SoloTest() {
+    Workflow.AddStep(() => Msg("First step, waiting for lobby creation"));
+    Workflow.AddStep(() => Wait(10)); //wait till 10 seconds after lobby creation has happened
+    Workflow.AddStep(() => Msg("Inviting players"));
+    Workflow.AddStep(InvitePlayers);
+
+    Workflow.AddStep(() => Msg("Waiting for match start"));
+    Workflow.AddStep(() => Wait(20));
+    Workflow.AddStep(() => Msg("Closing lobby"));
+    Workflow.AddStep(CloseLobby);
+}
+
+function MainTest() {
+    Workflow.AddStep(() => Msg("First step, waiting for lobby creation"));
+    Workflow.AddStep(() => Wait(10)); //wait till 10 seconds after lobby creation has happened
+    Workflow.AddStep(() => Msg("Inviting players"));
+    Workflow.AddStep(InvitePlayers);
+
+    Workflow.AddStep(() => Msg("Waiting for match start"));
+    Workflow.AddStep(() => Wait(20));
+    Workflow.AddStep(() => Msg("Setting up teams"));
+    Workflow.AddStep(SetupTeams);
+
+    //TODO: gaf-related: add warmup maps (note warmups have to be submitted before match starts)
+
+    Workflow.AddStep(() => Msg("Requesting rolls"));
+    Workflow.AddStep(RequestRolls);
+
+    Workflow.AddStep(() => Msg("Requesting pick"));
+    Workflow.AddStep(RequestPick);
+    Workflow.AddStep(() => Msg("Getting ban"));
+    Workflow.AddStep(GetBan);
+    Workflow.AddStep(() => Msg("Requesting pick"));
+    Workflow.AddStep(RequestPick);
+    Workflow.AddStep(() => Msg("Requesting ban"));
+    Workflow.AddStep(GetBan);
+
+    Workflow.AddStep(() => Msg("Finished Test Script"));
+    Workflow.AddStep(() => Msg("Closing lobby"));
+    Workflow.AddStep(CloseLobby);
+}
+
+MainTest();
+//Main();

@@ -17,15 +17,23 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.StatsCommand;
+        public string Command => "stats";
 
         public AccessLevel AccessLevel => AccessLevel.User;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => ResourcesCommands.StatsCommandDescription;
+        public string Description => "Displays stats for players/teams/matches";
 
-        public string Usage => ResourcesCommands.StatsCommandUsage;
+        public string Usage =>  "{prefix}stats p/player p/profile osuUserId/osuUsername" +
+                                "{prefix}stats p/player t/top [page]\n\n" +
+
+                                "{prefix}stats t/team p/profile osuUserId/osuUsername\n" +
+                                "{prefix}stats t/team t/top [page]\n\n" +
+
+                                "{prefix}stats m/match <matchId>\n" +
+                                "{prefix}stats m/match <team a> vs <team b>";
+
         public bool AllowOverwritingAccessLevel => true;
 
         public int MinParameters => 2;
@@ -127,13 +135,13 @@ namespace DiscordCommands
 
             if (players.Count == 0)
             {
-                client.SendSimpleEmbed(args.Channel, ResourceStats.NoStatsFound).ConfigureAwait(false);
+                client.SendSimpleEmbed(args.Channel, "Could not find any stats").ConfigureAwait(false);
                 return;
             }
             else if (reverse)
                 players.Reverse();
 
-            args.Channel.SendMessageAsync(embed: GetListAsEmbed<SeasonPlayerCardCache>(players, page * 10, 10, ResourceStats.Players,
+            args.Channel.SendMessageAsync(embed: GetListAsEmbed<SeasonPlayerCardCache>(players, page * 10, 10, "Players",
                                                                                        new Func<SeasonPlayerCardCache, string>(sp => sp.Username),
                                                                                        new Func<SeasonPlayerCardCache, double>(sp => sp.OverallRating)));
         }
@@ -150,13 +158,13 @@ namespace DiscordCommands
             List<SeasonTeamCardCache> teams = GetTeams(args.Guild).OrderByDescending(sp => sp.TeamRating).ToList();
             if (teams.Count == 0)
             {
-                client.SendSimpleEmbed(args.Channel, ResourceStats.NoStatsFound).ConfigureAwait(false);
+                client.SendSimpleEmbed(args.Channel, "Could not find any stats").ConfigureAwait(false);
                 return;
             }
             if (reverse)
                 teams.Reverse();
 
-            args.Channel.SendMessageAsync(embed: GetListAsEmbed<SeasonTeamCardCache>(teams, page * 10, 10, ResourceStats.Teams,
+            args.Channel.SendMessageAsync(embed: GetListAsEmbed<SeasonTeamCardCache>(teams, page * 10, 10, "Teams",
                                                                                        new Func<SeasonTeamCardCache, string>(sp => sp.TeamName),
                                                                                        new Func<SeasonTeamCardCache, double>(sp => Math.Round(sp.TeamRating, 2, MidpointRounding.AwayFromZero))));
         }
@@ -178,7 +186,7 @@ namespace DiscordCommands
 
                 if (osuUserId == -1)
                 {
-                    client.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, "Could not find player " + osuUserId).ConfigureAwait(false);
                     return;
                 }
 
@@ -186,7 +194,7 @@ namespace DiscordCommands
 
                 if (spcc == null)
                 {
-                    client.SendSimpleEmbed(args.Channel, ResourceStats.PlayerNotFound + osuUserId).ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, "Could not find player " + osuUserId).ConfigureAwait(false);
                     return;
                 }
 
@@ -194,7 +202,7 @@ namespace DiscordCommands
             }
             catch (Exception)
             {
-                client.SendSimpleEmbed(args.Channel, "Profile not found");
+                client.SendSimpleEmbed(args.Channel, "Profile not found").ConfigureAwait(false);
             }
         }
 
@@ -208,7 +216,7 @@ namespace DiscordCommands
 
             if (stcc == null)
             {
-                client.SendSimpleEmbed(args.Channel, ResourceStats.TeamNotFound + teamName).ConfigureAwait(false);
+                client.SendSimpleEmbed(args.Channel, "Could not find team " + teamName).ConfigureAwait(false);
                 return;
             }
 
@@ -248,7 +256,7 @@ namespace DiscordCommands
                 if (!c.SeasonResult.Any(sr => sr.MatchId == matchId &&
                                               sr.DiscordGuildId == (long)args.Guild.Id))
                 {
-                    client.SendSimpleEmbed(args.Channel, ResourceStats.MatchNotFound + matchId).ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, "Could not find match " + matchId).ConfigureAwait(false);
                     return;
                 }
             }
@@ -259,7 +267,7 @@ namespace DiscordCommands
             {
                 DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
                 {
-                    Title = ResourceStats.MatchNotFound,
+                    Title = "Could not find match ",
                     Description = Resources.InvisibleCharacter
                 };
 
@@ -322,13 +330,13 @@ namespace DiscordCommands
                 Author = new DiscordEmbedBuilder.EmbedAuthor()
                 {
                     IconUrl = "",
-                    Name = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", ResourceStats.Team, teamName),
+                    Name = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", "Team", teamName),
                 },
                 ThumbnailUrl = "https://a.ppy.sh/" + osuUserId,
-                Title = string.Format(CultureInfo.CurrentCulture, "{0} {1} ({2})", ResourceStats.StatsFor, userName, osuUserId),
+                Title = string.Format(CultureInfo.CurrentCulture, "{0} {1} ({2})", "Stats For", userName, osuUserId),
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
-                    Text = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", ResourceStats.LastUpdated, DateTime.UtcNow)
+                    Text = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", "Last Updated", DateTime.UtcNow)
                 }
             };
 
@@ -337,13 +345,13 @@ namespace DiscordCommands
             avgGps = Math.Round(avgGps, 2, MidpointRounding.AwayFromZero);
             overallRating = Math.Round(overallRating, 2, MidpointRounding.AwayFromZero);
 
-            builder.AddField(ResourceStats.AverageAccuracy, avgAcc.ToString(CultureInfo.CurrentCulture) + " %", true)
-                   .AddField(ResourceStats.AverageScore, string.Format(CultureInfo.CurrentCulture, "{0:n0}", avgScore), true)
-                   .AddField(ResourceStats.AverageMisses, avgMisses.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.AverageCombo, avgCombo.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.AverageGPS, avgGps.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.MatchMVPs, matchMvps.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.OverallRating, (overallRating.ToString(CultureInfo.CurrentCulture) + $" (+{matchMvps * 3.5})"), true);
+            builder.AddField("Average Accuracy", avgAcc.ToString(CultureInfo.CurrentCulture) + " %", true)
+                   .AddField("Average Score", string.Format(CultureInfo.CurrentCulture, "{0:n0}", avgScore), true)
+                   .AddField("Average Misses", avgMisses.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField("Average Combo", avgCombo.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField("Average GPS", avgGps.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField("Match MVPs", matchMvps.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField("Overall Rating", (overallRating.ToString(CultureInfo.CurrentCulture) + $" (+{matchMvps * 3.5})"), true);
 
             return builder.Build();
         }
@@ -352,11 +360,11 @@ namespace DiscordCommands
         {
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
-                Title = string.Format(CultureInfo.CurrentCulture, "{0} {1} {2}", ResourceStats.StatsFor, ResourceStats.Team, teamName),
-                Description = ResourceStats.TeamMVP + mvpName,
+                Title = string.Format(CultureInfo.CurrentCulture, "{0} {1} {2}", "Stats For", "Team", teamName),
+                Description = "Team MVP: " + mvpName,
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
-                    Text = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", ResourceStats.LastUpdated, DateTime.UtcNow)
+                    Text = string.Format(CultureInfo.CurrentCulture, "{0}: {1}", "Last Updated", DateTime.UtcNow)
                 }
             };
 
@@ -366,14 +374,14 @@ namespace DiscordCommands
             avgRating = Math.Round(avgRating, 2, MidpointRounding.AwayFromZero);
             teamRating = Math.Round(teamRating, 2, MidpointRounding.AwayFromZero);
 
-            builder.AddField(ResourceStats.AverageAccuracy, avgAcc.ToString(CultureInfo.CurrentCulture) + " %", true)
-                   .AddField(ResourceStats.AverageScore, string.Format(CultureInfo.CurrentCulture, "{0:n0}", avgScore), true)
-                   .AddField(ResourceStats.AverageMisses, avgMisses.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.AverageCombo, avgCombo.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.AverageGPS, avgGps.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.MatchMVPs, totalMvps.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.AverageRating, avgRating.ToString(CultureInfo.CurrentCulture), true)
-                   .AddField(ResourceStats.TeamRating, (teamRating.ToString(CultureInfo.CurrentCulture) + $" (+{totalMvps * 3.5})"), true);
+            builder.AddField("Average Accuracy", avgAcc.ToString(CultureInfo.CurrentCulture) + " %", true)
+                   .AddField("Average Score", string.Format(CultureInfo.CurrentCulture, "{0:n0}", avgScore), true)
+                   .AddField("Average Misses", avgMisses.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField("Average Combo", avgCombo.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField("Average GPS", avgGps.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField("Match MVPs", totalMvps.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField("Average Rating", avgRating.ToString(CultureInfo.CurrentCulture), true)
+                   .AddField("Team Rating", (teamRating.ToString(CultureInfo.CurrentCulture) + $" (+{totalMvps * 3.5})"), true);
 
             return builder.Build();
         }
@@ -414,7 +422,7 @@ namespace DiscordCommands
             {
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
-                    Text = $"{ResourceStats.Page} {page}/{maxPages}"
+                    Text = $"{"Page"} {page}/{maxPages}"
                 }
             };
 
@@ -423,7 +431,7 @@ namespace DiscordCommands
             else if (start >= input.Count)
                 return builder.Build();
 
-            builder.Title = $"{ResourceStats.Top} {(page - 1) * 10 + count}/{input.Count} {listTitle}";
+            builder.Title = $"{"Top"} {(page - 1) * 10 + count}/{input.Count} {listTitle}";
 
             StringBuilder ranksb = new StringBuilder();
             StringBuilder namesb = new StringBuilder();
@@ -440,13 +448,13 @@ namespace DiscordCommands
                 namesb.Length == 0 ||
                 ratingsb.Length == 0)
             {
-                builder.AddField(ResourceStats.StatsUnavailable, ResourceStats.NoStatsFound);
+                builder.AddField("Stats Unavailable", "Could not find any stats");
             }
             else
             {
-                builder.AddField(ResourceStats.Rank, ranksb.ToString(), true)
+                builder.AddField("Rank", ranksb.ToString(), true)
                        .AddField(listTitle, namesb.ToString(), true)
-                       .AddField(ResourceStats.Rating, ratingsb.ToString(), true);
+                       .AddField("Rating", ratingsb.ToString(), true);
             }
 
             return builder.Build();

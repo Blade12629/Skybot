@@ -46,12 +46,12 @@ namespace DiscordCommands
                 case "run":
                     if (args.Parameters.Count < 2)
                     {
-                        HelpCommand.ShowHelp(args.Channel, this, Resources.NotEnoughParameters);
+                        HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.NotEnoughParameters);
                         return;
                     }
                     if (handler.GetAccessLevel(args.Member.Id, args.Guild.Id) < AccessLevel.Dev)
                     {
-                        HelpCommand.ShowHelp(args.Channel, this, Resources.AccessTooLow);
+                        HelpCommand.ShowHelp(args.Channel, this, "You do not have enough permissions to use this command");
                         return;
                     }
 
@@ -61,18 +61,18 @@ namespace DiscordCommands
                 case "edit":
                     if (args.Parameters.Count < 3)
                     {
-                        HelpCommand.ShowHelp(args.Channel, this, Resources.NotEnoughParameters);
+                        HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.NotEnoughParameters);
                         return;
                     }
                     if (handler.GetAccessLevel(args.Member.Id, args.Guild.Id) < AccessLevel.Admin)
                     {
-                        HelpCommand.ShowHelp(args.Channel, this, Resources.AccessTooLow);
+                        HelpCommand.ShowHelp(args.Channel, this, "You do not have enough permissions to use this command");
                         return;
                     }
                     {
                         if (!long.TryParse(args.Parameters[1], out long scriptId))
                         {
-                            HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, Resources.FailedParseException, "scriptId"));
+                            HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourceExceptions.FailedParseException, "scriptId"));
                             return;
                         }
                         EditScript(client, args.Channel, args.Member, scriptId, parameterStr);
@@ -83,19 +83,19 @@ namespace DiscordCommands
                 case "delete":
                     if (args.Parameters.Count < 2)
                     {
-                        HelpCommand.ShowHelp(args.Channel, this, Resources.NotEnoughParameters);
+                        HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.NotEnoughParameters);
                         return;
                     }
                     if (handler.GetAccessLevel(args.Member.Id, args.Guild.Id) < AccessLevel.Admin)
                     {
-                        HelpCommand.ShowHelp(args.Channel, this, Resources.AccessTooLow);
+                        HelpCommand.ShowHelp(args.Channel, this, "You do not have enough permissions to use this command");
                         return;
                     }
 
                     {
                         if (!long.TryParse(args.Parameters[1], out long scriptId))
                         {
-                            HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, Resources.FailedParseException, "scriptId"));
+                            HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourceExceptions.FailedParseException, "scriptId"));
                             return;
                         }
                         DeleteScript(client, args.Channel, scriptId);
@@ -105,12 +105,12 @@ namespace DiscordCommands
                 case "add":
                     if (args.Parameters.Count < 3)
                     {
-                        HelpCommand.ShowHelp(args.Channel, this, Resources.NotEnoughParameters);
+                        HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.NotEnoughParameters);
                         return;
                     }
                     if (handler.GetAccessLevel(args.Member.Id, args.Guild.Id) < AccessLevel.Admin)
                     {
-                        HelpCommand.ShowHelp(args.Channel, this, Resources.AccessTooLow);
+                        HelpCommand.ShowHelp(args.Channel, this, "You do not have enough permissions to use this command");
                         return;
                     }
 
@@ -162,7 +162,7 @@ namespace DiscordCommands
             if (scripts.Count == 0 ||
                 scripts.Count < page * 10)
             {
-                handler.SendSimpleEmbed(channel, "No scripts found on this page");
+                handler.SendSimpleEmbed(channel, "No scripts found on this page").ConfigureAwait(false);
                 return;
             }
 
@@ -184,14 +184,14 @@ namespace DiscordCommands
 
             if (s == null)
             {
-                handler.SendSimpleEmbed(channel, "Script not found");
+                handler.SendSimpleEmbed(channel, "Script not found").ConfigureAwait(false);
                 return;
             }
 
             c.CustomScript.Remove(s);
             c.SaveChanges();
 
-            handler.SendSimpleEmbed(channel, "Deleted script");
+            handler.SendSimpleEmbed(channel, "Deleted script").ConfigureAwait(false);
         }
 
         void AddScript(DiscordHandler handler, DiscordChannel channel, DiscordMember member, string scriptName, string urlToScript)
@@ -209,7 +209,7 @@ namespace DiscordCommands
 
             c.SaveChanges();
 
-            handler.SendSimpleEmbed(channel, "Added script");
+            handler.SendSimpleEmbed(channel, "Added script").ConfigureAwait(false);
         }
 
         void EditScript(DiscordHandler handler, DiscordChannel channel, DiscordMember member, long scriptId, string urlToNewScript)
@@ -228,7 +228,7 @@ namespace DiscordCommands
 
             if (s == null)
             {
-                handler.SendSimpleEmbed(channel, "Script not found");
+                handler.SendSimpleEmbed(channel, "Script not found").ConfigureAwait(false);
                 return;
             }
 
@@ -238,7 +238,7 @@ namespace DiscordCommands
 
             c.SaveChanges();
 
-            handler.SendSimpleEmbed(channel, "Updated script");
+            handler.SendSimpleEmbed(channel, "Updated script").ConfigureAwait(false);
         }
 
         string DownloadScript(string url)

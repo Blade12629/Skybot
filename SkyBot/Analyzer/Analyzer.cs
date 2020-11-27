@@ -715,7 +715,7 @@ namespace SkyBot.Analyzer
                     break;
             }
 
-            string description = string.Format(CultureInfo.CurrentCulture, ResourceStats.TeamWon, result.WinningTeam, result.WinningTeamWins, result.LosingTeamWins);
+            string description = string.Format(CultureInfo.CurrentCulture, "Team {0} won! ({1}:{2})", result.WinningTeam, result.WinningTeamWins, result.LosingTeamWins);
 
             DiscordEmbedBuilder discordEmbedBuilder = new DiscordEmbedBuilder()
             {
@@ -723,7 +723,7 @@ namespace SkyBot.Analyzer
                 Description = description,
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
-                    Text = $"{ResourceStats.MatchPlayed} {result.TimeStamp}",
+                    Text = $"{"Match played at"} {result.TimeStamp}",
                 },
                 Color = color,
             };
@@ -865,7 +865,7 @@ namespace SkyBot.Analyzer
                 }
             }
 
-            discordEmbedBuilder.AddField(ResourceStats.HighestAccuracy, string.Format(CultureInfo.CurrentCulture, ResourceStats.HighestAccuracyMap,
+            discordEmbedBuilder.AddField("Highest Accuracy", string.Format(CultureInfo.CurrentCulture, "{0} on the map {1} - {2} [{3}] ({4}*) with {5:n0} Points and {6}% Accuracy!",
                                                                                       highestAccPlayer.LastOsuUsername,
                                                                                       highestAccMap.Author,
                                                                                       highestAccMap.Title,
@@ -878,33 +878,33 @@ namespace SkyBot.Analyzer
             discordEmbedBuilder.AddField("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", result.LosingTeam, true);
 
 
-            discordEmbedBuilder.AddField(Resources.InvisibleCharacter, ResourceStats.MVP);
+            discordEmbedBuilder.AddField(Resources.InvisibleCharacter, "MVP");
 
             if (playerTeamAHighestGps.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
             {
-                discordEmbedBuilder.AddField($"{playerTeamAHighestGps.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true);
-                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
+                discordEmbedBuilder.AddField($"{playerTeamAHighestGps.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {"GPS"}", Resources.InvisibleCharacter, true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {"GPS"}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
             }
             else
             {
-                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
-                discordEmbedBuilder.AddField($"{playerTeamAHighestGps.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {ResourceStats.GPS}", Resources.InvisibleCharacter, true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestGps.LastOsuUsername}: {Math.Round(playerTeamBHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {"GPS"}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
+                discordEmbedBuilder.AddField($"{playerTeamAHighestGps.LastOsuUsername}: {Math.Round(playerTeamAHighestAvgGps.Value.Item2, 2, MidpointRounding.AwayFromZero)} {"GPS"}", Resources.InvisibleCharacter, true);
             }
 
-            discordEmbedBuilder.AddField(Resources.InvisibleCharacter, ResourceStats.HighestAvgScore);
+            discordEmbedBuilder.AddField(Resources.InvisibleCharacter, "Highest Average Score");
 
             if (playerTeamAHighestScore.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
             {
-                discordEmbedBuilder.AddField($"{playerTeamAHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamAHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true);
-                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
+                discordEmbedBuilder.AddField($"{playerTeamAHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamAHighestAvgScore.Value.Item3)} {"Score"}", Resources.InvisibleCharacter, true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {"Score"}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
             }
             else
             {
-                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
-                discordEmbedBuilder.AddField($"{playerTeamAHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamAHighestAvgScore.Value.Item3)} {ResourceStats.Score}", Resources.InvisibleCharacter, true);
+                discordEmbedBuilder.AddField($"{playerTeamBHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamBHighestAvgScore.Value.Item3)} {"Score"}", Resources.InvisibleCharacter, true); //lgtm [cs/dereferenced-value-may-be-null]
+                discordEmbedBuilder.AddField($"{playerTeamAHighestScore.LastOsuUsername}: {string.Format(CultureInfo.CurrentCulture, "{0:n0}", (int)playerTeamAHighestAvgScore.Value.Item3)} {"Score"}", Resources.InvisibleCharacter, true);
             }
 
-            discordEmbedBuilder.AddField(Resources.InvisibleCharacter, ResourceStats.HighestAvgAccuracy);
+            discordEmbedBuilder.AddField(Resources.InvisibleCharacter, "Highest Average Accuracy");
 
             if (playerTeamAHighestAcc.TeamName.Equals(highestGpsWinningPlayer.TeamName, StringComparison.CurrentCultureIgnoreCase))
             {

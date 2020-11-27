@@ -25,7 +25,7 @@ public sealed class DiscordHandler : IDisposable
     public DiscordHandler(string token, char commandPrefix = '!')
     {
         if (string.IsNullOrEmpty(token) || token.Length < 10)
-            throw new ArgumentException(Resources.DiscordTokenEmptyNullShort, nameof(token));
+            throw new ArgumentException("Discord Bot Token cannot be null, empty or less than 10 long", nameof(token));
 
         Client = new DiscordClient(new DiscordConfiguration()
         {
@@ -222,11 +222,11 @@ public sealed class DiscordHandler : IDisposable
                                               e is UnauthorizedException))
                 throw;
         }
-        catch (NotFoundException nfe)
+        catch (NotFoundException)
         {
 
         }
-        catch (UnauthorizedException ue)
+        catch (UnauthorizedException)
         {
 
         }
@@ -244,11 +244,11 @@ public sealed class DiscordHandler : IDisposable
                                               e is UnauthorizedException))
                 throw;
         }
-        catch (NotFoundException nfe)
+        catch (NotFoundException)
         {
 
         }
-        catch (UnauthorizedException ue)
+        catch (UnauthorizedException)
         {
 
         }
@@ -268,11 +268,11 @@ public sealed class DiscordHandler : IDisposable
                                               e is UnauthorizedException))
                 throw;
         }
-        catch (NotFoundException nfe)
+        catch (NotFoundException)
         {
 
         }
-        catch (UnauthorizedException ue)
+        catch (UnauthorizedException)
         {
 
         }
@@ -360,16 +360,16 @@ public sealed class DiscordHandler : IDisposable
     {
         DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
         {
-            Title = $"{Resources.BotInfoFor} Skybot",
+            Title = $"Bot info for Skybot",
             Description = "‎"
         };
 
         using DBContext c = new DBContext();
 
-        builder.AddField(Resources.DiscordGuilds, Client.Guilds.Count.ToString(CultureInfo.CurrentCulture), true)
-                .AddField(Resources.VerifiedUsers, c.User.Count().ToString(CultureInfo.CurrentCulture), true)
-                .AddField(Resources.LastUpdateDate, Program.LastUpdatedOn.ToString(CultureInfo.CurrentCulture))
-                .AddField(Resources.Uptime, DateTime.UtcNow.Subtract(Program.StartedOn).ToString());
+        builder.AddField("Discord Servers", Client.Guilds.Count.ToString(CultureInfo.CurrentCulture), true)
+                .AddField("Verified Users", c.User.Count().ToString(CultureInfo.CurrentCulture), true)
+                .AddField("Last Update", Program.LastUpdatedOn.ToString(CultureInfo.CurrentCulture))
+                .AddField("Uptime", DateTime.UtcNow.Subtract(Program.StartedOn).ToString());
 
         return builder.Build();
     }
@@ -397,7 +397,7 @@ public sealed class DiscordHandler : IDisposable
     {
         return await RunFuncWithTryCatch(async () =>
         {
-            return Client.GetGuildAsync(id).ConfigureAwait(false).GetAwaiter().GetResult();
+            return await Client.GetGuildAsync(id).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
 

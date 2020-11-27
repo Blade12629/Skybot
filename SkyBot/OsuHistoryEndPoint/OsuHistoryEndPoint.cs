@@ -258,7 +258,7 @@ namespace OsuHistoryEndPoint
                 History history;
                 string json = null;
                 if (!long.TryParse(urlSplit[urlSplit.Length - 1], out long mId))
-                    throw new ArgumentException(SkyBot.Resources.HistoryEPCouldNotParseMatchIdUrl, nameof(url));
+                    throw new ArgumentException("Could not parse the match id from url", nameof(url));
 
                 url = url.TrimEnd('/').Replace("https://osu.ppy.sh/mp/", " https://osu.ppy.sh/community/matches/", StringComparison.CurrentCultureIgnoreCase) + "/history";
                 GetJson(url);
@@ -280,7 +280,7 @@ namespace OsuHistoryEndPoint
                     {
                         json = wc.DownloadString(url);
                     }
-                    catch (System.Net.WebException we)
+                    catch (System.Net.WebException)
                     {
                         try
                         {

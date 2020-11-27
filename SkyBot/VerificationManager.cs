@@ -180,7 +180,7 @@ namespace SkyBot
 
             if (ver == null)
             {
-                Program.IRC.SendMessageAsync(osuUserName, Resources.VerCodeInvalidNotFound).ConfigureAwait(false);
+                Program.IRC.SendMessageAsync(osuUserName, "Invalid verification code or verification not found").ConfigureAwait(false);
                 return;
             }
 
@@ -188,7 +188,7 @@ namespace SkyBot
 
             if (userJson == null)
             {
-                Program.IRC.SendMessageAsync(osuUserName, Resources.FailedFetchOsuApi).ConfigureAwait(false);
+                Program.IRC.SendMessageAsync(osuUserName, ResourceExceptions.FailedFetchOsuApi).ConfigureAwait(false);
                 return;
             }
 
@@ -218,7 +218,7 @@ namespace SkyBot
         {
             try
             {
-                Program.IRC.SendMessageAsync(osuUserName, Resources.VerSuccess).ConfigureAwait(false);
+                Program.IRC.SendMessageAsync(osuUserName, "Successfully verified").ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -235,14 +235,14 @@ namespace SkyBot
             if (dmChannel == null)
                 return;
 
-            dmChannel.SendMessageAsync(Resources.VerSuccess).Wait();
+            dmChannel.SendMessageAsync("Successfully verified").Wait();
         }
 
         private static void SendUserAlreadyExists(string osuUserName, ulong discordUserId)
         {
             try
             {
-                Program.IRC.SendMessageAsync(osuUserName, Resources.VerUserAlreadyExists).ConfigureAwait(false);
+                Program.IRC.SendMessageAsync(osuUserName, "Failed to verify, osuid or/and discordid already verified").ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -259,7 +259,7 @@ namespace SkyBot
             if (dmChannel == null)
                 return;
 
-            dmChannel.SendMessageAsync(Resources.VerUserAlreadyExists).Wait();
+            dmChannel.SendMessageAsync("Failed to verify, osuid or/and discordid already verified").Wait();
         }
     }
 }

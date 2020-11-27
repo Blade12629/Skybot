@@ -37,7 +37,7 @@ namespace DiscordCommands
                     newAccess = acc;
                 else
                 {
-                    HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, Resources.FailedParseException, Resources.AccessLevel));
+                    HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourceExceptions.FailedParseException, "Access Level"));
                     return;
                 }
 

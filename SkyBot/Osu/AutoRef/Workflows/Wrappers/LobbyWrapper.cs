@@ -403,8 +403,15 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         /// <para><paramref name="raw"/> == <see cref="false"/>: This is the default format used for normal messages to make them clearly distinguishable
         /// from any message that is not directed towards the players</para>
         /// </summary>
+        /// <exception cref="Exception">Message starts with '!': Cannot execute commands through SendMessage</exception>
+        /// <exception cref="ArgumentNullException">Message is null or empty</exception>
         public void SendMessage(string message, bool raw)
         {
+            if (string.IsNullOrEmpty(message))
+                throw new ArgumentNullException(nameof(message));
+            else if (message.StartsWith('!'))
+                throw new Exception("Cannot execute commands through SendMessage");
+
             if (raw)
                 _lc.SendMessage(message);
             else
@@ -434,6 +441,40 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         public SlotWrapper GetSlot(string user)
         {
             return _lc.GetSlot(user);
+        }
+
+        /// <summary>
+        /// Gets all used slots
+        /// </summary>
+        public SlotWrapper[] GetAllSlots()
+        {
+            return _lc.Slots.Where(s => s.Value.IsUsed).Select(s => (SlotWrapper)s.Value).ToArray();
+        }
+
+        /// <summary>
+        /// Gets all team slots
+        /// </summary>
+        public SlotWrapper[] GetTeamSlots(SlotColor color)
+        {
+            return _lc.Slots.Where(s => s.Value.Color == color).Select(s => (SlotWrapper)s.Value).ToArray();
+        }
+
+        /// <summary>
+        /// Gets all team slots
+        /// </summary>
+        /// <param name="getUsed">Include slots in use</param>
+        /// <param name="getUnused">Include slots not in use</param>
+        public SlotWrapper[] GetTeamSlots(SlotColor color, bool getUsed, bool getUnused)
+        {
+            SlotWrapper[] slots = GetTeamSlots(color);
+
+            if ((getUsed && getUnused) ||
+                (!getUsed && !getUnused))
+                return slots;
+            else if (getUsed)
+                return slots.Where(s => s.IsUsed).ToArray();
+            else
+                return slots.Where(s => !s.IsUsed).ToArray();
         }
     }
 }

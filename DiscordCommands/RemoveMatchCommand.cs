@@ -11,16 +11,17 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.RemoveMatchCommand;
+        public string Command => "removematch";
 
         public AccessLevel AccessLevel => AccessLevel.Admin;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => ResourcesCommands.RemoveMatchCommandDescription;
+        public string Description => "Removes a match from the analyzer db";
+
         public bool AllowOverwritingAccessLevel => true;
 
-        public string Usage => ResourcesCommands.RemoveMatchCommandUsage;
+        public string Usage => "{prefix}removematch <matchId>";
 
         public int MinParameters => 1;
 
@@ -31,11 +32,11 @@ namespace DiscordCommands
 
             OsuAnalyzer.RemoveMatch(matchId, args.Guild);
 
-            args.Channel.SendMessageAsync(ResourcesCommands.RemoveMatchCommandSuccess + matchId + '\n' + ResourceStats.CacheUpdating).ConfigureAwait(false).GetAwaiter().GetResult();
+            args.Channel.SendMessageAsync($"Removed match {matchId}\nCache is getting updated, this might take a moment").ConfigureAwait(false).GetAwaiter().GetResult();
 
             OsuAnalyzer.UpdateCaches(args.Guild);
 
-            args.Channel.SendMessageAsync(ResourceStats.CacheUpdated);
+            args.Channel.SendMessageAsync("Cache was updated");
         }
     }
 }

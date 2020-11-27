@@ -21,7 +21,9 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         /// <returns>Converted value, if failed returns default value: 0</returns>
         public int StrToInt(string value)
         {
-            if (int.TryParse(value, out int r))
+            if (string.IsNullOrEmpty(value))
+                return 0;
+            else if (int.TryParse(value, out int r))
                 return r;
 
             return 0;
@@ -47,7 +49,9 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         /// <returns>Converted value, if failed returns default value: 0</returns>
         public ulong StrToRealUlong(string value)
         {
-            if (ulong.TryParse(value, out ulong r))
+            if (string.IsNullOrEmpty(value))
+                return 0;
+            else if (ulong.TryParse(value, out ulong r))
                 return r;
 
             return 0UL;
@@ -60,7 +64,9 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         /// <returns>Converted value, if failed returns default value: 0</returns>
         public double StrToDouble(string value)
         {
-            if (double.TryParse(value, out double r))
+            if (string.IsNullOrEmpty(value))
+                return 0;
+            else if (double.TryParse(value, out double r))
                 return r;
 
             return 0.0;
@@ -73,7 +79,9 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         /// <returns>Converted value, if failed returns default value: false</returns>
         public bool StrToBool(string value)
         {
-            if (bool.TryParse(value, out bool r))
+            if (string.IsNullOrEmpty(value))
+                return false;
+            else if (bool.TryParse(value, out bool r))
                 return r;
 
             return false;

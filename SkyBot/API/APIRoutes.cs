@@ -30,7 +30,7 @@ namespace SkyBot.API
             if (!APIAuth.CheckApiKey(c.Request.Headers.Get("apikey")) &&
                 !APIAuth.CheckApiKey(c.Request.QueryString["apikey"]))
             {
-                Respond(HttpStatusCode.Unauthorized, Resources.APIInvalidKey, c);
+                Respond(HttpStatusCode.Unauthorized, "Invalid API Key", c);
                 return false;
             }
 

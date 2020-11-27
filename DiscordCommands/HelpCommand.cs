@@ -17,14 +17,15 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.HelpCommand;
+        public string Command => "help";
 
         public AccessLevel AccessLevel => AccessLevel.User;
         public CommandType CommandType => CommandType.None;
 
-        public string Description => ResourcesCommands.HelpCommandDescription;
+        public string Description => "Displays a command list or infos about a specific command";
 
-        public string Usage => ResourcesCommands.HelpCommandUsage;
+        public string Usage => "{prefix}help [page]\n" +
+                               "{prefix}help <command>";
 
         public int MinParameters => 0;
         public bool AllowOverwritingAccessLevel => false;
@@ -35,7 +36,7 @@ namespace DiscordCommands
             Program.DiscordHandler.CommandHandler.OnException += ShowHelp;
             
 #pragma warning disable CA1305 // Specify IFormatProvider
-            Logger.Log(string.Format(System.Globalization.CultureInfo.CurrentCulture, ResourcesCommands.RegisteredCommand, nameof(HelpCommand)));
+            Logger.Log($"Registered {nameof(HelpCommand)} for discord command exceptions");
 #pragma warning restore CA1305 // Specify IFormatProvider
         }
 
@@ -87,21 +88,21 @@ namespace DiscordCommands
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
-                Title = ResourcesCommands.CommandList,
+                Title = "Command List",
                 Description = "Prefix: " + prefix,
                 Timestamp = DateTime.UtcNow
             };
 
             EmbedPageBuilder epb = new EmbedPageBuilder(3);
-            epb.AddColumn(ResourcesCommands.Command);
-            epb.AddColumn(Resources.Access);
-            epb.AddColumn(ResourcesCommands.CommandDescription);
+            epb.AddColumn("Command");
+            epb.AddColumn("Access");
+            epb.AddColumn("Description");
 
             for (int i = 0; i < commands.Count; i++)
             {
-                epb.Add(ResourcesCommands.Command, commands[i].Item1.Command);
-                epb.Add(Resources.Access, commands[i].Item2.ToString());
-                epb.Add(ResourcesCommands.CommandDescription, commands[i].Item1.Description);
+                epb.Add("Command", commands[i].Item1.Command);
+                epb.Add("Access", commands[i].Item2.ToString());
+                epb.Add("Description", commands[i].Item1.Description);
             }
 
             DiscordEmbed embed = epb.BuildPage(builder, page);
@@ -157,23 +158,26 @@ namespace DiscordCommands
 
             DiscordEmbedBuilder builder = new DiscordEmbedBuilder()
             {
-                Title = $"{ResourcesCommands.CommandInfo}: {command.Command}",
+                Title = $"Command Info: {command.Command}",
                 Timestamp = DateTime.UtcNow,
                 Footer = new DiscordEmbedBuilder.EmbedFooter()
                 {
-                    Text = ResourcesCommands.HelpCommandFooter
+                    Text =  "< > = required\n" +
+                            "[ ] = optional\n" +
+                            "/ = choose between\n" +
+                            "!! !! = atleast one marked parameter required"
                 }
             };
 
             if (!string.IsNullOrEmpty(notice))
-                builder = builder.AddField($"**{ResourcesCommands.HelpCommandNotice}**", notice);
+                builder = builder.AddField($"**Notice**", notice);
 
-            builder = builder.AddField(Resources.AccessLevel, CommandHandler.GetCommandAccessLevel(command, channel.Guild?.Id ?? 0).ToString())
-                             .AddField(ResourcesCommands.CommandDescription, command.Description)
-                             .AddField(ResourcesCommands.CommandUsage, command.Usage.Replace("{prefix}", prefix.ToString(CultureInfo.CurrentCulture), StringComparison.CurrentCultureIgnoreCase))
-                             .AddField(ResourcesCommands.CommandType, command.CommandType.ToString())
-                             .AddField(ResourcesCommands.CommandIsDisabled, command.IsDisabled ? Resources.True : Resources.False)
-                             .AddField(ResourcesCommands.CommandAccessCanBeOverwritten, command.AllowOverwritingAccessLevel ? Resources.True : Resources.False);
+            builder = builder.AddField("Access Level", CommandHandler.GetCommandAccessLevel(command, channel.Guild?.Id ?? 0).ToString())
+                             .AddField("Description", command.Description)
+                             .AddField("Usage", command.Usage.Replace("{prefix}", prefix.ToString(CultureInfo.CurrentCulture), StringComparison.CurrentCultureIgnoreCase))
+                             .AddField("Type", command.CommandType.ToString())
+                             .AddField("Is Disabled", command.IsDisabled ? "True" : "False")
+                             .AddField("Access can be overwritten", command.AllowOverwritingAccessLevel ? "True" : "False");
 
 
             channel.SendMessageAsync(embed: builder.Build()).Wait();

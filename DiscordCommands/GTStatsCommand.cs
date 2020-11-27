@@ -52,7 +52,7 @@ namespace DiscordCommands
         {
             if (args.Parameters.Count == 0)
             {
-                HelpCommand.ShowHelp(args.Channel, this, Resources.NotEnoughParameters);
+                HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.NotEnoughParameters);
                 return;
             }
             if (!long.TryParse(args.Parameters[0], out long osuId))

@@ -20,15 +20,16 @@ namespace DiscordCommands
             }
         }
 
-        public string Command => ResourcesCommands.PrivacyPolicyCommand;
+        public string Command => "privacy";
 
         public AccessLevel AccessLevel => AccessLevel.User;
 
         public CommandType CommandType => CommandType.None;
 
-        public string Description => ResourcesCommands.PrivacyPolicyCommandDescription;
+        public string Description => "Displays the bots privacy policy";
 
-        public string Usage => ResourcesCommands.PrivacyPolicyCommandUsage;
+        public string Usage => "{prefix}privacy";
+
         public bool AllowOverwritingAccessLevel => false;
 
         public int MinParameters => 0;
@@ -40,7 +41,19 @@ namespace DiscordCommands
 
         private string GetPrivacyPolicy()
         {
-            return ResourcesCommands.PrivacyPolicyCommandPrivacyPolicy;
+            return
+@"Privacy Policy
+```
+The following data is collected:
+Your Discord user data (username, ID, mention, roles)
+Your osu! data (username, ID, Scores)
+This data is used to verify users, analyze tournament matches, deliver tourney stats and improve the general discord user feeling
+
+
+If you have any questions or want your data deleted contact me on discord: ??????#0284
+I will try to answer withing 48 hours
+(If you request the deletion of your data, your data will be deleted and you will be blacklisted from the bot for atleast 1 month)
+```";
         }
     }
 }

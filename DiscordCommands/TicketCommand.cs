@@ -15,22 +15,29 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.TicketCommand;
+        public string Command => "ticket";
 
         public AccessLevel AccessLevel => AccessLevel.User;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => ResourcesCommands.TicketCommandDescription;
+        public string Description => "Used to write or manage tickets";
 
-        public string Usage => ResourcesCommands.TicketCommandUsage;
+        public string Usage =>  "{prefix}ticket ticket text\n\n\n" +
+                                "Moderator:\n" +
+                                "{prefix}ticket -get s/m(s/m, Single or Multisearch) page(value, Page Number) -id(+value, Ticket Id) -uid(+value, Discord User Id) -tag(+value, Ticket Tag) -status(+value, Ticket Status) -priority(+value, Ticket Priority) -sbn(value, Sort By Newest) -sbo(value, Sort By Oldest)\n" +
+                                "{prefix}ticket -set id(value, Ticket Id) -status(+value, Ticket status) -priority(+value, Ticket priority) -tag(+value, ticket tag)\n\n\n" +
+                                "Note:\n" +
+                                "+value = identifier value\n" +
+                                "value = valueItself";
+
         public bool AllowOverwritingAccessLevel => true;
 
         public int MinParameters => 1;
 
         public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
-            switch (args.Parameters[0].ToLower(CultureInfo.CurrentCulture))
+            switch (args.Parameters[0].ToLower())
             {
                 default:
                     break;

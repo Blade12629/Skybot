@@ -12,15 +12,17 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.WarmupCommand;
+        public string Command => "warmup";
 
         public AccessLevel AccessLevel => AccessLevel.Moderator;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => ResourcesCommands.WarmupCommandDescription;
+        public string Description => "Add or remove warmup maps";
 
-        public string Usage => ResourcesCommands.WarmupCommandUsage;
+        public string Usage => "{prefix}warmup add <beatmapId> [beatmapId] [etc.]\n" +
+                               "{prefix}warmup remove <beatmapId> [beatmapId] [etc.]";
+
         public bool AllowOverwritingAccessLevel => true;
 
         public int MinParameters => 1;
@@ -30,7 +32,7 @@ namespace DiscordCommands
             using DBContext c = new DBContext();
 
             Action<long> ac;
-            switch(args.Parameters[0].ToLower(System.Globalization.CultureInfo.CurrentCulture))
+            switch(args.Parameters[0].ToLower())
             {
                 default:
                 case "add":
@@ -69,7 +71,7 @@ namespace DiscordCommands
             foreach (long mapId in GetMaps(args.Parameters))
                 ac(mapId);
 
-            args.Channel.SendMessageAsync(ResourcesCommands.WarmupCommandConfirmation);
+            args.Channel.SendMessageAsync("Added/Deleted maps");
         }
 
         private List<long> GetMaps(List<string> parameters, int start = 1)

@@ -119,6 +119,15 @@
   </resheader>
   <data name="CannotAddAdditionalRow" xml:space="preserve">
     <value>Cannot add an additional row, already at limit</value>
+    <comment>Cannot add an additional row, already at limit</comment>
+  </data>
+  <data name="CannotBeNullEmptyException" xml:space="preserve">
+    <value>{0} cannnot be null or empty</value>
+    <comment>{0} cannnot be null or empty</comment>
+  </data>
+  <data name="CannotBeNullOrEmptyException" xml:space="preserve">
+    <value>Cannot be null or empty</value>
+    <comment>Cannot be null or empty</comment>
   </data>
   <data name="CannotParseDiscordId" xml:space="preserve">
     <value>Failed to parse </value>
@@ -126,6 +135,15 @@
   </data>
   <data name="CannotParseMessageLink" xml:space="preserve">
     <value>Could not parse the message link</value>
+    <comment>Could not parse the message link</comment>
+  </data>
+  <data name="FailedFetchOsuApi" xml:space="preserve">
+    <value>Failed to fetch from osu! api, please retry in a moment, if this keeps happening contact ??????#0284 (discord)</value>
+    <comment>Failed to fetch from osu! api, please retry in a moment, if this keeps happening contact ??????#0284 (discord)</comment>
+  </data>
+  <data name="FailedParseException" xml:space="preserve">
+    <value>Failed to parse {0}</value>
+    <comment>Failed to parse {0}</comment>
   </data>
   <data name="IndexHigherOrEqualThanMax" xml:space="preserve">
     <value>cannot be equal or higher than </value>
@@ -133,5 +151,10 @@
   </data>
   <data name="IndexLessThanZero" xml:space="preserve">
     <value>Index cannot be less than Zero</value>
+    <comment>Index cannot be less than Zero</comment>
+  </data>
+  <data name="NotEnoughParameters" xml:space="preserve">
+    <value>Not enough parameters, please recheck the command</value>
+    <comment>Not enough parameters, please recheck the command</comment>
   </data>
 </root>

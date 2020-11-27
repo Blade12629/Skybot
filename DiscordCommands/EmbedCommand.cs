@@ -15,19 +15,21 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.EmbedCommand;
+        public string Command => "embed";
 
         public AccessLevel AccessLevel => AccessLevel.Admin;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => ResourcesCommands.EmbedCommandDescription;
+        public string Description => "Create or edit embeds";
 
-        public string Usage => ResourcesCommands.EmbedCommandUsage;
+        public string Usage =>  "{prefix}embed create <channel> <urlToEmbedJson>\n" +
+                                "{prefix}embed edit <messageLink> <urlToEmbedJson>\n" +
+                                "{prefix}embed webhook <channel> <urlToEmbedJson> <username> [avatarLink]\n\n" +
+                                "Embed Visualizer: <https://leovoel.github.io/embed-visualizer/>";
 
         public int MinParameters => 3;
         public bool AllowOverwritingAccessLevel => true;
-
 
         public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
@@ -40,7 +42,7 @@ namespace DiscordCommands
             }
             catch (UriFormatException)
             {
-                HelpCommand.ShowHelp(args.Channel, this, ResourcesCommands.EmbedCommandInvalidUri);
+                HelpCommand.ShowHelp(args.Channel, this, "Invalid link");
                 return;
             }
 
@@ -48,7 +50,7 @@ namespace DiscordCommands
 
             if (string.IsNullOrEmpty(json))
             {
-                HelpCommand.ShowHelp(args.Channel, this, ResourcesCommands.EmbedCommandJsonNotFound);
+                HelpCommand.ShowHelp(args.Channel, this, "Embed json not found");
                 return;
             }
 
@@ -57,7 +59,7 @@ namespace DiscordCommands
             if (ej == null ||
                 (string.IsNullOrEmpty(ej.Content) && ej.Embed == null))
             {
-                HelpCommand.ShowHelp(args.Channel, this, ResourcesCommands.EmbedCommandJsonNotParsable);
+                HelpCommand.ShowHelp(args.Channel, this, "Failed to parse embed json");
                 return;
             }
 
@@ -65,7 +67,7 @@ namespace DiscordCommands
 
             if (embed == null)
             {
-                HelpCommand.ShowHelp(args.Channel, this, ResourcesCommands.EmbedCommandJsonNotParsable);
+                HelpCommand.ShowHelp(args.Channel, this, "Failed to parse embed json");
                 return;
             }
 
@@ -146,12 +148,12 @@ namespace DiscordCommands
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {
-                throw new ReadableCmdException(ResourcesCommands.EmbedCommandChannelNotFound);
+                throw new ReadableCmdException("Could not find the discord channel");
             }
 
             message.ModifyAsync(string.IsNullOrEmpty(content) ? default : content, embed).ConfigureAwait(false).GetAwaiter().GetResult();
 
-            client.SendSimpleEmbed(args.Channel, ResourcesCommands.EmbedCommandModified).ConfigureAwait(false);
+            client.SendSimpleEmbed(args.Channel, "Embed modified").ConfigureAwait(false);
         }
 
         /// <summary>
@@ -169,8 +171,10 @@ namespace DiscordCommands
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {
-                throw new ReadableCmdException(ResourcesCommands.EmbedCommandChannelNotFound);
+                throw new ReadableCmdException("Could not find the discord channel");
             }
+
+            //TODO: make it so webhook and default can both send up to 5 embeds max at once
 
             if (webhook)
             {
@@ -183,7 +187,7 @@ namespace DiscordCommands
                 }
                 catch (UriFormatException)
                 {
-                    HelpCommand.ShowHelp(args.Channel, cmd, ResourcesCommands.EmbedCommandInvalidUri);
+                    HelpCommand.ShowHelp(args.Channel, cmd, "Invalid link");
                     return;
                 }
             }
@@ -192,7 +196,7 @@ namespace DiscordCommands
                 channel.SendMessageAsync(content: content, embed: embed).ConfigureAwait(false).GetAwaiter().GetResult();
             }
 
-            client.SendSimpleEmbed(args.Channel, ResourcesCommands.EmbedCommandSent).ConfigureAwait(false);
+            client.SendSimpleEmbed(args.Channel, "Sent Embed").ConfigureAwait(false);
         }
     }
 }

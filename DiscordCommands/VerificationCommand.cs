@@ -10,16 +10,17 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.VerifyCommand;
+        public string Command => "verify";
 
         public AccessLevel AccessLevel => AccessLevel.User;
 
         public CommandType CommandType => CommandType.None;
 
 
-        public string Description => ResourcesCommands.VerifyCommandDescription;
+        public string Description => "Verify yourself";
 
-        public string Usage => ResourcesCommands.VerifyCommandUsage;
+        public string Usage => "{prefix}verify";
+
         public bool AllowOverwritingAccessLevel => false;
 
         public int MinParameters => 0;

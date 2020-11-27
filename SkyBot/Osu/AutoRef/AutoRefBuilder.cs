@@ -60,7 +60,6 @@ namespace SkyBot.Osu.AutoRef
             AutoRefController arc = new AutoRefController(lc);
 
             lc.OnException += (s, e) => Logger.Log("LC: " + e, LogLevel.Error);
-            arc.OnException += (s, e) => Logger.Log("ARC: " + e, LogLevel.Error);
 
             Workflows.WorkflowEngine engine = new Workflows.WorkflowEngine(lc, arc);
             Workflows.Wrappers.WorkflowWrapper wrapper = engine.Interpret(script, out Exception ex_);

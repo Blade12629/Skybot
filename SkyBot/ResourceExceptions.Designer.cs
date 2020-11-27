@@ -70,6 +70,24 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} cannnot be null or empty.
+        /// </summary>
+        public static string CannotBeNullEmptyException {
+            get {
+                return ResourceManager.GetString("CannotBeNullEmptyException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot be null or empty.
+        /// </summary>
+        public static string CannotBeNullOrEmptyException {
+            get {
+                return ResourceManager.GetString("CannotBeNullOrEmptyException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to parse .
         /// </summary>
         public static string CannotParseDiscordId {
@@ -88,6 +106,24 @@ namespace SkyBot {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to fetch from osu! api, please retry in a moment, if this keeps happening contact ??????#0284 (discord).
+        /// </summary>
+        public static string FailedFetchOsuApi {
+            get {
+                return ResourceManager.GetString("FailedFetchOsuApi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse {0}.
+        /// </summary>
+        public static string FailedParseException {
+            get {
+                return ResourceManager.GetString("FailedParseException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to cannot be equal or higher than .
         /// </summary>
         public static string IndexHigherOrEqualThanMax {
@@ -102,6 +138,15 @@ namespace SkyBot {
         public static string IndexLessThanZero {
             get {
                 return ResourceManager.GetString("IndexLessThanZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not enough parameters, please recheck the command.
+        /// </summary>
+        public static string NotEnoughParameters {
+            get {
+                return ResourceManager.GetString("NotEnoughParameters", resourceCulture);
             }
         }
     }

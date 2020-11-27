@@ -1,10 +1,12 @@
 ﻿using OsuHistoryEndPoint.Data;
 using SkyBot.Database;
+using SkyBot.Database.Models.Statistics;
 using SkyBot.Discord;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Resources;
 using System.Text;
 using System.Threading.Tasks;

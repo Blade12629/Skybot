@@ -14,15 +14,15 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.CreateAPIUserCommand;
+        public string Command => "createapiuser";
 
         public AccessLevel AccessLevel => AccessLevel.Host;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => ResourcesCommands.CreateAPIUserCommandDescription;
+        public string Description => "Creates an API user and key";
 
-        public string Usage => ResourcesCommands.CreateAPIUserCommandUsage;
+        public string Usage => "{prefix}createapiuser";
 
         public int MinParameters => 0;
 
@@ -40,7 +40,7 @@ namespace DiscordCommands
 
             if (user != null)
             {
-                args.Channel.SendMessageAsync(ResourcesCommands.CreateAPIUserCommandAlreadyCreated);
+                args.Channel.SendMessageAsync("API user and key already exists");
                 return;
             }
 
@@ -53,7 +53,12 @@ namespace DiscordCommands
             c.SaveChanges();
 
             args.Member.CreateDmChannelAsync().ConfigureAwait(false).GetAwaiter().GetResult()
-                       .SendMessageAsync(ResourcesCommands.CreateAPIUserCommandCreated + $"\n{ResourcesCommands.CreateAPIUserCommandKey} {key}\n{ResourcesCommands.CreateAPIUserCommandNeverShare}");
+                       .SendMessageAsync($"API user and key created\nYour key is: {key}\n" +
+@"API Uri is: http://dra-gon.wtf:40005/
+(you need to include the port!)
+Never share your key in public!
+You can share this key with trustworthy people, if it happens to get public or you need to revoke/change it, contact ??????#0284
+Incase of **abuse** or **willingly** sharing it in public, you might get blacklisted from the API (permanently) (trying to bypass this will result in a complete ban from using the bot!)");
         }
 
         private static string GenerateKey()

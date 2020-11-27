@@ -47,7 +47,7 @@ namespace DiscordCommands
             }
             else if (globalBan && args.AccessLevel < AccessLevel.Dev)
             {
-                HelpCommand.ShowHelp(args.Channel, this, Resources.AccessTooLow);
+                HelpCommand.ShowHelp(args.Channel, this, "You do not have enough permissions to use this command");
                 return;
             }
 

@@ -219,7 +219,7 @@ namespace SkyBot.Discord.CommandSystem
 
                 if (access < cmdAccess)
                 {
-                    OnException(e.Channel, cmd, Resources.AccessTooLow);
+                    OnException(e.Channel, cmd, "You do not have enough permissions to use this command");
                     return;
                 }
 
@@ -228,7 +228,7 @@ namespace SkyBot.Discord.CommandSystem
 
                 if (cmd.MinParameters > 0 && parameters.Count < cmd.MinParameters)
                 {
-                    OnException(e.Channel, cmd, Resources.NotEnoughParameters);
+                    OnException(e.Channel, cmd, "Not enough parameters");
                     return;
                 }
 

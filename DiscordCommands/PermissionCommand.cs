@@ -14,15 +14,17 @@ namespace DiscordCommands
     {
         public bool IsDisabled { get; set; }
 
-        public string Command => ResourcesCommands.PermissionCommand;
+        public string Command => "permission";
 
         public AccessLevel AccessLevel => AccessLevel.Admin;
 
         public CommandType CommandType => CommandType.Public;
 
-        public string Description => ResourcesCommands.PermissionCommandDescription;
+        public string Description => "Binds or unbinds a permission";
 
-        public string Usage => ResourcesCommands.PermissionCommandUsage;
+        public string Usage =>  "{prefix}permission bind <discordRoleId> <accessLevel>\n" +
+                                "{prefix}permission unbind <discordRoleId> [accessLevel]\n" +
+                                "{prefix}permission list [page]";
 
         public int MinParameters => 1;
         public bool AllowOverwritingAccessLevel => false;
@@ -42,7 +44,7 @@ namespace DiscordCommands
 
                 if (drbs.Count == 0)
                 {
-                    client.SendSimpleEmbed(args.Channel, ResourcesCommands.PermissionCommandNoBindsFound).ConfigureAwait(false);
+                    client.SendSimpleEmbed(args.Channel, "Could not find any role binds").ConfigureAwait(false);
                     return;
                 }
 
@@ -64,18 +66,18 @@ namespace DiscordCommands
             }
             else if (args.Parameters.Count < 2)
             {
-                HelpCommand.ShowHelp(args.Channel, this, Resources.NotEnoughParameters);
+                HelpCommand.ShowHelp(args.Channel, this, ResourceExceptions.NotEnoughParameters);
                 return;
             }
 
             if (!ulong.TryParse(args.Parameters[1], out ulong roleId))
             {
-                HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, Resources.FailedParseException, args.Parameters[1]));
+                HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourceExceptions.FailedParseException, args.Parameters[1]));
                 return;
             }
             else if (args.Guild.GetRole(roleId) == null)
             {
-                HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.PermissionCommandRoleNotFound, args.Parameters[1]));
+                HelpCommand.ShowHelp(args.Channel, this, $"Discord Role {args.Parameters[1]} not found!");
                 return;
             }
 
@@ -86,7 +88,7 @@ namespace DiscordCommands
                     access = acc;
                 else
                 {
-                    HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.PermissionCommandAccessLevelNotFound, args.Parameters[2]));
+                    HelpCommand.ShowHelp(args.Channel, this, $"Access Level {args.Parameters[2]} not found!");
                     return;
                 }
 
@@ -95,14 +97,14 @@ namespace DiscordCommands
                     switch(access.Value)
                     {
                         case AccessLevel.Dev:
-                            args.Channel.SendMessageAsync(ResourcesCommands.PermissionCommandInsufficientPermission);
+                            args.Channel.SendMessageAsync("You do not have enough permissions");
                             return;
 
                         case AccessLevel.Admin:
                         case AccessLevel.Host:
                             if (args.AccessLevel < AccessLevel.Host)
                             {
-                                args.Channel.SendMessageAsync(ResourcesCommands.PermissionCommandInsufficientPermission);
+                                args.Channel.SendMessageAsync("You do not have enough permissions");
                                 return;
                             }
                             break;
@@ -116,7 +118,7 @@ namespace DiscordCommands
                 case "bind":
                     if (!access.HasValue)
                     {
-                        HelpCommand.ShowHelp(args.Channel, this, string.Format(CultureInfo.CurrentCulture, ResourcesCommands.PermissionCommandAccessLevelNotFound, args.Parameters[2]));
+                        HelpCommand.ShowHelp(args.Channel, this, $"Access Level {args.Parameters[2]} not found!");
                         return;
                     }
 

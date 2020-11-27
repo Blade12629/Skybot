@@ -75,7 +75,7 @@ namespace SkyBot.Ratelimits
                 _max = max;
 
                 if (resetTime == TimeSpan.Zero)
-                    throw new ArgumentException(Resources.TimeZeroException, nameof(resetTime));
+                    throw new ArgumentException("Time cannot be zero", nameof(resetTime));
 
                 _rateTimer = new Timer()
                 {

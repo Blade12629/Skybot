@@ -37,8 +37,6 @@ namespace SkyBot.Osu.AutoRef
      */
     public class AutoRefController
     {
-        public event EventHandler<Exception> OnException;
-
         public LobbyController LC => _lc;
         public AutoRefSettings Settings { get; set; }
 
@@ -327,6 +325,16 @@ namespace SkyBot.Osu.AutoRef
                 _lc.MovePlayer(player, nextFreeSlot);
                 nextFreeSlot++;
             }
+        }
+
+        public void SendDiscordMessage(string message)
+        {
+            var channel = Program.DiscordHandler.GetChannelAsync(Settings.DiscordGuildId, Settings.DiscordNotifyChannelId).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            if (channel == null)
+                return;
+
+            channel.SendMessageAsync(message).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public void SubmitResults()
