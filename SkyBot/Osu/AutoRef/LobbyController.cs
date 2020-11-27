@@ -42,6 +42,7 @@ namespace SkyBot.Osu.AutoRef
         Dictionary<int, Slot> _slots;
         List<Score> _totalScores;
         List<Score> _latestScores;
+        int _playersAtMapStart;
 
         IRCClient _irc;
 
@@ -214,13 +215,6 @@ namespace SkyBot.Osu.AutoRef
         public void StartMap(TimeSpan delay)
         {
             MapFinished = false;
-
-            if (_latestScores.Count > 0)
-            {
-                _totalScores.AddRange(_latestScores);
-                _latestScores.Clear();
-            }
-
             SendCommand(MPCommand.Start, (int)delay.TotalSeconds);
         }
 
@@ -462,49 +456,65 @@ namespace SkyBot.Osu.AutoRef
             s.Reset();
         }
 
+        public void MapStart()
+        {
+            MapFinished = false;
+
+            if (_latestScores.Count > 0)
+            {
+                _totalScores.AddRange(_latestScores);
+                _latestScores.Clear();
+            }
+        }
+
+        public void FinishMap()
+        {
+            long bluePoints = 0, redPoints = 0;
+
+            for (int i = 0; i < _latestScores.Count; i++)
+            {
+                if (!_latestScores[i].Passed)
+                    continue;
+
+                Slot s = GetSlot(_latestScores[i].Username);
+
+                if (s == null)
+                {
+                    Logger.Log("Unable to find slot for player", LogLevel.Warning);
+                    continue;
+                }
+
+                switch (s.Color)
+                {
+                    case SlotColor.Blue:
+                        bluePoints += _latestScores[i].UserScore;
+                        break;
+
+                    case SlotColor.Red:
+                        redPoints += _latestScores[i].UserScore;
+                        break;
+                }
+            }
+
+            _totalScores.AddRange(_latestScores);
+            _latestScores.Clear();
+
+            if (bluePoints > redPoints)
+                BlueWins++;
+            else if (redPoints > bluePoints)
+                RedWins++;
+            else
+            {
+                BlueWins++;
+                RedWins++;
+            }
+
+            MapFinished = true;
+        }
+
         public void UserScore(string username, long score, bool passed)
         {
             _latestScores.Add(new Score(username, score, passed));
-
-            if (_latestScores.Count == _slots.Count(s => s.Value.IsUsed))
-            {
-                long bluePoints = 0, redPoints = 0;
-
-                for (int i = 0; i < _latestScores.Count; i++)
-                {
-                    Slot s = GetSlot(_latestScores[i].Username);
-
-                    if (s == null)
-                    {
-                        Logger.Log("Unable to find slot for player", LogLevel.Warning);
-                        continue;
-                    }
-
-                    switch(s.Color)
-                    {
-                        case SlotColor.Blue:
-                            bluePoints += _latestScores[i].UserScore;
-                            break;
-
-                        case SlotColor.Red:
-                            redPoints += _latestScores[i].UserScore;
-                            break;
-                    }
-                }
-
-                _totalScores.AddRange(_latestScores);
-                _latestScores.Clear();
-
-                if (bluePoints > redPoints)
-                    BlueWins++;
-                else if (redPoints > bluePoints)
-                    RedWins++;
-                else
-                {
-                    BlueWins++;
-                    RedWins++;
-                }
-            }
         }
 
 #pragma warning disable CA1822 // Mark members as static

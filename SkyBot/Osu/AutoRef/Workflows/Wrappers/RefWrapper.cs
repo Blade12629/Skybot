@@ -174,7 +174,7 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         /// <returns>Map finished</returns>
         public bool MapFinished()
         {
-            return _arc.LC.LatestScores.Count >= 2;
+            return _arc.LC.MapFinished;
         }
 
         /// <summary>

@@ -125,8 +125,6 @@ function Main() {
     Workflow.AddStep(() => Msg("Setting up teams"));
     Workflow.AddStep(SetupTeams);
 
-    //TODO: gaf-related: add warmup maps (note warmups have to be submitted before match starts)
-
     Workflow.AddStep(() => Msg("Requesting rolls"));
     Workflow.AddStep(RequestRolls);
 
@@ -169,8 +167,6 @@ function MainTest() {
     Workflow.AddStep(() => Wait(20));
     Workflow.AddStep(() => Msg("Setting up teams"));
     Workflow.AddStep(SetupTeams);
-
-    //TODO: gaf-related: add warmup maps (note warmups have to be submitted before match starts)
 
     Workflow.AddStep(() => Msg("Requesting rolls"));
     Workflow.AddStep(RequestRolls);

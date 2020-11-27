@@ -42,7 +42,9 @@ namespace SkyBot.Osu.AutoRef.Chat
                 new UserMoved(lc),
                 new UserScore(lc),
                 new UpdateSettings(lc),
-                new AllUsersReady(lc)
+                new AllUsersReady(lc),
+                new MapFinished(lc),
+                new MatchStarted(lc)
             };
         }
 
@@ -338,6 +340,42 @@ namespace SkyBot.Osu.AutoRef.Chat
                     return false;
 
                 _lc.AllPlayersReady();
+                return true;
+            }
+        }
+
+        public class MapFinished : ChatMessageAction
+        {
+            public MapFinished(LobbyController lc) : base(lc)
+            {
+
+            }
+
+            public override bool Invoke(ChatMessage message)
+            {
+                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                    !message.Message.Equals("The match has finished!", StringComparison.CurrentCultureIgnoreCase))
+                    return false;
+
+                _lc.FinishMap();
+                return true;
+            }
+        }
+
+        public class MatchStarted : ChatMessageAction
+        {
+            public MatchStarted(LobbyController lc) : base(lc)
+            {
+
+            }
+
+            public override bool Invoke(ChatMessage message)
+            {
+                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                    !message.Message.Equals("The match has started!", StringComparison.CurrentCultureIgnoreCase))
+                    return false;
+
+                _lc.MapStart();
                 return true;
             }
         }
