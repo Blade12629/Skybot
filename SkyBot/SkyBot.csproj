@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="3.2.3" />
+    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.49.0.2146" />
     <PackageReference Include="Grapevine" Version="4.1.2" />
     <PackageReference Include="Jint" Version="3.0.0-beta-1828" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />

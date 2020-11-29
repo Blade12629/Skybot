@@ -45,6 +45,7 @@ namespace SkyBot
                 LastUpdatedOn = new DateTimeOffset(GetLastUpdateDate(), TimeSpan.Zero);
 
                 LoadSettings();
+                LoadGoogleSheetsCredents("skybot-297006-c392a09120af.json");
 
                 if (args != null && args.Length > 0)
                 {
@@ -83,6 +84,16 @@ namespace SkyBot
             }
 
             await Task.Delay(-1).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Loads the the google spreadsheets service account credentials to environment variable "SheetCredents"
+        /// </summary>
+        /// <param name="file">Credents json</param>
+        static void LoadGoogleSheetsCredents(string file)
+        {
+            string sheetCredents = File.ReadAllText(file);
+            Environment.SetEnvironmentVariable("SheetCredents", sheetCredents, EnvironmentVariableTarget.Process);
         }
 
         /// <summary>
