@@ -47,6 +47,7 @@ namespace SkyBot.Osu.AutoRef
         public long LastPick => _lastPick;
 
         public int WorkflowState { get; set; }
+        public Dictionary<int, object> WorkflowStates { get; private set; }
 
         public SlotColor CurrentCaptain { get; set; }
 
@@ -78,6 +79,7 @@ namespace SkyBot.Osu.AutoRef
             _lc = lc;
             _lc.OnAfterTick += Tick;
             _lc.OnMessageReceived += OnMessageReceived;
+            WorkflowStates = new Dictionary<int, object>();
         }
 
         public void AddTicks(List<Func<bool>> ticks)
@@ -120,12 +122,15 @@ namespace SkyBot.Osu.AutoRef
                 {
                     if (long.TryParse(split[1], out long min))
                     {
+                        //!roll min max
                         if (split.Length >= 3 && long.TryParse(split[2], out long max))
                         {
                             if (min != 0 || 
                                 max != 100)
                                 _lastRollInvalid = true;
                         }
+                        //!roll max
+                        //min is in this case the max value
                         else if (min != 100)
                             _lastRollInvalid = true;
                     }
@@ -387,6 +392,22 @@ namespace SkyBot.Osu.AutoRef
                 foreach (string p in players)
                     _lc.Invite(p);
             }
+        }
+
+        public object GetState(int state)
+        {
+            if (WorkflowStates.TryGetValue(state, out object val))
+                return val;
+
+            return null;
+        }
+
+        public void SetState(int state, object value)
+        {
+            if (!WorkflowStates.ContainsKey(state))
+                WorkflowStates.Add(state, value);
+            else
+                WorkflowStates[state] = value;
         }
 
         void OnMessageReceived(object sender, ChatMessage e)

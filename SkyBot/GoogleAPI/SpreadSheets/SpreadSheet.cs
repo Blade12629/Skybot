@@ -65,7 +65,60 @@ namespace SkyBot.GoogleAPI.SpreadSheets
         /// <param name="start">Start cell</param>
         /// <param name="data">Rows+Cells to update</param>
         /// <returns>Updated cells</returns>
-        public async Task<int> SetDataAsync(string start, List<IList<object>> data, string valueInputOption = "USER_ENTERED")
+        public void SetData(string start, List<IList<object>> data, string valueInputOption = "USER_ENTERED")
+        {
+            SpreadSheetRateLimit.RateLimit.Increment<object>(async () =>
+            {
+                int updated = await SetDataAsync(start, data, valueInputOption);
+                Logger.Log($"Updated {updated} cells");
+            });
+        }
+
+        /// <summary>
+        /// Updates data for a specific range
+        /// </summary>
+        /// <param name="range">Update range</param>
+        /// <param name="cells">Cells to update</param>
+        /// <returns>Updated cells</returns>
+        public void SetData(string range, List<object> cells)
+        {
+            SpreadSheetRateLimit.RateLimit.Increment<object>(async () =>
+            {
+                int updated = await SetDataAsync(range, cells);
+                Logger.Log($"Updated {updated} cells");
+            });
+        }
+
+        /// <summary>
+        /// Gets cells within a specific range
+        /// </summary>
+        /// <param name="start">Start Cell (example: A1)</param>
+        /// <param name="end">End Cell (example: B2)</param>
+        /// <returns>Rows+Cells, can be null if empty</returns>
+        public IList<IList<object>> GetRange(string start, string end)
+        {
+            bool response = false;
+            IList<IList<object>> result = null;
+
+            SpreadSheetRateLimit.RateLimit.Increment<object>(async () =>
+            {
+                result = await GetRangeAsync(start, end).ConfigureAwait(false);
+                response = true;
+            });
+
+            while (!response)
+                Task.Delay(25).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Updates through a batch update from a given start cell
+        /// </summary>
+        /// <param name="start">Start cell</param>
+        /// <param name="data">Rows+Cells to update</param>
+        /// <returns>Updated cells</returns>
+        async Task<int> SetDataAsync(string start, List<IList<object>> data, string valueInputOption = "USER_ENTERED")
         {
             BatchUpdateValuesRequest update = new BatchUpdateValuesRequest()
             {
@@ -92,7 +145,7 @@ namespace SkyBot.GoogleAPI.SpreadSheets
         /// <param name="range">Update range</param>
         /// <param name="cells">Cells to update</param>
         /// <returns>Updated cells</returns>
-        public async Task<int> SetDataAsync(string range, List<object> cells)
+        async Task<int> SetDataAsync(string range, List<object> cells)
         {
             ValueRange data = new ValueRange()
             {
@@ -115,7 +168,7 @@ namespace SkyBot.GoogleAPI.SpreadSheets
         /// <param name="start">Start Cell (example: A1)</param>
         /// <param name="end">End Cell (example: B2)</param>
         /// <returns>Rows+Cells, can be null if empty</returns>
-        public async Task<IList<IList<object>>> GetRangeAsync(string start, string end)
+        async Task<IList<IList<object>>> GetRangeAsync(string start, string end)
         {
             var getRequest = _service.Spreadsheets.Values.Get(SheetId, $"{Table}!{start.ToUpper()}:{end.ToUpper()}");
             var response = await getRequest.ExecuteAsync().ConfigureAwait(false);

@@ -195,21 +195,23 @@ namespace SkyBot.Osu.AutoRef.Workflows.Wrappers
         }
 
         /// <summary>
-        /// Sets the current workflow state (Used to communicate between steps, see <see cref="GetState"/>)
+        /// Sets a workflow state (Used to communicate between steps, save variables etc., see <see cref="GetState"/>)
         /// </summary>
-        /// <param name="state">New workflow state</param>
-        public void SetState(int state)
+        /// <param name="value">Value to set for workflow state, this can be null</param>
+        /// <param name="state">State Id to create/change</param>
+        public void SetState(int state, object value)
         {
-            _arc.WorkflowState = state;
+            _arc.SetState(state, value);
         }
 
         /// <summary>
-        /// Gets the current workflow state (Used to communicate between steps, see <see cref="SetState(int)"/>)
+        /// Gets a workflow state (Used to communicate between steps, save variables etc., see <see cref="SetState(int)"/>)
         /// </summary>
-        /// <returns>Workflow state</returns>
-        public int GetState()
+        /// <param name="state">State Id</param>
+        /// <returns>Workflow state, if state does not exist or is not set then returns null</returns>
+        public object GetState(int state)
         {
-            return _arc.WorkflowState;
+            return _arc.GetState(state);
         }
 
         /// <summary>

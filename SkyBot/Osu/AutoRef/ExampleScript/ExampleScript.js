@@ -65,7 +65,14 @@ function Msg(msg) {
 }
 
 function PlayPhase() {
-    var state = Ref.GetState();
+    //Get value from state 0
+    var state = Ref.GetState(0);
+
+    //State is by default null and can be set to null
+    //depending on how you implement this you need to check for null
+    if (state == null)
+        state = 0;
+
     Msg("PlayPhase state " + state);
 
     switch (state) {
@@ -74,12 +81,13 @@ function PlayPhase() {
 
         case 0:
             Ref.RequestCurrentPick();
-            Ref.SetState(1);
+            //Set state 0 value to 1
+            Ref.SetState(0, 1);
             return false;
 
         case 1:
             if (GetPick()) {
-                Ref.SetState(2);
+                Ref.SetState(0, 2);
                 Ref.Play();
             }
 
@@ -87,14 +95,14 @@ function PlayPhase() {
 
         case 2:
             if (PickAndSelectMap()) {
-                Ref.SetState(3);
+                Ref.SetState(0, 3);
             }
 
             return false;
 
         case 3:
             if (Ref.MapFinished()) {
-                Ref.SetState(0);
+                Ref.SetState(0, 0);
                 Ref.SetNextCaptainPick();
 
                 return true;
