@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkyBot.Osu.AutoRef
+namespace AutoRefTypes
 {
     public enum TeamMode
     {

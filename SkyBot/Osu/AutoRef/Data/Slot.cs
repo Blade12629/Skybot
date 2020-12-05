@@ -1,18 +1,19 @@
-﻿using System;
+﻿using AutoRefTypes;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
-namespace SkyBot.Osu.AutoRef
+namespace SkyBot.Osu.AutoRef.Data
 {
-    public class Slot : IEquatable<Slot>
+    public class Slot : IEquatable<Slot>, ISlot
     {
         public int Id { get; set; }
         public bool IsReady { get; set; }
         public Uri ProfileUrl { get; set; }
         public string Nickname { get; set; }
-        public SlotColor? Color { get; set; }
+        public SlotColor Color { get; set; }
         public string Role { get; set; }
         public bool IsUsed => Nickname != null;
 
@@ -40,7 +41,7 @@ namespace SkyBot.Osu.AutoRef
             IsReady = false;
             ProfileUrl = null;
             Nickname = null;
-            Color = null;
+            Color = SlotColor.None;
             Role = null;
 
             Mods.Clear();
@@ -56,7 +57,7 @@ namespace SkyBot.Osu.AutoRef
             bool isReady = other.IsReady;
             Uri profileUrl = other.ProfileUrl;
             string nick = other.Nickname;
-            SlotColor? color = other.Color;
+            SlotColor color = other.Color;
             string role = other.Role;
             List<string> mods = other.Mods.ToList();
 

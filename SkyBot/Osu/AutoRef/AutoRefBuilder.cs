@@ -53,37 +53,6 @@ namespace SkyBot.Osu.AutoRef
             DiscordNotifyChannelId = discordNotifyChannelId;
         }
 
-        public void TestRun()
-        {
-            string script = "function HelloWorld()\n{\n\tRef.DebugLog(\"HelloWorld step\");\n\treturn true;\n}\n\nfunction ReturnTrue()\n{\n\tRef.DebugLog(\"ReturnTrue step\");\n\treturn true;\n}\n\nfunction Main()\n{\n\tWorkflow.AddStep(ReturnTrue);\n\tWorkflow.AddStep(HelloWorld);\n}\n\nMain();\nconst fs = require('fs');\nlet data = \"Test Write\";\nfs.writeFile('Output.txt', data, (err) => {\n\tif (err) throw err;\n});";
-            LobbyController lc = new LobbyController(IRC);
-            AutoRefController arc = new AutoRefController(lc);
-
-            lc.OnException += (s, e) => Logger.Log("LC: " + e, LogLevel.Error);
-
-            Workflows.WorkflowEngine engine = new Workflows.WorkflowEngine(lc, arc);
-            Workflows.Wrappers.WorkflowWrapper wrapper = engine.Interpret(script, out Exception ex_);
-
-            if (ex_ != null)
-            {
-                Logger.Log("Script Error: " + ex_.ToString(), LogLevel.Error);
-                return;
-            }
-
-            List<Exception> errors = engine.GetErrors();
-
-            if (errors.Count > 0)
-            {
-                foreach (Exception ex in errors)
-                    Logger.Log(ex, LogLevel.Error);
-
-                return;
-            }
-
-            arc.AddTicks(wrapper.GetAllSteps());
-            arc.TestRun();
-        }
-
         public bool LoadByKeyAndId(string key, ulong discordGuildId)
         {
             using DBContext c = new DBContext();
@@ -134,24 +103,8 @@ namespace SkyBot.Osu.AutoRef
 
         public AutoRefController Build(out Exception ex)
         {
-            LobbyController lc = new LobbyController(IRC);
-            AutoRefController arc = new AutoRefController(lc);
-
-            Apply(arc);
-
-            Workflows.WorkflowEngine engine = new Workflows.WorkflowEngine(lc, arc);
-            Workflows.Wrappers.WorkflowWrapper wrapper = engine.Interpret(Script, out Exception ex_);
-            
-            if (ex_ != null)
-            {
-                ex = ex_;
-                return null;
-            }
-
-            arc.AddTicks(wrapper.GetAllSteps());
-
             ex = null;
-            return arc;
+            return null;
         }
 
         void Apply(AutoRefController arc)

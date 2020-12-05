@@ -1,10 +1,11 @@
-﻿using System;
+﻿using AutoRefTypes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkyBot.Osu.AutoRef
+namespace SkyBot.Osu.AutoRef.Data
 {
-    public class Settings
+    public class Settings : ILobbySettings
     {
         public long MatchId { get; set; }
         public string ChannelName => $"#mp_{MatchId}";

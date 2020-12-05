@@ -18,7 +18,7 @@ namespace SkyBot.Ratelimits
         {
             base.OnTick(sender, e);
 
-            lock(SyncRoot)
+            lock (SyncRoot)
             {
                 int count = _queue.Count;
 

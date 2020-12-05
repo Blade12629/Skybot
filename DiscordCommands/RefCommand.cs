@@ -32,8 +32,8 @@ namespace DiscordCommands
         public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
             string @param = args.Parameters[0].ToLower(CultureInfo.CurrentCulture);
-            args.ParameterString = args.ParameterString.Remove(0, args.Parameters[0].Length + 1);
-            args.Parameters.RemoveAt(0);
+            //args.ParameterString = args.ParameterString.Remove(0, args.Parameters[0].Length + 1);
+            //args.Parameters.RemoveAt(0);
 
             switch (@param)
             {
@@ -66,12 +66,25 @@ namespace DiscordCommands
                     }
                     return;
 
-                case "-test":
+                case "-create":
                     {
-                        string capBlue = args.Parameters[0];
-                        string capRed = args.Parameters[1];
+                        string script = System.IO.File.ReadAllText("Osu\\AutoRef\\ExampleScript\\TestScript.js");
 
-                        TestMatch(capBlue, capRed);
+                        AutoRefBuilder arb = new AutoRefBuilder(Program.IRC, script)
+                        {
+                            CaptainBlue = "Skyfly"
+                        };
+
+
+                        _arc = arb.Build(out Exception ex);
+
+                        if (ex != null)
+                        {
+                            Logger.Log(ex);
+                            return;
+                        }
+
+                        args.Channel.SendMessageAsync("Created match").ConfigureAwait(false);
                     }
                     return;
 
@@ -79,24 +92,19 @@ namespace DiscordCommands
                     {
                         _arc.LC.EnqueueCloseLobby();
                     }
+                    args.Channel.SendMessageAsync("Stopped match").ConfigureAwait(false);
+                    return;
+
+                case "-close":
+                    Program.IRC.JoinChannelAsync($"#mp_{args.Parameters[1]}").ConfigureAwait(false).GetAwaiter().GetResult();
+                    Program.IRC.SendMessageAsync($"#mp_{args.Parameters[1]}", "!mp close").ConfigureAwait(false);
+                    return;
+
+                case "-start":
+                    _arc.Start("XYZ: (test1) vs (test2)");
+                    args.Channel.SendMessageAsync("Started match").ConfigureAwait(false);
                     return;
             }
         }
-        
-        void TestMatch(string capBlue, string capRed)
-        {
-            AutoRefBuilder arb = new AutoRefBuilder(Program.IRC)
-            {
-                CaptainBlue = capBlue,
-                CaptainRed = capRed,
-                PlayersBlue = new List<string>(),
-                PlayersRed = new List<string>()
-            };
-            arb.LoadByKeyAndId("test", 738155828615446608);
-
-            _arc = arb.Build(out Exception ex);
-            _arc.Start("XYZ: (test1) vs (test2)");
-        }
-
     }
 }

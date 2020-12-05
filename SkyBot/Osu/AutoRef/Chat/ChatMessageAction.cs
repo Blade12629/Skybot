@@ -1,8 +1,10 @@
-﻿using System;
+﻿using AutoRefTypes;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using SkyBot.Osu.AutoRef.Data;
 
 namespace SkyBot.Osu.AutoRef.Chat
 {
@@ -59,14 +61,23 @@ namespace SkyBot.Osu.AutoRef.Chat
 
             public override bool Invoke(ChatMessage message)
             {
-                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                    !message.Message.EndsWith("left the game", StringComparison.CurrentCultureIgnoreCase))
-                    return false;
+                try
+                {
+                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                        !message.Message.EndsWith("left the game", StringComparison.CurrentCultureIgnoreCase))
+                        return false;
 
-                int index = message.Message.IndexOf("left the game", StringComparison.CurrentCultureIgnoreCase);
-                string user = message.Message.Substring(0, index);
+                    int index = message.Message.IndexOf("left the game", StringComparison.CurrentCultureIgnoreCase);
+                    string user = message.Message.Substring(0, index);
 
-                _lc.UserLeft(user);
+                    _lc.UserLeft(user);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, LogLevel.Error);
+                    throw ex;
+                }
+
                 return true;
             }
         }
@@ -81,17 +92,26 @@ namespace SkyBot.Osu.AutoRef.Chat
 
             public override bool Invoke(ChatMessage message)
             {
-                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                    !message.Message.Contains("moved to slot", StringComparison.CurrentCultureIgnoreCase))
-                    return false;
+                try
+                {
+                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                        !message.Message.Contains("moved to slot", StringComparison.CurrentCultureIgnoreCase))
+                        return false;
 
-                int index = message.Message.IndexOf("moved to slot", StringComparison.CurrentCultureIgnoreCase);
-                string user = message.Message.Substring(0, index);
+                    int index = message.Message.IndexOf("moved to slot", StringComparison.CurrentCultureIgnoreCase);
+                    string user = message.Message.Substring(0, index);
 
-                index = message.Message.LastIndexOf(' ');
-                int slot = int.Parse(message.Message.Remove(0, index + 1), CultureInfo.CurrentCulture);
+                    index = message.Message.LastIndexOf(' ');
+                    int slot = int.Parse(message.Message.Remove(0, index + 1), CultureInfo.CurrentCulture);
 
-                _lc.UserMoved(user, slot);
+                    _lc.UserMoved(user, slot);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, LogLevel.Error);
+                    throw ex;
+                }
+
                 return true;
             }
         }
@@ -105,21 +125,39 @@ namespace SkyBot.Osu.AutoRef.Chat
 
             public override bool Invoke(ChatMessage message)
             {
-                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                    !message.Message.Contains("joined in slot", StringComparison.CurrentCultureIgnoreCase))
-                    return false;
+                try
+                {
+                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                        !message.Message.Contains("joined in slot", StringComparison.CurrentCultureIgnoreCase))
+                        return false;
 
-                int index = message.Message.IndexOf("joined in slot", StringComparison.CurrentCultureIgnoreCase);
-                string user = message.Message.Substring(0, index);
+                    int index = message.Message.IndexOf("joined in slot", StringComparison.CurrentCultureIgnoreCase);
+                    string user = message.Message.Substring(0, index);
 
-                string msg = message.Message.Remove(0, index + "joined in slot".Length + 1);
-                index = msg.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                int slot = int.Parse(msg.Substring(0, index), CultureInfo.CurrentCulture);
+                    string msg = message.Message.Remove(0, index + "joined in slot".Length + 1);
+                    index = msg.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
 
-                index = msg.LastIndexOf(' ');
-                SlotColor color = Enum.Parse<SlotColor>(msg.Remove(0, index + 1));
+                    int slot;
+                    if (index == -1)
+                    {
+                        slot = int.Parse(msg.Remove(msg.Length - 1), CultureInfo.CurrentCulture);
+                        _lc.UserJoined(user, slot, SlotColor.None);
+                        return true;
+                    }
 
-                _lc.UserJoined(user, slot, color);
+                    slot = int.Parse(msg.Substring(0, index), CultureInfo.CurrentCulture);
+
+                    index = msg.LastIndexOf(' ');
+                    SlotColor color = Enum.Parse<SlotColor>(msg.Remove(0, index + 1));
+
+                    _lc.UserJoined(user, slot, color);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, LogLevel.Error);
+                    throw ex;
+                }
+
                 return true;
             }
         }
@@ -135,26 +173,35 @@ namespace SkyBot.Osu.AutoRef.Chat
 
             public override bool Invoke(ChatMessage message)
             {
-                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase))
-                    return false;
+                try
+                {
+                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase))
+                        return false;
 
-                int index = message.Message.IndexOf(_SCORE_TEXT, StringComparison.CurrentCultureIgnoreCase);
+                    int index = message.Message.IndexOf(_SCORE_TEXT, StringComparison.CurrentCultureIgnoreCase);
 
-                if (index == -1)
-                    return false;
+                    if (index == -1)
+                        return false;
 
-                string username = message.Message.Substring(0, index - 1);
-                string msg = message.Message.Remove(0, username.Length + 1 + _SCORE_TEXT.Length);
+                    string username = message.Message.Substring(0, index - 1);
+                    string msg = message.Message.Remove(0, username.Length + 1 + _SCORE_TEXT.Length);
 
-                index = msg.IndexOf(',', StringComparison.CurrentCultureIgnoreCase);
+                    index = msg.IndexOf(',', StringComparison.CurrentCultureIgnoreCase);
 
-                string scoreStr = msg.Substring(0, index);
-                string passedStr = msg.Remove(0, index + 1).TrimEnd('.').TrimEnd(')');
+                    string scoreStr = msg.Substring(0, index);
+                    string passedStr = msg.Remove(0, index + 1).TrimEnd('.').TrimEnd(')');
 
-                long score = int.Parse(scoreStr, CultureInfo.CurrentCulture);
-                bool passed = passedStr.Equals("passed", StringComparison.CurrentCultureIgnoreCase);
+                    long score = int.Parse(scoreStr, CultureInfo.CurrentCulture);
+                    bool passed = passedStr.Equals("passed", StringComparison.CurrentCultureIgnoreCase);
 
-                _lc.UserScore(username, score, passed);
+                    _lc.UserScoreReceived(username, score, passed);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, LogLevel.Error);
+                    throw ex;
+                }
+
                 return true;
             }
         }
@@ -175,132 +222,141 @@ namespace SkyBot.Osu.AutoRef.Chat
             {
                 _settingParsers = new Dictionary<string, Action<string>>()
                 {
-                    { "room name: ", new Action<string>(s => lc.Settings.RoomName = s) },
-                    { "history: ", new Action<string>(s => lc.Settings.HistoryUrl = s) },
-                    { "team mode: ", new Action<string>(s => lc.Settings.TeamMode = Enum.Parse<TeamMode>(s)) },
-                    { "win condition: ", new Action<string>(s => lc.Settings.WinCondition = Enum.Parse<WinCondition>(s)) }
+                    { "room name: ", new Action<string>(s => ((Settings)lc.Settings).RoomName = s) },
+                    { "history: ", new Action<string>(s => ((Settings)lc.Settings).HistoryUrl = s) },
+                    { "team mode: ", new Action<string>(s => ((Settings)lc.Settings).TeamMode = Enum.Parse<TeamMode>(s)) },
+                    { "win condition: ", new Action<string>(s => ((Settings)lc.Settings).WinCondition = Enum.Parse<WinCondition>(s)) }
                 };
             }
 
             public override bool Invoke(ChatMessage message)
             {
-                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase))
-                    return false;
-
-                string line = message.Message;
-
-                if (line.StartsWith(_SLOT, StringComparison.CurrentCultureIgnoreCase))
+                try
                 {
-                    line = line.Remove(0, _SLOT.Length).TrimStart(' ');
+                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase))
+                        return false;
 
-                    int slotId = 0;
-                    int slotIdLength = 1;
+                    string line = message.Message;
 
-                    if (char.IsNumber(line[1]))
-                        slotIdLength = 2;
-
-                    slotId = int.Parse(line.Substring(0, slotIdLength), CultureInfo.CurrentCulture);
-                    line = line.Remove(0, slotIdLength).TrimStart(' ');
-
-                    bool isReady = false;
-                    if (line.StartsWith(_READY, StringComparison.CurrentCultureIgnoreCase))
+                    if (line.StartsWith(_SLOT, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        isReady = true;
-                        line = line.Remove(0, _READY.Length).TrimStart(' ');
-                    }
-                    else
-                        line = line.Remove(0, _NOT_READY.Length).TrimStart(' ');
+                        line = line.Remove(0, _SLOT.Length).TrimStart(' ');
 
-                    int index = line.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                    string profileUrl = line.Substring(0, index);
-                    line = line.Remove(0, index + 1);
+                        int slotId = 0;
+                        int slotIdLength = 1;
 
-                    index = line.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
-                    string nickname = line.Substring(0, index).Replace(' ', '_');
-                    line = line.Remove(0, index).TrimStart(' ');
+                        if (char.IsNumber(line[1]))
+                            slotIdLength = 2;
 
-                    index = line.IndexOf('[', StringComparison.CurrentCultureIgnoreCase);
+                        slotId = int.Parse(line.Substring(0, slotIdLength), CultureInfo.CurrentCulture);
+                        line = line.Remove(0, slotIdLength).TrimStart(' ');
 
-                    SlotColor? color = null;
-                    string role = null;
-                    List<string> mods = new List<string>();
-                    if (index > -1)
-                    {
-                        line = line.Remove(0, index + 1);
-                        if (line.StartsWith(_TEAM_BLUE, StringComparison.CurrentCultureIgnoreCase))
+                        bool isReady = false;
+                        if (line.StartsWith(_READY, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            color = SlotColor.Blue;
-                            line = line.Remove(0, _TEAM_BLUE.Length);
+                            isReady = true;
+                            line = line.Remove(0, _READY.Length).TrimStart(' ');
                         }
-                        else if (line.StartsWith(_TEAM_RED, StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            color = SlotColor.Red;
-                            line = line.Remove(0, _TEAM_RED.Length);
-                        }
-
-                        if (line.StartsWith(_SPLITTER, StringComparison.CurrentCultureIgnoreCase))
-                            line = line.Remove(0, _SPLITTER.Length);
-
-                        if (line.StartsWith(_HOST_ROLE, StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            role = _HOST_ROLE;
-                            line = line.Remove(0, _HOST_ROLE.Length);
-                        }
-
-                        if (line.StartsWith(_SPLITTER, StringComparison.CurrentCultureIgnoreCase))
-                            line = line.Remove(0, _SPLITTER.Length);
-
-                        string[] split;
-                        if (line.Contains(',', StringComparison.CurrentCultureIgnoreCase))
-                            split = line.TrimEnd(']').Split(',');
                         else
-                            split = new string[1] { line.TrimEnd(']') };
+                            line = line.Remove(0, _NOT_READY.Length).TrimStart(' ');
 
-                        mods.AddRange(split);
+                        int index = line.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
+                        string profileUrl = line.Substring(0, index);
+                        line = line.Remove(0, index + 1);
+
+                        index = line.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
+                        string nickname = line.Substring(0, index).Replace(' ', '_');
+                        line = line.Remove(0, index).TrimStart(' ');
+
+                        index = line.IndexOf('[', StringComparison.CurrentCultureIgnoreCase);
+
+                        SlotColor color = SlotColor.None;
+                        string role = null;
+                        List<string> mods = new List<string>();
+                        if (index > -1)
+                        {
+                            line = line.Remove(0, index + 1);
+                            if (line.StartsWith(_TEAM_BLUE, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                color = SlotColor.Blue;
+                                line = line.Remove(0, _TEAM_BLUE.Length);
+                            }
+                            else if (line.StartsWith(_TEAM_RED, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                color = SlotColor.Red;
+                                line = line.Remove(0, _TEAM_RED.Length);
+                            }
+
+                            if (line.StartsWith(_SPLITTER, StringComparison.CurrentCultureIgnoreCase))
+                                line = line.Remove(0, _SPLITTER.Length);
+
+                            if (line.StartsWith(_HOST_ROLE, StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                role = _HOST_ROLE;
+                                line = line.Remove(0, _HOST_ROLE.Length);
+                            }
+
+                            if (line.StartsWith(_SPLITTER, StringComparison.CurrentCultureIgnoreCase))
+                                line = line.Remove(0, _SPLITTER.Length);
+
+                            string[] split;
+                            if (line.Contains(',', StringComparison.CurrentCultureIgnoreCase))
+                                split = line.TrimEnd(']').Split(',');
+                            else
+                                split = new string[1] { line.TrimEnd(']') };
+
+                            mods.AddRange(split);
+                        }
+
+                        Slot slot = (Slot)_lc.Slots[slotId];
+                        slot.Reset();
+
+                        slot.IsReady = isReady;
+                        slot.ProfileUrl = new Uri(profileUrl);
+                        slot.Nickname = nickname;
+                        slot.Role = role;
+                        slot.Color = color;
+
+                        if (mods.Count > 0)
+                            slot.Mods.AddRange(mods);
+
+                        _lc.SlotUpdated(slot);
+
+                        return true;
                     }
 
-                    Slot slot = _lc.Slots[slotId];
-                    slot.Reset();
+                    for (int i = 0; i < 2; i++)
+                    {
+                        var pair = _settingParsers.FirstOrDefault(p => line.StartsWith(p.Key, StringComparison.CurrentCultureIgnoreCase));
 
-                    slot.IsReady = isReady;
-                    slot.ProfileUrl = new Uri(profileUrl);
-                    slot.Nickname = nickname;
-                    slot.Role = role;
-                    slot.Color = color;
+                        if (pair.Key == null || pair.Value == null)
+                        {
+                            if (i == 1)
+                                return true;
 
-                    if (mods.Count > 0)
-                        slot.Mods.AddRange(mods);
+                            return false;
+                        }
 
-                    _lc.SlotUpdated(slot);
+                        string value = TryParseSetting(ref line, pair.Key);
+                        line = line.TrimStart(' ');
 
-                    return true;
+                        if (value == null)
+                        {
+                            if (i == 1)
+                                return true;
+
+                            return false;
+                        }
+
+                        pair.Value(value);
+                    }
                 }
-
-                for (int i = 0; i < 2; i++)
+                catch (Exception ex)
                 {
-                    var pair = _settingParsers.FirstOrDefault(p => line.StartsWith(p.Key, StringComparison.CurrentCultureIgnoreCase));
-
-                    if (pair.Key == null || pair.Value == null)
-                    {
-                        if (i == 1)
-                            return true;
-
-                        return false;
-                    }
-
-                    string value = TryParseSetting(ref line, pair.Key);
-                    line = line.TrimStart(' ');
-
-                    if (value == null)
-                    {
-                        if (i == 1)
-                            return true;
-
-                        return false;
-                    }
-
-                    pair.Value(value);
+                    Logger.Log(ex, LogLevel.Error);
+                    throw ex;
                 }
+
                 return true;
             }
 
@@ -335,11 +391,20 @@ namespace SkyBot.Osu.AutoRef.Chat
 
             public override bool Invoke(ChatMessage message)
             {
-                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                    !message.Message.Equals("All players are ready", StringComparison.CurrentCultureIgnoreCase))
-                    return false;
+                try
+                {
+                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                        !message.Message.Equals("All players are ready", StringComparison.CurrentCultureIgnoreCase))
+                        return false;
 
-                _lc.AllPlayersReady();
+                    _lc.AllPlayersReady();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, LogLevel.Error);
+                    throw ex;
+                }
+
                 return true;
             }
         }
@@ -353,11 +418,20 @@ namespace SkyBot.Osu.AutoRef.Chat
 
             public override bool Invoke(ChatMessage message)
             {
-                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                    !message.Message.Equals("The match has finished!", StringComparison.CurrentCultureIgnoreCase))
-                    return false;
+                try
+                {
+                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                        !message.Message.Equals("The match has finished!", StringComparison.CurrentCultureIgnoreCase))
+                        return false;
 
-                _lc.FinishMap();
+                    _lc.FinishedMap();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, LogLevel.Error);
+                    throw ex;
+                }
+
                 return true;
             }
         }
@@ -371,11 +445,20 @@ namespace SkyBot.Osu.AutoRef.Chat
 
             public override bool Invoke(ChatMessage message)
             {
-                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                    !message.Message.Equals("The match has started!", StringComparison.CurrentCultureIgnoreCase))
-                    return false;
+                try
+                {
+                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                        !message.Message.Equals("The match has started!", StringComparison.CurrentCultureIgnoreCase))
+                        return false;
 
-                _lc.MapStart();
+                    _lc.MapStarted();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, LogLevel.Error);
+                    throw ex;
+                }
+
                 return true;
             }
         }

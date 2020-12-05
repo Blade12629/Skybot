@@ -1,18 +1,19 @@
-﻿using System;
+﻿using AutoRefTypes;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace SkyBot.Osu.AutoRef
+namespace SkyBot.Osu.AutoRef.Data
 {
-    public class Roll : IEquatable<Roll>
+    public class Roll : IEquatable<Roll>, IRoll
     {
         public string Nickname { get; }
-        public int Min { get; }
-        public int Max { get; }
-        public int Rolled { get; }
+        public long Min { get; }
+        public long Max { get; }
+        public long Rolled { get; }
 
-        public Roll(string nickname, int min, int max, int rolled)
+        public Roll(string nickname, long min, long max, long rolled)
         {
             Nickname = nickname;
             Min = min;
@@ -72,7 +73,7 @@ namespace SkyBot.Osu.AutoRef
         }
 
 #pragma warning disable CA2225 // Operator overloads have named alternates
-        public static implicit operator int(Roll r)
+        public static implicit operator long(Roll r)
 #pragma warning restore CA2225 // Operator overloads have named alternates
         {
             return r.Rolled;

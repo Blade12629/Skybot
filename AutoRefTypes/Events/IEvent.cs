@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SkyBot.Osu.AutoRef
+namespace AutoRefTypes.Events
 {
-    public enum SlotColor
+    public interface IEvent
     {
-        Blue,
-        Red
     }
 }

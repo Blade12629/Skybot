@@ -2,6 +2,7 @@
 using SkyBot.Database;
 using SkyBot.Database.Models.Statistics;
 using SkyBot.Discord;
+using SkyBot.Osu.AutoRef;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -61,6 +62,30 @@ namespace SkyBot
 
                     }
                 }
+
+//                Logger.Log("Loading ARC Script");
+
+//                string script =
+//"Ref.DebugLog(\"Hello World\");\n function Msg(msg) {\n\tRef.DebugLog(msg);\n\treturn true;\n}\nWorkflow.AddStep(() => Msg(\"Hello World from Workflow\"));";
+
+//                AutoRefBuilder arb = new AutoRefBuilder(Program.IRC, script)
+//                {
+//                    CaptainBlue = "Skyfly"
+//                };
+
+
+//                var arc = arb.Build(out Exception ex);
+
+//                if (ex != null)
+//                {
+//                    Logger.Log(ex);
+//                }
+//                else
+//                {
+//                    Logger.Log("Loaded ARC successfully");
+//                }
+
+//                Environment.Exit(0);
 
                 LoadAPI();
 
