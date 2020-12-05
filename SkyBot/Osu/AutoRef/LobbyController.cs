@@ -20,8 +20,6 @@ namespace SkyBot.Osu.AutoRef
     {
         public event EventHandler OnBeforeCreating;
         public event EventHandler OnBeforeClosing;
-        public event EventHandler OnBeforeTick;
-        public event EventHandler OnAfterTick;
         public event EventHandler<Exception> OnException;
         public event EventHandler OnAllPlayersReady;
 
@@ -51,21 +49,16 @@ namespace SkyBot.Osu.AutoRef
 
         IRCClient _irc;
 
-        Task _tickTask;
-        CancellationTokenSource _tickSource;
-        bool _shouldTick;
-        int _tickDelay;
         ConcurrentQueue<Action> _tickQueue;
         Settings _settings;
 
-        public LobbyController(IRCClient irc, int tickDelay = 100)
+        public LobbyController(IRCClient irc)
         {
             ChatMessageActions = ChatActions.ToList(this);
             _settings = new Settings();
             IsLobbyClosed = true;
             _slots = new Dictionary<int, Slot>();
             _irc = irc;
-            _tickDelay = tickDelay;
             _totalScores = new List<Score>();
             _latestScores = new List<Score>();
 
@@ -75,37 +68,18 @@ namespace SkyBot.Osu.AutoRef
 
         public void CreateLobby(string roomName)
         {
-            if (_shouldTick)
-                return;
-
-            _shouldTick = true;
             OnBeforeCreating?.Invoke(this, null);
 
             _settings.Reset();
             _settings.RoomName = roomName;
-            _tickSource = new CancellationTokenSource();
-            _tickTask = new Task(Tick, _tickSource.Token);
-            _tickQueue = new ConcurrentQueue<Action>();
 
             CreateMatch();
-
-            _tickTask.Start();
         }
 
         public void EnqueueCloseLobby()
         {
-            if (!_shouldTick)
-                return;
-
             OnBeforeClosing?.Invoke(this, null);
             Close();
-
-            _tickQueue.Enqueue(() =>
-            {
-                _shouldTick = false;
-                _tickSource.Cancel();
-                _irc.OnChannelMessageReceived -= MessageReceived;
-            });
         }
 
         /// <summary>
@@ -306,33 +280,21 @@ namespace SkyBot.Osu.AutoRef
             OnLobbyCreated?.Invoke(this, null);
         }
 
-        void Tick()
+        public void OnTick()
         {
-            while (_shouldTick)
+            while (_tickQueue.TryDequeue(out Action a))
             {
-                OnBeforeTick?.Invoke(this, null);
-
-                while (_tickQueue.TryDequeue(out Action a))
+                try
                 {
-                    if (!_shouldTick)
-                        return;
-
-                    try
-                    {
-                        a?.Invoke();
-                    }
-                    catch (Exception ex)
-                    {
-                        OnException?.Invoke(this, ex);
-                    }
+                    a?.Invoke();
                 }
-
-                if (IsLobbyCreated)
-                    OnAfterTick?.Invoke(this, null);
-
-                Task.Delay(_tickDelay).ConfigureAwait(false).GetAwaiter().GetResult();
+                catch (Exception ex)
+                {
+                    OnException?.Invoke(this, ex);
+                }
             }
         }
+
 
         void PrivateBanchoMessageReceived(object sender, IrcPrivateMessageEventArgs e)
         {

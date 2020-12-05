@@ -59,7 +59,6 @@ namespace SkyBot.Osu.AutoRef
         {
             _tickQueue = new List<Func<bool>>();
             _lc = lc;
-            _lc.OnAfterTick += Tick;
             _lc.OnMessageReceived += OnMessageReceived;
         }
 
@@ -313,20 +312,26 @@ namespace SkyBot.Osu.AutoRef
             }
         }
 
-        void Tick(object sender, EventArgs e)
+        public void OnTick()
         {
             if (_tickQueue.Count == 0)
                 return;
 
-            try
+            for (int i = 0; i < _tickQueue.Count; i++)
             {
-                if (_tickQueue[0].Invoke())
-                    _tickQueue.RemoveAt(0);
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(ex, LogLevel.Error);
-                throw ex;
+                try
+                {
+                    if (_tickQueue[i].Invoke())
+                    {
+                        _tickQueue.RemoveAt(i);
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, LogLevel.Error);
+                    throw ex;
+                }
             }
         }
     }

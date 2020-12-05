@@ -11,6 +11,7 @@ namespace SkyBot.Osu.AutoRef.Events
         {
             Dictionary<string, Action<EventObject>> actions = new Dictionary<string, Action<EventObject>>();
 
+            AddAction(typeof(ITickUpdate), e => ((ITickUpdate)e).UpdateTick());
             AddAction(typeof(IUpdateEvent), e => ((IUpdateEvent)e).Update());
 
             return actions;
@@ -20,6 +21,11 @@ namespace SkyBot.Osu.AutoRef.Events
                 string name = $"{type.Name}Update";
                 actions.Add(name, ac);
             }
+        }
+
+        public interface ITickUpdate
+        {
+            public void UpdateTick();
         }
     }
 }

@@ -101,13 +101,7 @@ namespace SkyBot.Osu.AutoRef
             return true;
         }
 
-        public AutoRefController Build(out Exception ex)
-        {
-            ex = null;
-            return null;
-        }
-
-        void Apply(AutoRefController arc)
+        public void Apply(AutoRefController arc)
         {
             arc.Settings = new AutoRefSettings(DiscordGuildId, DiscordNotifyChannelId, TotalWarmups, 
                                                BestOf, CaptainBlue, CaptainRed, PlayersBlue,

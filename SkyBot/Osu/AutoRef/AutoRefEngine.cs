@@ -68,12 +68,13 @@ namespace SkyBot.Osu.AutoRef
             return true;
         }
 
-        public void Setup(AutoRefBuilder builder, out Exception ex)
+        public void Setup(AutoRefBuilder builder)
         {
-            _arc = builder.Build(out ex);
-            _lc = _arc.LC;
+            _lc = new LobbyController(Program.IRC);
+            _arc = new AutoRefController(_lc);
+            builder.Apply(_arc);
 
-            ValidSetup = ex == null;
+            LoadScript(builder.Script);
         }
 
         public void Run(string lobbyName)
@@ -86,6 +87,7 @@ namespace SkyBot.Osu.AutoRef
 
             IEntryPoint entryPoint = Activator.CreateInstance(entryType) as IEntryPoint;
 
+            TickEvent.Initialize(_eventRunner, _arc, _lc);
             entryPoint.OnLoad(_arc, _lc, _eventRunner);
             _arc.Start(lobbyName);
             _eventRunner.Start();
@@ -120,6 +122,8 @@ namespace SkyBot.Osu.AutoRef
 
                 _arc = null;
                 _lc = null;
+
+                _pluginContext?.Unload();
             }
         }
     }
