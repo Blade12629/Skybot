@@ -14,9 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       name: Checkout Code
-     
-    - name: Setup MSBuild Path
-      uses: warrenbuckley/Setup-MSBuild@v1
        
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1.0.2
