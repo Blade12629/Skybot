@@ -9,15 +9,11 @@ namespace SkyBot.Osu.AutoRef.Data
     public class Roll : IEquatable<Roll>, IRoll
     {
         public string Nickname { get; }
-        public long Min { get; }
-        public long Max { get; }
         public long Rolled { get; }
 
-        public Roll(string nickname, long min, long max, long rolled)
+        public Roll(string nickname, long rolled)
         {
             Nickname = nickname;
-            Min = min;
-            Max = max;
             Rolled = rolled;
         }
 
@@ -30,14 +26,12 @@ namespace SkyBot.Osu.AutoRef.Data
         {
             return other != null &&
                    Nickname == other.Nickname &&
-                   Min == other.Min &&
-                   Max == other.Max &&
                    Rolled == other.Rolled;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Nickname, Min, Max, Rolled);
+            return HashCode.Combine(Nickname, Rolled);
         }
 
         public static bool operator ==(Roll left, Roll right)

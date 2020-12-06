@@ -13,73 +13,45 @@ using IRCClient = SkyBot.Osu.IRC.OsuIrcClient;
 using SkyBot.Osu.AutoRef.Chat;
 using AutoRefTypes;
 using SkyBot.Osu.AutoRef.Data;
+using SkyBot.Osu.AutoRef.Events;
 
 namespace SkyBot.Osu.AutoRef
 {
     public partial class LobbyController : ILobby
     {
-        public event EventHandler OnBeforeCreating;
-        public event EventHandler OnBeforeClosing;
-        public event EventHandler<Exception> OnException;
-        public event EventHandler OnAllPlayersReady;
-
-        public event EventHandler OnLobbyCreated;
-        public event EventHandler<ChatMessage> OnMessageReceived;
-
-        public DateTime CreationDate { get; private set; }
-        public bool IsLobbyCreated { get; private set; }
-        public bool IsLobbyClosed { get; private set; }
         public ILobbySettings Settings { get => _settings; }
-        public IReadOnlyList<ISlot> UsedSlots { get => _slots.Values.Where(s => s.IsUsed).Select(s => (ISlot)s).ToList(); }
-        public IReadOnlyList<ISlot> Slots => _slots.Values.Select(s => (ISlot)s).ToList();
-        public IReadOnlyList<IScore> Scores => _totalScores.Select(s => (IScore)s).ToList();
-        public List<Score> LatestScores => _latestScores;
-        public List<ChatMessageAction> ChatMessageActions { get; private set; }
-        public bool MapFinished { get; private set; }
-        public int BlueWins { get; private set; }
-        public int RedWins { get; private set; }
+        public LobbyDataHandler DataHandler { get => _data; }
 
+        List<ChatMessageAction> _chatMessageActions;
+        ConcurrentQueue<Action> _tickQueue;
 
-        public bool IsMapFinished => throw new NotImplementedException();
+        readonly LobbyDataHandler _data;
+        readonly EventRunner _evRunner;
+        readonly List<IrcChannelMessageEventArgs> _newMessages;
 
-        Dictionary<int, Slot> _slots;
-        List<Score> _totalScores;
-        List<Score> _latestScores;
-        int _playersAtMapStart;
-
+        Settings _settings;
         IRCClient _irc;
 
-        ConcurrentQueue<Action> _tickQueue;
-        Settings _settings;
-
-        public LobbyController(IRCClient irc)
+        public LobbyController(IRCClient irc, EventRunner evRunner)
         {
-            ChatMessageActions = ChatActions.ToList(this);
+            _tickQueue = new ConcurrentQueue<Action>();
+            _newMessages = new List<IrcChannelMessageEventArgs>();
+            _evRunner = evRunner;
+            _chatMessageActions = ChatActions.ToList(this);
             _settings = new Settings();
-            IsLobbyClosed = true;
-            _slots = new Dictionary<int, Slot>();
             _irc = irc;
-            _totalScores = new List<Score>();
-            _latestScores = new List<Score>();
-
-            for (int i = 0; i < 16; i++)
-                _slots.Add(i + 1, new Slot(i + 1));
+            _data = new LobbyDataHandler(evRunner);
         }
 
         public void CreateLobby(string roomName)
         {
-            OnBeforeCreating?.Invoke(this, null);
-
             _settings.Reset();
             _settings.RoomName = roomName;
 
-            CreateMatch();
-        }
+            _irc.OnPrivateBanchoMessageReceived += PrivateBanchoMessageReceived;
+            _irc.SendMessageAsync("banchobot", $"!mp make {Settings.RoomName}").ConfigureAwait(false).GetAwaiter().GetResult();
 
-        public void EnqueueCloseLobby()
-        {
-            OnBeforeClosing?.Invoke(this, null);
-            Close();
+            _data.OnCreation(roomName);
         }
 
         /// <summary>
@@ -106,195 +78,71 @@ namespace SkyBot.Osu.AutoRef
             return user.Replace('_', ' ');
         }
 
+        public void DebugLog(string msg)
+        {
+            Logger.Log(msg, LogLevel.Warning);
+        }
+
         /// <summary>
         /// Sends a message at the next tick
         /// </summary>
         /// <param name="message">Message to send</param>
-        public void SendMessage(string message)
+        void SendMessage(string message)
         {
-            if (!IsLobbyCreated)
+            if (_data.Status == LobbyStatus.None ||
+                _data.Status == LobbyStatus.Closed)
                 throw new Exception("MP Lobby doesn't exist, cannot send mp command");
 
             _tickQueue.Enqueue(new Action(() => _irc.SendMessageAsync(Settings.ChannelName, message).ConfigureAwait(false)));
         }
 
-        public Slot GetSlot(string user)
-        {
-            return _slots.Values.FirstOrDefault(s => s.Nickname != null && s.Nickname.Equals(user, StringComparison.CurrentCultureIgnoreCase));
-        }
-
-        public void UserMoved(string user, int slot)
-        {
-            Slot s = GetSlot(user);
-            Slot sn = _slots[slot];
-
-            s.Move(sn);
-        }
-
-        public void UserJoined(string user, int slot, SlotColor team)
-        {
-            Slot s = _slots[slot];
-            s.Nickname = user;
-            s.Color = team;
-        }
-
-        public void UserLeft(string user)
-        {
-            Slot s = GetSlot(user);
-            s.Reset();
-        }
-
-        public void MapStarted()
-        {
-            MapFinished = false;
-
-            if (_latestScores.Count > 0)
-            {
-                _totalScores.AddRange(_latestScores);
-                _latestScores.Clear();
-            }
-        }
-
-        public void FinishedMap()
-        {
-            long bluePoints = 0, redPoints = 0;
-
-            for (int i = 0; i < _latestScores.Count; i++)
-            {
-                if (!_latestScores[i].Passed)
-                    continue;
-
-                Slot s = GetSlot(_latestScores[i].Username);
-
-                if (s == null)
-                {
-                    Logger.Log("Unable to find slot for player", LogLevel.Warning);
-                    continue;
-                }
-
-                switch (s.Color)
-                {
-                    case SlotColor.Blue:
-                        bluePoints += _latestScores[i].UserScore;
-                        break;
-
-                    case SlotColor.Red:
-                        redPoints += _latestScores[i].UserScore;
-                        break;
-                }
-            }
-
-            _totalScores.AddRange(_latestScores);
-            _latestScores.Clear();
-
-            if (bluePoints > redPoints)
-                BlueWins++;
-            else if (redPoints > bluePoints)
-                RedWins++;
-            else
-            {
-                BlueWins++;
-                RedWins++;
-            }
-
-            MapFinished = true;
-        }
-
-        public void UserScoreReceived(string username, long score, bool passed)
-        {
-            _latestScores.Add(new Score(username, score, passed));
-        }
-
-#pragma warning disable CA1822 // Mark members as static
-        public void SlotUpdated(Slot slot)
-#pragma warning restore CA1822 // Mark members as static
-        {
-            return;
-        }
-
-        public void AllPlayersReady()
-        {
-            var slots = _slots.Values.Where(s => s.IsUsed);
-
-            foreach (var slot in slots)
-                slot.IsReady = true;
-
-            OnAllPlayersReady?.Invoke(this, null);
-        }
-
-        public async Task<bool> WaitForAllPlayersReady(TimeSpan timeout)
-        {
-            long delta = 0;
-            bool finished = false;
-
-            OnAllPlayersReady += _OnAllPlayersReady_;
-
-            while(!finished && delta < timeout.TotalMilliseconds)
-            {
-                await Task.Delay(50).ConfigureAwait(false);
-                delta += 50;
-            }
-
-            if (finished)
-                return true;
-            else
-            {
-                OnAllPlayersReady -= _OnAllPlayersReady_;
-                return false;
-            }
-
-            void _OnAllPlayersReady_(object sender, EventArgs e)
-            {
-                OnAllPlayersReady -= _OnAllPlayersReady_;
-                finished = true;
-            }
-        }
-
         void MessageReceived(object sender, IrcChannelMessageEventArgs e)
         {
-            ChatMessage msg = new ChatMessage(e.Sender, e.Message);
-
-            for (int i = 0; i < ChatMessageActions.Count; i++)
-            {
-                if (ChatMessageActions[i].Invoke(msg))
-                {
-                    if (ChatMessageActions[i].RemoveOnSuccess)
-                        ChatMessageActions.RemoveAt(i);
-
-                    return;
-                }
-            }
-
-            OnMessageReceived?.Invoke(this, msg);
+            _newMessages.Add(e);
         }
 
-        void CreatedLobby(long matchId)
+        public void ProcessOutMessages()
+        {
+            while (_tickQueue.TryDequeue(out Action tickAction))
+                tickAction();
+        }
+
+        public void ProcessMessages()
+        {
+            if (_newMessages.Count == 0)
+                return;
+
+            List<IrcChannelMessageEventArgs> messageArgs = new List<IrcChannelMessageEventArgs>(_newMessages);
+            _newMessages.Clear();
+
+            foreach(var e in messageArgs)
+            {
+                ChatMessage msg = new ChatMessage(e.Sender, e.Message);
+
+                for (int i = 0; i < _chatMessageActions.Count; i++)
+                {
+                    if (_chatMessageActions[i].Invoke(msg))
+                    {
+                        if (_chatMessageActions[i].RemoveOnSuccess)
+                            _chatMessageActions.RemoveAt(i);
+
+                        return;
+                    }
+                }
+
+                _evRunner.EnqueueEvent(EventHelper.CreateChatMessageEvent(msg));
+            }
+
+        }
+
+        void CreatedLobby(ulong matchId)
         {
             _irc.OnPrivateBanchoMessageReceived -= PrivateBanchoMessageReceived;
             _irc.OnChannelMessageReceived += MessageReceived;
             _settings.MatchId = matchId;
-            IsLobbyClosed = false;
-            CreationDate = DateTime.UtcNow;
-            IsLobbyCreated = true;
-            
-            OnLobbyCreated?.Invoke(this, null);
-        }
 
-        public void OnTick()
-        {
-            while (_tickQueue.TryDequeue(out Action a))
-            {
-                try
-                {
-                    a?.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    OnException?.Invoke(this, ex);
-                }
-            }
+            _data.OnCreated(matchId);
         }
-
 
         void PrivateBanchoMessageReceived(object sender, IrcPrivateMessageEventArgs e)
         {
@@ -308,7 +156,7 @@ namespace SkyBot.Osu.AutoRef
 
             index = msg.IndexOf(' ', StringComparison.CurrentCultureIgnoreCase);
 
-            if (!long.TryParse(msg.Substring(0, index), out long matchId))
+            if (!ulong.TryParse(msg.Substring(0, index), out ulong matchId))
             {
                 Logger.Log("Failed to parse match id", LogLevel.Error);
                 return;
@@ -316,20 +164,9 @@ namespace SkyBot.Osu.AutoRef
 
             CreatedLobby(matchId);
         }
-
-        void CreateMatch()
-        {
-            _irc.OnPrivateBanchoMessageReceived += PrivateBanchoMessageReceived;
-            _irc.SendMessageAsync("banchobot", $"!mp make {Settings.RoomName}").ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        void Close()
-        {
-            SendCommand(MPCommand.Close);
-            IsLobbyClosed = true;
-        }
     }
 
+    //MP Commands
     public partial class LobbyController
     {
         /// <summary>
@@ -456,7 +293,8 @@ namespace SkyBot.Osu.AutoRef
         /// <param name="parameters">Command parameters</param>
         public void SendCommand(MPCommand cmd, params object[] parameters)
         {
-            if (!IsLobbyCreated)
+            if (_data.Status == LobbyStatus.None ||
+                _data.Status == LobbyStatus.Closed)
                 throw new Exception("MP Lobby doesn't exist, cannot send mp command");
 
             StringBuilder cmdBuilder = new StringBuilder("!mp ");
@@ -509,7 +347,6 @@ namespace SkyBot.Osu.AutoRef
             if (delay.Equals(TimeSpan.Zero))
                 delay = TimeSpan.FromSeconds(10);
 
-            MapFinished = false;
             SendCommand(MPCommand.Start, (int)delay.TotalSeconds);
         }
 
@@ -639,10 +476,14 @@ namespace SkyBot.Osu.AutoRef
             SendCommand(MPCommand.Abort);
         }
 
+        public void CloseLobby()
+        {
+            SendCommand(MPCommand.Close);
+        }
+
         public void SendChannelMessage(string message)
         {
             SendMessage($"——— {message} ———");
         }
-
     }
 }

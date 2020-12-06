@@ -170,7 +170,12 @@ namespace DiscordCommands
             };
 
             if (!string.IsNullOrEmpty(notice))
+            {
+                if (notice.Length > 1000)
+                    notice = notice.Substring(0, 1000);
+
                 builder = builder.AddField($"**Notice**", notice);
+            }
 
             builder = builder.AddField("Access Level", CommandHandler.GetCommandAccessLevel(command, channel.Guild?.Id ?? 0).ToString())
                              .AddField("Description", command.Description)

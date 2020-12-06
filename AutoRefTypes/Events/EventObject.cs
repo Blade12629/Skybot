@@ -7,7 +7,7 @@ namespace AutoRefTypes.Events
 {
     public abstract class EventObject : IEquatable<EventObject>
     {
-        public Guid Id { get; private set; }
+        public Guid Id { get; set; }
         public bool IsActive { get; set; }
 
         IEventRunner _evRunner;
@@ -17,6 +17,14 @@ namespace AutoRefTypes.Events
             Id = Guid.NewGuid();
             _evRunner = evRunner;
             _evRunner.Register(this);
+        }
+
+        public void Register(IEventRunner eventRunner)
+        {
+            while (eventRunner.Contains(Id))
+                Id = Guid.NewGuid();
+
+            eventRunner.Register(this);
         }
 
         public override bool Equals(object obj)

@@ -6,27 +6,34 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Timers;
 
 namespace SkyBot.Osu.AutoRef
 {
     public class AutoRefEngine : IDisposable
     {
         public bool IsDisposed { get; private set; }
-        public bool ValidSetup { get; private set; }
+        public bool ValidSetup { get => _lc != null && _eventRunner != null && _pluginContext != null && !IsDisposed; }
+        public LobbyController LC { get => _lc; }
 
         LobbyController _lc;
-        AutoRefController _arc;
         EventRunner _eventRunner;
         ScriptingPluginContext _pluginContext;
+        Timer _tickTimer;
 
         public AutoRefEngine()
         {
-            _eventRunner = new EventRunner();
         }
 
         ~AutoRefEngine()
         {
             Dispose(false);
+        }
+
+        public bool LoadScriptsFromLibrary(string dll)
+        {
+            _pluginContext = new ScriptingPluginContext();
+            return _pluginContext.LoadFromFile(dll);
         }
 
         public bool LoadScriptFromFile(string file)
@@ -68,13 +75,28 @@ namespace SkyBot.Osu.AutoRef
             return true;
         }
 
-        public void Setup(AutoRefBuilder builder)
+        public bool Setup(string script, bool isFile, bool isDll)
         {
-            _lc = new LobbyController(Program.IRC);
-            _arc = new AutoRefController(_lc);
-            builder.Apply(_arc);
+            _tickTimer = new Timer(50)
+            {
+                AutoReset = true
+            };
+            _tickTimer.Elapsed += (s, e) => RefTick();
 
-            LoadScript(builder.Script);
+            _eventRunner = new EventRunner();
+            _lc = new LobbyController(Program.IRC, _eventRunner);
+
+            if (isDll)
+            {
+                return LoadScriptsFromLibrary(script);
+            }
+            else
+            {
+                if (isFile)
+                    return LoadScriptFromFile(script);
+                else
+                    return LoadScript(script);
+            }
         }
 
         public void Run(string lobbyName)
@@ -86,17 +108,10 @@ namespace SkyBot.Osu.AutoRef
             Type entryType = types.First(t => t.GetInterfaces().Any(i => i.Equals(typeof(IEntryPoint))));
 
             IEntryPoint entryPoint = Activator.CreateInstance(entryType) as IEntryPoint;
+            entryPoint.OnLoad(_lc, _eventRunner);
 
-            TickEvent.Initialize(_eventRunner, _arc, _lc);
-            entryPoint.OnLoad(_arc, _lc, _eventRunner);
-            _arc.Start(lobbyName);
-            _eventRunner.Start();
-        }
-
-        public void Stop()
-        {
-            _eventRunner.Stop();
-            _lc.EnqueueCloseLobby();
+            _tickTimer.Start();
+            _lc.CreateLobby(lobbyName);
         }
 
         public void Dispose()
@@ -114,17 +129,31 @@ namespace SkyBot.Osu.AutoRef
             {
                 IsDisposed = true;
 
-                _eventRunner?.Stop();
-                _eventRunner = null;
+                if (_lc != null && (_lc.DataHandler.Status != LobbyStatus.Closed ||_lc.DataHandler.Status != LobbyStatus.None))
+                    _lc.CloseLobby();
 
-                if (_lc != null && _lc.IsLobbyClosed)
-                    _lc.EnqueueCloseLobby();
-
-                _arc = null;
                 _lc = null;
 
                 _pluginContext?.Unload();
             }
+        }
+    
+        void RefTick()
+        {
+            _lc.ProcessMessages();
+
+            switch (_lc.DataHandler.Status)
+            {
+                case LobbyStatus.Created:
+                case LobbyStatus.Playing:
+                    _eventRunner.OnTick();
+                    break;
+
+                default:
+                    break;
+            }
+
+            _lc.ProcessOutMessages();
         }
     }
 }

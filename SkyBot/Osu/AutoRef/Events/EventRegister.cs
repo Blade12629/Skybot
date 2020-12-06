@@ -6,12 +6,18 @@ using System.Text;
 
 namespace SkyBot.Osu.AutoRef.Events
 {
-    public struct EventRegister : IEquatable<EventRegister>
+    public class EventRegister : IEquatable<EventRegister>
     {
+        /// <summary>
+        /// Event Object
+        /// </summary>
         public EventObject Object { get; }
+        /// <summary>
+        /// Event Interface Types
+        /// </summary>
         public Type[] InterfaceTypes { get; }
 
-        public EventRegister(EventObject @object, Type[] interfaceTypes) : this()
+        public EventRegister(EventObject @object, Type[] interfaceTypes)
         {
             Object = @object;
             InterfaceTypes = interfaceTypes;

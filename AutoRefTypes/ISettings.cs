@@ -6,7 +6,7 @@ namespace AutoRefTypes
 {
     public interface ILobbySettings
     {
-        public long MatchId { get; }
+        public ulong MatchId { get; }
         public string ChannelName { get; }
         public string RoomName { get; }
         public string HistoryUrl { get; }

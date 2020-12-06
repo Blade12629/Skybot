@@ -8,5 +8,6 @@ namespace AutoRefTypes.Events
     {
         public void Register(EventObject @obj);
         public void Delete(EventObject @obj);
+        public bool Contains(Guid id);
     }
 }

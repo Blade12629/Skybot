@@ -6,18 +6,6 @@ namespace AutoRefTypes
 {
     public interface ILobby
     {
-        public IReadOnlyList<ISlot> UsedSlots { get; }
-        public IReadOnlyList<ISlot> Slots { get; }
-        public ILobbySettings Settings { get; }
-        public bool IsMapFinished { get; }
-        public int BlueWins { get; }
-        public int RedWins { get; }
-
-        /// <summary>
-        /// Signals the <see cref="LobbyController"/> to close the lobby
-        /// </summary>
-        public void EnqueueCloseLobby();
-
         /// <summary>
         /// Invites a player
         /// </summary>
@@ -156,5 +144,7 @@ namespace AutoRefTypes
         /// from any message that is not directed towards the players</para>
         /// </summary>
         public void SendChannelMessage(string message);
+
+        public void DebugLog(string msg);
     }
 }

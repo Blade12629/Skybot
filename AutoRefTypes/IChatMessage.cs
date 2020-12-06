@@ -4,9 +4,9 @@ using System.Text;
 
 namespace AutoRefTypes
 {
-    public interface IRoll
+    public interface IChatMessage
     {
-        public string Nickname { get; }
-        public long Rolled { get; }
+        public string From { get; }
+        public string Message { get; }
     }
 }

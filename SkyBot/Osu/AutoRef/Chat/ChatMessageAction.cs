@@ -46,11 +46,12 @@ namespace SkyBot.Osu.AutoRef.Chat
                 new UpdateSettings(lc),
                 new AllUsersReady(lc),
                 new MapFinished(lc),
-                new MatchStarted(lc)
+                new MatchStarted(lc),
+                new MapChanged(lc),
+                new RollReceived(lc),
             };
         }
 
-#pragma warning disable CA1034 // Nested types should not be visible
         public class UserLeft : ChatMessageAction
 #pragma warning restore CA1034 // Nested types should not be visible
         {
@@ -70,7 +71,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                     int index = message.Message.IndexOf("left the game", StringComparison.CurrentCultureIgnoreCase);
                     string user = message.Message.Substring(0, index);
 
-                    _lc.UserLeft(user);
+                    _lc.DataHandler.OnUserLeaveLobby(user);
                 }
                 catch (Exception ex)
                 {
@@ -82,7 +83,6 @@ namespace SkyBot.Osu.AutoRef.Chat
             }
         }
 
-#pragma warning disable CA1034 // Nested types should not be visible
         public class UserMoved : ChatMessageAction
         {
             public UserMoved(LobbyController lc) : base(lc)
@@ -104,7 +104,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                     index = message.Message.LastIndexOf(' ');
                     int slot = int.Parse(message.Message.Remove(0, index + 1), CultureInfo.CurrentCulture);
 
-                    _lc.UserMoved(user, slot);
+                    _lc.DataHandler.OnUserSwitchSlot(user, slot);
                 }
                 catch (Exception ex)
                 {
@@ -141,7 +141,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                     if (index == -1)
                     {
                         slot = int.Parse(msg.Remove(msg.Length - 1), CultureInfo.CurrentCulture);
-                        _lc.UserJoined(user, slot, SlotColor.None);
+                        _lc.DataHandler.OnUserJoinLobby(user, slot, SlotColor.None);
                         return true;
                     }
 
@@ -150,7 +150,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                     index = msg.LastIndexOf(' ');
                     SlotColor color = Enum.Parse<SlotColor>(msg.Remove(0, index + 1));
 
-                    _lc.UserJoined(user, slot, color);
+                    _lc.DataHandler.OnUserJoinLobby(user, slot, color);
                 }
                 catch (Exception ex)
                 {
@@ -194,7 +194,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                     long score = int.Parse(scoreStr, CultureInfo.CurrentCulture);
                     bool passed = passedStr.Equals("passed", StringComparison.CurrentCultureIgnoreCase);
 
-                    _lc.UserScoreReceived(username, score, passed);
+                    _lc.DataHandler.OnReceiveScore(username, score, passed);
                 }
                 catch (Exception ex)
                 {
@@ -308,7 +308,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                             mods.AddRange(split);
                         }
 
-                        Slot slot = (Slot)_lc.Slots[slotId];
+                        Slot slot = _lc.DataHandler.GetSlot(slotId);
                         slot.Reset();
 
                         slot.IsReady = isReady;
@@ -320,7 +320,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                         if (mods.Count > 0)
                             slot.Mods.AddRange(mods);
 
-                        _lc.SlotUpdated(slot);
+                        _lc.DataHandler.OnSlotUpdate(slot);
 
                         return true;
                     }
@@ -397,7 +397,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                         !message.Message.Equals("All players are ready", StringComparison.CurrentCultureIgnoreCase))
                         return false;
 
-                    _lc.AllPlayersReady();
+                    _lc.DataHandler.OnAllPlayersReady();
                 }
                 catch (Exception ex)
                 {
@@ -424,7 +424,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                         !message.Message.Equals("The match has finished!", StringComparison.CurrentCultureIgnoreCase))
                         return false;
 
-                    _lc.FinishedMap();
+                    _lc.DataHandler.OnMapFinish();
                 }
                 catch (Exception ex)
                 {
@@ -451,13 +451,71 @@ namespace SkyBot.Osu.AutoRef.Chat
                         !message.Message.Equals("The match has started!", StringComparison.CurrentCultureIgnoreCase))
                         return false;
 
-                    _lc.MapStarted();
+                    _lc.DataHandler.OnMapStart();
                 }
                 catch (Exception ex)
                 {
                     Logger.Log(ex, LogLevel.Error);
                     throw ex;
                 }
+
+                return true;
+            }
+        }
+
+        public class MapChanged : ChatMessageAction
+        {
+            public MapChanged(LobbyController lc) : base(lc)
+            {
+
+            }
+
+            public override bool Invoke(ChatMessage message)
+            {
+                //Changed beatmap to https://osu.ppy.sh/b/1591935 Asriel - ABYSS
+                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                    !message.Message.StartsWith("changed beatmap", StringComparison.CurrentCultureIgnoreCase))
+                    return false;
+
+                string[] split = message.Message.Split(' ');
+                //https://osu.ppy.sh/b/1591935
+                string url = split[3];
+                //1591935
+                string idStr = url.Split('/').Last();
+
+                ulong mapId = ulong.Parse(idStr);
+                _lc.DataHandler.OnMapChange(mapId);
+
+                return true;
+            }
+        }
+
+        public class RollReceived : ChatMessageAction
+        {
+            public RollReceived(LobbyController lc) : base(lc)
+            {
+
+            }
+
+            public override bool Invoke(ChatMessage message)
+            {
+                //trevrasher rolls 98 point(s)
+                const string rolls_string = " rolls ";
+
+                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                    !message.Message.Contains(" rolls ", StringComparison.CurrentCultureIgnoreCase))
+                    return false;
+
+                int index = message.Message.IndexOf(rolls_string);
+                string user = message.Message.Substring(0, index);
+
+                //98 point(s)
+                string pointStr = message.Message.Remove(0, index + rolls_string.Length);
+                index = pointStr.IndexOf(' ');
+                pointStr = pointStr.Substring(0, index);
+
+                long rolled = long.Parse(pointStr);
+                _lc.DataHandler.OnRollReceive(new Roll(user, rolled));
 
                 return true;
             }

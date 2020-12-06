@@ -1,10 +1,11 @@
-﻿using System;
+﻿using AutoRefTypes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SkyBot.Osu.AutoRef.Chat
 {
-    public class ChatMessage
+    public class ChatMessage : IChatMessage
     {
         public string From { get; }
         public string Message { get; }

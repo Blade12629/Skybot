@@ -7,7 +7,7 @@ namespace SkyBot.Osu.AutoRef.Data
 {
     public class Settings : ILobbySettings
     {
-        public long MatchId { get; set; }
+        public ulong MatchId { get; set; }
         public string ChannelName => $"#mp_{MatchId}";
         public string RoomName { get; set; }
         public string HistoryUrl { get; set; }
@@ -16,7 +16,7 @@ namespace SkyBot.Osu.AutoRef.Data
         public WinCondition WinCondition { get; set; }
         public long Mods { get; set; }
 
-        public Settings(long matchId, string roomName, string historyUrl, 
+        public Settings(ulong matchId, string roomName, string historyUrl, 
                             long currentBeatmapId, TeamMode teamMode, WinCondition winCondition, 
                             long mods)
         {

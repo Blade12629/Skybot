@@ -9,4 +9,14 @@
     <OutputPath>..\compiled\</OutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AutoRefTypes\AutoRefTypes.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Main.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
 </Project>

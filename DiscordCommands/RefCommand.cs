@@ -27,7 +27,7 @@ namespace DiscordCommands
 
         public int MinParameters => 0;
 
-        static AutoRefController _arc;
+        AutoRefEngine _are;
 
         public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
@@ -68,21 +68,11 @@ namespace DiscordCommands
 
                 case "-create":
                     {
-                        string script = System.IO.File.ReadAllText("Osu\\AutoRef\\ExampleScript\\TestScript.js");
+                        string lobbyName = "XYZ: (a) vs (b)";
 
-                        AutoRefBuilder arb = new AutoRefBuilder(Program.IRC, script)
-                        {
-                            CaptainBlue = "Skyfly"
-                        };
-
-
-                        _arc = arb.Build(out Exception ex);
-
-                        if (ex != null)
-                        {
-                            Logger.Log(ex);
-                            return;
-                        }
+                        _are = new AutoRefEngine();
+                        _are.Setup("AutoRefScripts.dll", true, true);
+                        _are.Run(lobbyName);
 
                         args.Channel.SendMessageAsync("Created match").ConfigureAwait(false);
                     }
@@ -90,7 +80,7 @@ namespace DiscordCommands
 
                 case "-stop":
                     {
-                        _arc.LC.EnqueueCloseLobby();
+                        _are.LC.CloseLobby();
                     }
                     args.Channel.SendMessageAsync("Stopped match").ConfigureAwait(false);
                     return;
@@ -98,11 +88,6 @@ namespace DiscordCommands
                 case "-close":
                     Program.IRC.JoinChannelAsync($"#mp_{args.Parameters[1]}").ConfigureAwait(false).GetAwaiter().GetResult();
                     Program.IRC.SendMessageAsync($"#mp_{args.Parameters[1]}", "!mp close").ConfigureAwait(false);
-                    return;
-
-                case "-start":
-                    _arc.Start("XYZ: (test1) vs (test2)");
-                    args.Channel.SendMessageAsync("Started match").ConfigureAwait(false);
                     return;
             }
         }

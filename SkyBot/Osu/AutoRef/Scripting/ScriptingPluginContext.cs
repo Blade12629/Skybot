@@ -41,7 +41,7 @@ namespace SkyBot.Osu.AutoRef.Scripting
             if (!File.Exists(file))
                 throw new FileNotFoundException("File not found", file);
 
-            _reference = new WeakReference(LoadFromAssemblyPath(file));
+            _reference = new WeakReference(LoadFromAssemblyPath(new FileInfo(file).FullName));
 
             return true;
         }

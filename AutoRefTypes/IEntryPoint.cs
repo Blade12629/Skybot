@@ -7,6 +7,6 @@ namespace AutoRefTypes
 {
     public interface IEntryPoint
     {
-        public void OnLoad(IRef @ref, ILobby lobby, IEventRunner eventRunner);
+        public void OnLoad(ILobby lobby, IEventRunner eventRunner);
     }
 }

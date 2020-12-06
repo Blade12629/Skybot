@@ -1,4 +1,5 @@
-﻿using OsuHistoryEndPoint.Data;
+﻿using Microsoft.CodeAnalysis;
+using OsuHistoryEndPoint.Data;
 using SkyBot.Database;
 using SkyBot.Database.Models.Statistics;
 using SkyBot.Discord;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace SkyBot
 {
     public static class Program
     {
+        public static MetadataReference[] MetaReferences { get; private set; }
         public static DiscordHandler DiscordHandler { get; private set; }
         public static Random Random { get; } = new Random();
         /// <summary>
@@ -44,6 +47,7 @@ namespace SkyBot
                 Logger.Log("Starting Skybot", LogLevel.Info);
                 StartedOn = DateTime.UtcNow;
                 LastUpdatedOn = new DateTimeOffset(GetLastUpdateDate(), TimeSpan.Zero);
+                MetaReferences = CreateReferences();
 
                 LoadSettings();
                 LoadGoogleSheetsCredents("skybot-297006-c392a09120af.json");
@@ -62,30 +66,6 @@ namespace SkyBot
 
                     }
                 }
-
-//                Logger.Log("Loading ARC Script");
-
-//                string script =
-//"Ref.DebugLog(\"Hello World\");\n function Msg(msg) {\n\tRef.DebugLog(msg);\n\treturn true;\n}\nWorkflow.AddStep(() => Msg(\"Hello World from Workflow\"));";
-
-//                AutoRefBuilder arb = new AutoRefBuilder(Program.IRC, script)
-//                {
-//                    CaptainBlue = "Skyfly"
-//                };
-
-
-//                var arc = arb.Build(out Exception ex);
-
-//                if (ex != null)
-//                {
-//                    Logger.Log(ex);
-//                }
-//                else
-//                {
-//                    Logger.Log("Loaded ARC successfully");
-//                }
-
-//                Environment.Exit(0);
 
                 LoadAPI();
 
@@ -247,6 +227,25 @@ namespace SkyBot
                     lastUpdate = dll.LastWriteTimeUtc;
 
             return lastUpdate;
+        }
+
+
+        static MetadataReference[] CreateReferences()
+        {
+            List<MetadataReference> result = new List<MetadataReference>()
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+                MetadataReference.CreateFromFile(new FileInfo("SkyBot.dll").FullName),
+                MetadataReference.CreateFromFile(new FileInfo("AutoRefTypes.dll").FullName),
+            };
+
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            for (int i = 0; i < assemblies.Length; i++)
+                result.Add(MetadataReference.CreateFromFile(assemblies[i].Location));
+
+            return result.ToArray();
         }
     }
 }
