@@ -50,7 +50,7 @@ namespace AutoRefTypes.Events
     /// </summary>
     public interface IMapChange : IEvent
     {
-        public void OnMapChange(long newMap);
+        public void OnMapChange(ulong newMap);
     }
 
     /// <summary>

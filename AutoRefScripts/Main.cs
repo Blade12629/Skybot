@@ -22,7 +22,7 @@ namespace AutoRefScripts
     }
 
     //Subscribe to events simply by referencing their interface
-    public class RefController : EventObject, IUserJoin, IUserLeave, IRollReceive, IMapChange, IUpdate
+    public class RefController : EventObject, IUserJoin, IUserLeave, IUserSwitchSlot, IAllUsersReady, IMapChange, IMapStart, IMapEnd, IReceiveScore, IChatMessageReceived, ISlotUpdate, IRollReceive, IUpdate
     {
         ILobby _lobby;
         IEventRunner _eventRunner;
@@ -32,23 +32,46 @@ namespace AutoRefScripts
         {
             _lobby = lobby;
             _eventRunner = er;
-
-            //In order to enable any event object you have to register it
-            //unregistered gameobjects are simply ignored
-            //Do not call eventRunner.Register();, instead always use eventObject.Register(); like below
-            Register(er);
-
-            //Use eventRunner.Delete(eventObject) to deregister an object
         }
 
-        public void OnMapChange(long newMap)
+        public void OnAllUsersReady()
+        {
+            _lobby.DebugLog("All users ready");
+        }
+
+        public void OnChatMessageReceived(IChatMessage msg)
+        {
+            _lobby.DebugLog($"Received message from {msg.From}: {msg.Message}");
+        }
+
+        public void OnMapChange(ulong newMap)
         {
             _lobby.DebugLog("Map changed to " + newMap);
+        }
+
+        public void OnMapEnd()
+        {
+            _lobby.DebugLog("Map Ended");
+        }
+
+        public void OnMapStart()
+        {
+            _lobby.DebugLog("Map Started");
+        }
+
+        public void OnReceiveScore(IScore score)
+        {
+            _lobby.DebugLog($"Received score from {score.Username}, passed: {score.Passed}, score: {score.UserScore}");
         }
 
         public void OnRollReceive(IRoll roll)
         {
             _lobby.DebugLog($"{roll.Nickname} rolled {roll.Rolled}");
+        }
+
+        public void OnSlotUpdate(ISlot slot)
+        {
+            _lobby.DebugLog($"Slot update for slot " + slot.Id);
         }
 
         public void OnUserJoin(string nick, ISlot slot)
@@ -59,6 +82,11 @@ namespace AutoRefScripts
         public void OnUserLeave(string nick)
         {
             _lobby.DebugLog(nick + " left the lobby");
+        }
+
+        public void OnUserSwitchSlot(string nick, ISlot oldSlot, ISlot newSlot)
+        {
+            _lobby.DebugLog($"User {nick} switched from slot {oldSlot.Id} to slot {newSlot.Id}");
         }
 
         public void Update()

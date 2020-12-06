@@ -14,13 +14,14 @@ namespace SkyBot.Osu.AutoRef.Events
     public class EventRunner : IEventRunner
     {
         Dictionary<Guid, EventRegister> _registers;
-        Queue<Event> _eventQueue;
+        List<Event> _eventQueue;
         readonly object _syncRoot = new object();
+        bool _lastTick;
 
         public EventRunner()
         {
             _registers = new Dictionary<Guid, EventRegister>();
-            _eventQueue = new Queue<Event>();
+            _eventQueue = new List<Event>();
         }
 
         /// <summary>
@@ -28,20 +29,25 @@ namespace SkyBot.Osu.AutoRef.Events
         /// </summary>
         public void Register(EventObject obj)
         {
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj));
+            lock(_syncRoot)
+            {
+                if (obj == null)
+                    throw new ArgumentNullException(nameof(obj));
 
-            Type[] interfaces = obj.GetType().GetInterfaces()?.Where(i => !i.Equals(typeof(IEvent)) &&
-                                                                           i.GetInterfaces().Any(i2 => i2.Equals(typeof(IEvent))))
-                                                             ?.ToArray() ?? Array.Empty<Type>();
+                Type[] interfaces = obj.GetType().GetInterfaces()?.Where(i => !i.Equals(typeof(IEvent)) &&
+                                                                               i.GetInterfaces().Any(i2 => i2.Equals(typeof(IEvent))))
+                                                                 ?.ToArray() ?? Array.Empty<Type>();
 
-            _registers.Add(obj.Id, new EventRegister(obj, interfaces ?? Array.Empty<Type>()));
+                _registers.Add(obj.Id, new EventRegister(obj, interfaces ?? Array.Empty<Type>()));
+            }
         }
-
 
         public bool Contains(Guid id)
         {
-            return _registers.ContainsKey(id);
+            lock (_syncRoot)
+            {
+                return _registers.ContainsKey(id);
+            }
         }
 
         /// <summary>
@@ -49,10 +55,13 @@ namespace SkyBot.Osu.AutoRef.Events
         /// </summary>
         public void Delete(EventObject obj)
         {
-            if (obj == null)
+            lock (_syncRoot)
+            {
+                if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            _registers.Remove(obj.Id);
+                _registers.Remove(obj.Id);
+            }
         }
 
         /// <summary>
@@ -60,12 +69,12 @@ namespace SkyBot.Osu.AutoRef.Events
         /// </summary>
         public void EnqueueEvent(Event ev)
         {
-            lock(_syncRoot)
+            lock (_syncRoot)
             {
                 if (ev == null)
                     throw new ArgumentNullException(nameof(ev));
 
-                _eventQueue.Enqueue(ev);
+                _eventQueue.Add(ev);
             }
         }
 
@@ -79,8 +88,7 @@ namespace SkyBot.Osu.AutoRef.Events
                 if (events == null)
                     throw new ArgumentNullException(nameof(events));
 
-                for (int i = 0; i < events.Count; i++)
-                    _eventQueue.Enqueue(events[i]);
+                _eventQueue.AddRange(events);
             }
         }
 
@@ -89,28 +97,44 @@ namespace SkyBot.Osu.AutoRef.Events
         /// </summary>
         public void OnTick()
         {
-            lock(_syncRoot)
+            lock (_syncRoot)
             {
+                if (_lastTick)
+                {
+                    _lastTick = !_lastTick;
+                    return;
+                }
+
+                _lastTick = !_lastTick;
+
                 EventRegister[] registers = _registers.Values.ToArray();
 
-                _eventQueue.Enqueue(EventHelper.CreateUpdateEvent());
+                List<Event> eventQueue = _eventQueue;
+                //Do update event as the last event
+                eventQueue.Add(EventHelper.CreateUpdateEvent());
 
-                while (_eventQueue.TryDequeue(out Event ev))
+                foreach (Event ev in eventQueue)
                 {
-                    IEnumerable<EventRegister> cregs = registers.Where(r => r.InterfaceTypes.Any(it => it.Equals(ev.InterfaceType)));
-
-                    foreach (EventRegister er in cregs)
+                    foreach(EventRegister er in registers)
                     {
-                        try
+                        if (er.InterfaceTypes.Any(it => it.Equals(ev.InterfaceType)))
                         {
-                            ev.Invoke(er.Object);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Log(ex, LogLevel.Error);
+                            if (ev.InterfaceType.Equals(typeof(IUserSwitchSlot)))
+                                Logger.Log("IUserSwitchSlot event", LogLevel.Info);
+
+                            try
+                            {
+                                ev.Invoke(er.Object);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Log(ex, LogLevel.Error);
+                            }
                         }
                     }
                 }
+
+                _eventQueue = new List<Event>();
             }
         }
     }

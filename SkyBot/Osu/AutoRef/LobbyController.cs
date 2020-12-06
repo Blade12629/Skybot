@@ -23,7 +23,6 @@ namespace SkyBot.Osu.AutoRef
         public LobbyDataHandler DataHandler { get => _data; }
 
         List<ChatMessageAction> _chatMessageActions;
-        ConcurrentQueue<Action> _tickQueue;
 
         readonly LobbyDataHandler _data;
         readonly EventRunner _evRunner;
@@ -34,10 +33,9 @@ namespace SkyBot.Osu.AutoRef
 
         public LobbyController(IRCClient irc, EventRunner evRunner)
         {
-            _tickQueue = new ConcurrentQueue<Action>();
             _newMessages = new List<IrcChannelMessageEventArgs>();
             _evRunner = evRunner;
-            _chatMessageActions = ChatActions.ToList(this);
+            _chatMessageActions = ChatActions.ToList(this, evRunner);
             _settings = new Settings();
             _irc = irc;
             _data = new LobbyDataHandler(evRunner);
@@ -93,7 +91,7 @@ namespace SkyBot.Osu.AutoRef
                 _data.Status == LobbyStatus.Closed)
                 throw new Exception("MP Lobby doesn't exist, cannot send mp command");
 
-            _tickQueue.Enqueue(new Action(() => _irc.SendMessageAsync(Settings.ChannelName, message).ConfigureAwait(false)));
+            _irc.SendMessageAsync(Settings.ChannelName, message).ConfigureAwait(false);
         }
 
         void MessageReceived(object sender, IrcChannelMessageEventArgs e)
@@ -101,18 +99,12 @@ namespace SkyBot.Osu.AutoRef
             _newMessages.Add(e);
         }
 
-        public void ProcessOutMessages()
-        {
-            while (_tickQueue.TryDequeue(out Action tickAction))
-                tickAction();
-        }
-
-        public void ProcessMessages()
+        public void ProcessIncomingMessages()
         {
             if (_newMessages.Count == 0)
                 return;
 
-            List<IrcChannelMessageEventArgs> messageArgs = new List<IrcChannelMessageEventArgs>(_newMessages);
+            List<IrcChannelMessageEventArgs> messageArgs = _newMessages.ToList();
             _newMessages.Clear();
 
             foreach(var e in messageArgs)
@@ -132,7 +124,6 @@ namespace SkyBot.Osu.AutoRef
 
                 _evRunner.EnqueueEvent(EventHelper.CreateChatMessageEvent(msg));
             }
-
         }
 
         void CreatedLobby(ulong matchId)

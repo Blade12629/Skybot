@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace SkyBot.Osu.AutoRef
@@ -19,7 +21,8 @@ namespace SkyBot.Osu.AutoRef
         LobbyController _lc;
         EventRunner _eventRunner;
         ScriptingPluginContext _pluginContext;
-        Timer _tickTimer;
+        CancellationTokenSource _tickToken;
+        Task _tickTask;
 
         public AutoRefEngine()
         {
@@ -77,11 +80,15 @@ namespace SkyBot.Osu.AutoRef
 
         public bool Setup(string script, bool isFile, bool isDll)
         {
-            _tickTimer = new Timer(50)
+            _tickToken = new CancellationTokenSource();
+            _tickTask = new Task(async () =>
             {
-                AutoReset = true
-            };
-            _tickTimer.Elapsed += (s, e) => RefTick();
+                while(!_tickToken.IsCancellationRequested)
+                {
+                    RefTick();
+                    await Task.Delay(50).ConfigureAwait(false);
+                }
+            }, _tickToken.Token);
 
             _eventRunner = new EventRunner();
             _lc = new LobbyController(Program.IRC, _eventRunner);
@@ -110,7 +117,7 @@ namespace SkyBot.Osu.AutoRef
             IEntryPoint entryPoint = Activator.CreateInstance(entryType) as IEntryPoint;
             entryPoint.OnLoad(_lc, _eventRunner);
 
-            _tickTimer.Start();
+            _tickTask.Start();
             _lc.CreateLobby(lobbyName);
         }
 
@@ -135,12 +142,14 @@ namespace SkyBot.Osu.AutoRef
                 _lc = null;
 
                 _pluginContext?.Unload();
+
+                _tickToken?.Cancel();
             }
         }
     
         void RefTick()
         {
-            _lc.ProcessMessages();
+            _lc.ProcessIncomingMessages();
 
             switch (_lc.DataHandler.Status)
             {
@@ -152,8 +161,6 @@ namespace SkyBot.Osu.AutoRef
                 default:
                     break;
             }
-
-            _lc.ProcessOutMessages();
         }
     }
 }

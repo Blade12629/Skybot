@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using SkyBot.Osu.AutoRef.Data;
+using SkyBot.Osu.AutoRef.Events;
 
 namespace SkyBot.Osu.AutoRef.Chat
 {
@@ -14,17 +15,20 @@ namespace SkyBot.Osu.AutoRef.Chat
 
         Func<ChatMessage, bool> _func;
         protected LobbyController _lc;
+        protected EventRunner _evRunner;
 
-        public ChatMessageAction(Func<ChatMessage, bool> func, bool removeOnSuccess, LobbyController lc)
+        public ChatMessageAction(Func<ChatMessage, bool> func, bool removeOnSuccess, LobbyController lc, EventRunner eventRunner)
         {
             _func = func;
             RemoveOnSuccess = removeOnSuccess;
             _lc = lc;
+            _evRunner = eventRunner;
         }
 
-        protected ChatMessageAction(LobbyController lc)
+        protected ChatMessageAction(LobbyController lc, EventRunner eventRunner)
         {
             _lc = lc;
+            _evRunner = eventRunner;
         }
 
         public virtual bool Invoke(ChatMessage message)
@@ -35,27 +39,27 @@ namespace SkyBot.Osu.AutoRef.Chat
 
     public static class ChatActions
     {
-        public static List<ChatMessageAction> ToList(LobbyController lc)
+        public static List<ChatMessageAction> ToList(LobbyController lc, EventRunner evRunner)
         {
             return new List<ChatMessageAction>()
             {
-                new UserLeft(lc),
-                new UserJoined(lc),
-                new UserMoved(lc),
-                new UserScore(lc),
-                new UpdateSettings(lc),
-                new AllUsersReady(lc),
-                new MapFinished(lc),
-                new MatchStarted(lc),
-                new MapChanged(lc),
-                new RollReceived(lc),
+                new UserLeft(lc, evRunner),
+                new UserJoined(lc, evRunner),
+                new UserMoved(lc, evRunner),
+                new UserScore(lc, evRunner),
+                new UpdateSettings(lc, evRunner),
+                new AllUsersReady(lc, evRunner),
+                new MapFinished(lc, evRunner),
+                new MatchStarted(lc, evRunner),
+                new MapChanged(lc, evRunner),
+                new RollReceived(lc, evRunner),
             };
         }
 
         public class UserLeft : ChatMessageAction
 #pragma warning restore CA1034 // Nested types should not be visible
         {
-            public UserLeft(LobbyController lc) : base(lc)
+            public UserLeft(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
@@ -85,7 +89,7 @@ namespace SkyBot.Osu.AutoRef.Chat
 
         public class UserMoved : ChatMessageAction
         {
-            public UserMoved(LobbyController lc) : base(lc)
+            public UserMoved(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
@@ -118,7 +122,7 @@ namespace SkyBot.Osu.AutoRef.Chat
 
         public class UserJoined : ChatMessageAction
         {
-            public UserJoined(LobbyController lc) : base(lc)
+            public UserJoined(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
@@ -166,7 +170,7 @@ namespace SkyBot.Osu.AutoRef.Chat
         {
             const string _SCORE_TEXT = "finished playing (Score: ";
 
-            public UserScore(LobbyController lc) : base(lc)
+            public UserScore(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
@@ -218,7 +222,7 @@ namespace SkyBot.Osu.AutoRef.Chat
 
             Dictionary<string, Action<string>> _settingParsers;
 
-            public UpdateSettings(LobbyController lc) : base(lc)
+            public UpdateSettings(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
                 _settingParsers = new Dictionary<string, Action<string>>()
                 {
@@ -384,7 +388,7 @@ namespace SkyBot.Osu.AutoRef.Chat
 
         public class AllUsersReady : ChatMessageAction
         {
-            public AllUsersReady(LobbyController lc) : base(lc)
+            public AllUsersReady(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
@@ -411,7 +415,7 @@ namespace SkyBot.Osu.AutoRef.Chat
 
         public class MapFinished : ChatMessageAction
         {
-            public MapFinished(LobbyController lc) : base(lc)
+            public MapFinished(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
@@ -438,7 +442,7 @@ namespace SkyBot.Osu.AutoRef.Chat
 
         public class MatchStarted : ChatMessageAction
         {
-            public MatchStarted(LobbyController lc) : base(lc)
+            public MatchStarted(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
@@ -465,7 +469,7 @@ namespace SkyBot.Osu.AutoRef.Chat
 
         public class MapChanged : ChatMessageAction
         {
-            public MapChanged(LobbyController lc) : base(lc)
+            public MapChanged(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
@@ -492,7 +496,7 @@ namespace SkyBot.Osu.AutoRef.Chat
 
         public class RollReceived : ChatMessageAction
         {
-            public RollReceived(LobbyController lc) : base(lc)
+            public RollReceived(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
