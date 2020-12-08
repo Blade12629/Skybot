@@ -15,7 +15,7 @@ namespace SkyBot.Osu.AutoRef.Data
         public string Nickname { get; set; }
         public SlotColor Color { get; set; }
         public string Role { get; set; }
-        public bool IsUsed => Nickname != null;
+        public bool IsUsed => !string.IsNullOrEmpty(Nickname);
 
         public List<string> Mods { get; private set; }
 

@@ -27,9 +27,6 @@ namespace DiscordCommands
 
         public void Invoke(DiscordHandler client, CommandHandler handler, CommandEventArg args)
         {
-            args.Channel.SendMessageAsync("Verification is disabled until the server has been switched").ConfigureAwait(false).GetAwaiter().GetResult();
-            return;
-
             VerificationManager.StartVerification(args.User);
         }
     }

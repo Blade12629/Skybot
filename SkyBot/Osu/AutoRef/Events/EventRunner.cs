@@ -11,6 +11,9 @@ using System.Timers;
 
 namespace SkyBot.Osu.AutoRef.Events
 {
+    /// <summary>
+    /// EventRunner, used to run all events
+    /// </summary>
     public class EventRunner : IEventRunner
     {
         Dictionary<Guid, EventRegister> _registers;
@@ -25,8 +28,9 @@ namespace SkyBot.Osu.AutoRef.Events
         }
 
         /// <summary>
-        /// Registers an <see cref="EventObject"/>
+        /// Registers an <see cref="EventObject"/>, use <see cref="EventObject.Register(IEventRunner)"/> instead
         /// </summary>
+        [Obsolete("Use EventObject.Register(eventRunner) instead")]
         public void Register(EventObject obj)
         {
             lock(_syncRoot)
@@ -42,6 +46,10 @@ namespace SkyBot.Osu.AutoRef.Events
             }
         }
 
+        /// <summary>
+        /// Is <paramref name="id"/> currently registered
+        /// </summary>
+        /// <param name="id">EventObject id</param>
         public bool Contains(Guid id)
         {
             lock (_syncRoot)
@@ -119,7 +127,7 @@ namespace SkyBot.Osu.AutoRef.Events
                     {
                         if (er.InterfaceTypes.Any(it => it.Equals(ev.InterfaceType)))
                         {
-                            if (ev.InterfaceType.Equals(typeof(IUserSwitchSlot)))
+                            if (ev.InterfaceType.Equals(typeof(IMapEnd)))
                                 Logger.Log("IUserSwitchSlot event", LogLevel.Info);
 
                             try

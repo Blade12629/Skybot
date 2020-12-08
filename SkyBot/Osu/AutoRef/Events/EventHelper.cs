@@ -58,17 +58,32 @@ namespace SkyBot.Osu.AutoRef.Events
 
         public static Event CreateChatMessageEvent(IChatMessage msg)
         {
-            return new Event(typeof(IChatMessageReceived), EventType.OnChatMessage, msg);
+            return new Event(typeof(IChatMessageReceived), EventType.ChatMessage, msg);
         }
 
         public static Event CreateSlotUpdateEvent(ISlot slot)
         {
-            return new Event(typeof(ISlotUpdate), EventType.OnSlotUpdate, slot);
+            return new Event(typeof(ISlotUpdate), EventType.SlotUpdate, slot);
         }
 
-        public static Event CreateRollReceiveEvent(IRoll roll)
+        public static Event CreateMatchStartInEvent(long startDelayS)
         {
-            return new Event(typeof(IRollReceive), EventType.OnRollReceive, roll);
+            return new Event(typeof(IMatchStartsIn), EventType.MatchStartIn, startDelayS);
+        }
+
+        public static Event CreateQueueMatchStartEvent(long startDelayS)
+        {
+            return new Event(typeof(IQueueMatchStart), EventType.QueueMatchStart, startDelayS);
+        }
+
+        public static Event CreateAbortMatchEvent()
+        {
+            return new Event(typeof(IAbortMatch), EventType.AbortMatch);
+        }
+
+        public static Event CreateHostChangeEvent(string newHost)
+        {
+            return new Event(typeof(IHostChange), EventType.HostChange, newHost);
         }
     }
 }

@@ -14,6 +14,7 @@ using SkyBot.Osu.AutoRef.Chat;
 using AutoRefTypes;
 using SkyBot.Osu.AutoRef.Data;
 using SkyBot.Osu.AutoRef.Events;
+using AutoRefTypes.Extended.Requests;
 
 namespace SkyBot.Osu.AutoRef
 {
@@ -23,6 +24,7 @@ namespace SkyBot.Osu.AutoRef
         public LobbyDataHandler DataHandler { get => _data; }
 
         List<ChatMessageAction> _chatMessageActions;
+        List<ChatRequest> _requests;
 
         readonly LobbyDataHandler _data;
         readonly EventRunner _evRunner;
@@ -33,6 +35,7 @@ namespace SkyBot.Osu.AutoRef
 
         public LobbyController(IRCClient irc, EventRunner evRunner)
         {
+            _requests = new List<ChatRequest>();
             _newMessages = new List<IrcChannelMessageEventArgs>();
             _evRunner = evRunner;
             _chatMessageActions = ChatActions.ToList(this, evRunner);
@@ -50,6 +53,11 @@ namespace SkyBot.Osu.AutoRef
             _irc.SendMessageAsync("banchobot", $"!mp make {Settings.RoomName}").ConfigureAwait(false).GetAwaiter().GetResult();
 
             _data.OnCreation(roomName);
+        }
+
+        public ILobbySettings GetSettings()
+        {
+            return Settings;
         }
 
         /// <summary>
@@ -74,6 +82,11 @@ namespace SkyBot.Osu.AutoRef
                 return null;
 
             return user.Replace('_', ' ');
+        }
+
+        public void RegisterRequest(ChatRequest request)
+        {
+            _requests.Add(request);
         }
 
         public void DebugLog(string msg)
@@ -111,10 +124,33 @@ namespace SkyBot.Osu.AutoRef
             {
                 ChatMessage msg = new ChatMessage(e.Sender, e.Message);
 
+                for (int i = 0; i < _requests.Count; i++)
+                {
+                    if (_requests[i].RequestCancelled)
+                    {
+                        _requests.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
+
+                    if (_requests[i].CheckStringCondition(msg))
+                    {
+                        _requests[i].Trigger(msg);
+                        _requests[i].OnFinishRequest();
+                        _requests.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
+                }
+
+                bool hasAction = false;
+
                 for (int i = 0; i < _chatMessageActions.Count; i++)
                 {
                     if (_chatMessageActions[i].Invoke(msg))
                     {
+                        hasAction = true;
+
                         if (_chatMessageActions[i].RemoveOnSuccess)
                             _chatMessageActions.RemoveAt(i);
 
@@ -122,7 +158,8 @@ namespace SkyBot.Osu.AutoRef
                     }
                 }
 
-                _evRunner.EnqueueEvent(EventHelper.CreateChatMessageEvent(msg));
+                if (!hasAction)
+                    _evRunner.EnqueueEvent(EventHelper.CreateChatMessageEvent(msg));
             }
         }
 

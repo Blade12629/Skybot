@@ -1,5 +1,6 @@
 ﻿using AutoRefTypes;
 using AutoRefTypes.Events;
+using AutoRefTypes.Extended.Requests;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,16 +23,23 @@ namespace AutoRefScripts
     }
 
     //Subscribe to events simply by referencing their interface
-    public class RefController : EventObject, IUserJoin, IUserLeave, IUserSwitchSlot, IAllUsersReady, IMapChange, IMapStart, IMapEnd, IReceiveScore, IChatMessageReceived, ISlotUpdate, IRollReceive, IUpdate
+    public class RefController : EventObject, IUserJoin, IUserLeave, IUserSwitchSlot, IAllUsersReady, IMapChange, 
+                                              IMapStart, IMapEnd, IReceiveScore, IChatMessageReceived, ISlotUpdate, 
+                                              IUpdate, IMatchStartsIn, IQueueMatchStart, IAbortMatch, IHostChange
     {
         ILobby _lobby;
         IEventRunner _eventRunner;
-        bool _doUpdate = true;
+
 
         public RefController(ILobby lobby, IEventRunner er) : base(er)
         {
             _lobby = lobby;
             _eventRunner = er;
+        }
+
+        public void OnAbortMatch()
+        {
+            _lobby.DebugLog("Match was aborted");
         }
 
         public void OnAllUsersReady()
@@ -42,6 +50,11 @@ namespace AutoRefScripts
         public void OnChatMessageReceived(IChatMessage msg)
         {
             _lobby.DebugLog($"Received message from {msg.From}: {msg.Message}");
+        }
+
+        public void OnHostChange(string newHost)
+        {
+            _lobby.DebugLog($"Changed host to {newHost}");
         }
 
         public void OnMapChange(ulong newMap)
@@ -59,14 +72,19 @@ namespace AutoRefScripts
             _lobby.DebugLog("Map Started");
         }
 
+        public void OnMatchStartIn(long startDelayS)
+        {
+            _lobby.DebugLog($"Match starts in {startDelayS} seconds");
+        }
+
+        public void OnQueueMatchStart(long startDelayS)
+        {
+            _lobby.DebugLog($"Match enqueued to start in {startDelayS} seconds");
+        }
+
         public void OnReceiveScore(IScore score)
         {
             _lobby.DebugLog($"Received score from {score.Username}, passed: {score.Passed}, score: {score.UserScore}");
-        }
-
-        public void OnRollReceive(IRoll roll)
-        {
-            _lobby.DebugLog($"{roll.Nickname} rolled {roll.Rolled}");
         }
 
         public void OnSlotUpdate(ISlot slot)
@@ -91,14 +109,7 @@ namespace AutoRefScripts
 
         public void Update()
         {
-            if (_doUpdate)
-            {
-                _doUpdate = false;
-                _lobby.Invite("Skyfly");
 
-                //This will be called every tick, with the default tick rate and depending on delay it should be around 15-25 times per second
-                _lobby.DebugLog("This is an update");
-            }
         }
     }
 }

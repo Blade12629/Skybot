@@ -2,6 +2,7 @@
 using SkyBot.Osu.AutoRef.Data;
 using SkyBot.Osu.AutoRef.Events;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,6 +27,7 @@ namespace SkyBot.Osu.AutoRef
 
         Dictionary<int, Slot> _slots;
         EventRunner _evRunner;
+        int _slotsUsedOnMapStart;
 
         public LobbyDataHandler(EventRunner evr)
         {
@@ -58,10 +60,13 @@ namespace SkyBot.Osu.AutoRef
             _currentScores.Clear();
 
             _evRunner.EnqueueEvent(EventHelper.CreateMapStartEvent());
+            _slotsUsedOnMapStart = GetUsedSlots().Count;
         }
 
         public void OnMapFinish()
         {
+            _slotsUsedOnMapStart = -1;
+
             Score[] currentScores = _currentScores.ToArray();
             _currentScores.Clear();
 
@@ -111,6 +116,7 @@ namespace SkyBot.Osu.AutoRef
 
         public void OnMapChange(ulong newMap)
         {
+            LastMap = newMap;
             _evRunner.EnqueueEvent(EventHelper.CreateMapChangeEvent(newMap));
         }
 
@@ -144,10 +150,21 @@ namespace SkyBot.Osu.AutoRef
 
         public void OnReceiveScore(string username, long score, bool passed)
         {
-            Score s = new Score(username, score, passed);
-            _currentScores.Add(s);
+            lock(((ICollection)_currentScores).SyncRoot)
+            {
+                Score s = new Score(username, score, passed);
+                _currentScores.Add(s);
 
-            _evRunner.EnqueueEvent(EventHelper.CreateReceiveScoreEvent(s));
+                _evRunner.EnqueueEvent(EventHelper.CreateReceiveScoreEvent(s));
+
+                if (_currentScores.Count == _slotsUsedOnMapStart)
+                    OnMapFinish();
+            }
+        }
+
+        public void OnChangeHost(string newHost)
+        {
+            _evRunner.EnqueueEvent(EventHelper.CreateHostChangeEvent(newHost));
         }
 
         public void OnAllPlayersReady()
@@ -165,11 +182,20 @@ namespace SkyBot.Osu.AutoRef
             _evRunner.EnqueueEvent(EventHelper.CreateSlotUpdateEvent(slot));
         }
 
-        public void OnRollReceive(IRoll roll)
+        public void OnMatchStartsIn(long startDelayS)
         {
-            _evRunner.EnqueueEvent(EventHelper.CreateRollReceiveEvent(roll));
+            _evRunner.EnqueueEvent(EventHelper.CreateMatchStartInEvent(startDelayS));
         }
 
+        public void OnQueueMatchStart(long startDelayS)
+        {
+            _evRunner.EnqueueEvent(EventHelper.CreateQueueMatchStartEvent(startDelayS));
+        }
+
+        public void OnAbortMatch()
+        {
+            _evRunner.EnqueueEvent(EventHelper.CreateAbortMatchEvent());
+        }
 
         public Slot GetSlot(string nickname, StringComparison comparer = StringComparison.CurrentCultureIgnoreCase)
         {

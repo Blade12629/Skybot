@@ -52,7 +52,9 @@ namespace SkyBot.Osu.AutoRef.Chat
                 new MapFinished(lc, evRunner),
                 new MatchStarted(lc, evRunner),
                 new MapChanged(lc, evRunner),
-                new RollReceived(lc, evRunner),
+                new MatchStartsIn(lc, evRunner),
+                new QueueMatchStart(lc, evRunner),
+                new AbortMatch(lc, evRunner)
             };
         }
 
@@ -424,11 +426,7 @@ namespace SkyBot.Osu.AutoRef.Chat
             {
                 try
                 {
-                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                        !message.Message.Equals("The match has finished!", StringComparison.CurrentCultureIgnoreCase))
-                        return false;
-
-                    _lc.DataHandler.OnMapFinish();
+                    return false;
                 }
                 catch (Exception ex)
                 {
@@ -451,11 +449,19 @@ namespace SkyBot.Osu.AutoRef.Chat
             {
                 try
                 {
-                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                        !message.Message.Equals("The match has started!", StringComparison.CurrentCultureIgnoreCase))
+                    if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase))
                         return false;
 
-                    _lc.DataHandler.OnMapStart();
+                    if (message.Message.Equals("The match has started!", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        _lc.DataHandler.OnMapStart();
+                        return true;
+                    }
+                    else if (message.Message.Equals("started the match", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        return true;
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -463,7 +469,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                     throw ex;
                 }
 
-                return true;
+                return false;
             }
         }
 
@@ -477,52 +483,122 @@ namespace SkyBot.Osu.AutoRef.Chat
             public override bool Invoke(ChatMessage message)
             {
                 //Changed beatmap to https://osu.ppy.sh/b/1591935 Asriel - ABYSS
-                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                    !message.Message.StartsWith("changed beatmap", StringComparison.CurrentCultureIgnoreCase))
+                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase))
                     return false;
 
-                string[] split = message.Message.Split(' ');
-                //https://osu.ppy.sh/b/1591935
-                string url = split[3];
-                //1591935
-                string idStr = url.Split('/').Last();
+                if (message.Message.StartsWith("changed beatmap", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    string[] split = message.Message.Split(' ');
+                    //https://osu.ppy.sh/b/1591935
+                    string url = split[3];
+                    //1591935
+                    string idStr = url.Split('/').Last();
 
-                ulong mapId = ulong.Parse(idStr);
-                _lc.DataHandler.OnMapChange(mapId);
+                    ulong mapId = ulong.Parse(idStr);
+                    _lc.DataHandler.OnMapChange(mapId);
+                }
+                else if (message.Message.StartsWith("beatmap changed to:", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    string id = message.Message.Split('/').Last().TrimEnd(')');
+                    _lc.DataHandler.OnMapChange(ulong.Parse(id));
+                }
+                else if (message.Message.Equals("Host is changing map...", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    _lc.DataHandler.OnMapChange(0);
+                }
+                else
+                    return false;
 
                 return true;
             }
         }
 
-        public class RollReceived : ChatMessageAction
+        public class MatchStartsIn : ChatMessageAction
         {
-            public RollReceived(LobbyController lc, EventRunner evr) : base(lc, evr)
+            public MatchStartsIn(LobbyController lc, EventRunner evr) : base(lc, evr)
             {
 
             }
 
             public override bool Invoke(ChatMessage message)
             {
-                //trevrasher rolls 98 point(s)
-                const string rolls_string = " rolls ";
-
+                //BanchoBot: Match starts in 1 second
                 if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
-                    !message.Message.Contains(" rolls ", StringComparison.CurrentCultureIgnoreCase))
+                    !message.Message.StartsWith("match starts in", StringComparison.CurrentCultureIgnoreCase))
                     return false;
 
-                int index = message.Message.IndexOf(rolls_string);
-                string user = message.Message.Substring(0, index);
-
-                //98 point(s)
-                string pointStr = message.Message.Remove(0, index + rolls_string.Length);
-                index = pointStr.IndexOf(' ');
-                pointStr = pointStr.Substring(0, index);
-
-                long rolled = long.Parse(pointStr);
-                _lc.DataHandler.OnRollReceive(new Roll(user, rolled));
+                string secondsStr = message.Message.Split(' ')[3];
+                _lc.DataHandler.OnMatchStartsIn(long.Parse(secondsStr));
 
                 return true;
             }
         }
+
+        public class QueueMatchStart : ChatMessageAction
+        {
+            public QueueMatchStart(LobbyController lc, EventRunner evr) : base(lc, evr)
+            {
+
+            }
+
+            public override bool Invoke(ChatMessage message)
+            {
+                //BanchoBot: Queued the match to start in 1 second
+                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                    !message.Message.StartsWith("queued the match to start", StringComparison.CurrentCultureIgnoreCase))
+                    return false;
+
+                string secondsStr = message.Message.Split(' ')[6];
+                _lc.DataHandler.OnQueueMatchStart(long.Parse(secondsStr));
+
+                return true;
+            }
+        }
+
+        public class AbortMatch : ChatMessageAction
+        {
+            public AbortMatch(LobbyController lc, EventRunner evr) : base(lc, evr)
+            {
+
+            }
+
+            public override bool Invoke(ChatMessage message)
+            {
+                //Changed beatmap to https://osu.ppy.sh/b/1591935 Asriel - ABYSS
+                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) ||
+                    !message.Message.Equals("aborted the match", StringComparison.CurrentCultureIgnoreCase))
+                    return false;
+
+                _lc.DataHandler.OnAbortMatch();
+
+                return true;
+            }
+        }
+
+        public class ChangeHost : ChatMessageAction
+        {
+            public ChangeHost(LobbyController lc, EventRunner ev) : base(lc, ev)
+            {
+
+            }
+
+            public override bool Invoke(ChatMessage message)
+            {
+                if (!message.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase))
+                    return false;
+
+                if (message.Message.StartsWith("Changed match host to", StringComparison.CurrentCultureIgnoreCase))
+                    return true;
+                else if (message.Message.EndsWith("became the host", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    string user = message.Message.Split(' ')[0];
+                    _lc.DataHandler.OnChangeHost(user);
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
     }
 }

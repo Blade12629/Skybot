@@ -49,14 +49,26 @@ namespace SkyBot.Osu.AutoRef.Events
         /// <summary>
         /// New chat message in lobby
         /// </summary>
-        OnChatMessage,
+        ChatMessage,
         /// <summary>
         /// Slot was updated
         /// </summary>
-        OnSlotUpdate,
+        SlotUpdate,
         /// <summary>
-        /// Roll was received
+        /// BanchoBot: Match starts in 1 second
         /// </summary>
-        OnRollReceive,
+        MatchStartIn,
+        /// <summary>
+        /// BanchoBot: Queued the match to start in 1 second
+        /// </summary>
+        QueueMatchStart,
+        /// <summary>
+        /// Match was aborted
+        /// </summary>
+        AbortMatch,
+        /// <summary>
+        /// The host was changed
+        /// </summary>
+        HostChange,
     }
 }

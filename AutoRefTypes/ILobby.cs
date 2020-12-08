@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoRefTypes.Extended.Requests;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,6 +7,17 @@ namespace AutoRefTypes
 {
     public interface ILobby
     {
+        /// <summary>
+        /// Returns the current lobby settings
+        /// </summary>
+        /// <returns></returns>
+        public ILobbySettings GetSettings();
+
+        /// <summary>
+        /// Registers a <see cref="ChatRequest"/>, use <see cref="ChatRequest.Request"/>
+        /// </summary>
+        public void RegisterRequest(ChatRequest request);
+
         /// <summary>
         /// Invites a player
         /// </summary>
