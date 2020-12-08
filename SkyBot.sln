@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkyBot", "SkyBot\SkyBot.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordCommands", "DiscordCommands\DiscordCommands.csproj", "{AFACDFAA-5FC9-40B1-A61E-C96F0ADD5E7F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GSStatManager", "GSStatManager\GSStatManager.csproj", "{5BEAF9E9-63D5-409B-9B05-56424BC00974}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkyBot.Networking", "SkyBot.Networking\SkyBot.Networking.csproj", "{1D79D94D-7EFE-46B8-AF04-A0C4E5EDC472}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkyBot.Networking.Test", "SkyBot.Networking.Test\SkyBot.Networking.Test.csproj", "{CE085CF2-CDBE-40B2-BD19-1B25CD22CF34}"
@@ -17,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Skybot.Web", "Skybot.Web\Sk
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoRefTypes", "AutoRefTypes\AutoRefTypes.csproj", "{E82C1CF4-0932-4E76-A722-6053801EE34D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoRefScripts", "AutoRefScripts\AutoRefScripts.csproj", "{4ACE8EB7-1E32-4E51-8711-58B4DE90E519}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoRefScripts", "AutoRefScripts\AutoRefScripts.csproj", "{4ACE8EB7-1E32-4E51-8711-58B4DE90E519}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,18 +51,6 @@ Global
 		{AFACDFAA-5FC9-40B1-A61E-C96F0ADD5E7F}.Release|x64.Build.0 = Release|x64
 		{AFACDFAA-5FC9-40B1-A61E-C96F0ADD5E7F}.Release|x86.ActiveCfg = Release|x86
 		{AFACDFAA-5FC9-40B1-A61E-C96F0ADD5E7F}.Release|x86.Build.0 = Release|x86
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Debug|x64.ActiveCfg = Debug|x64
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Debug|x64.Build.0 = Debug|x64
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Debug|x86.ActiveCfg = Debug|x86
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Debug|x86.Build.0 = Debug|x86
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Release|x64.ActiveCfg = Release|x64
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Release|x64.Build.0 = Release|x64
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Release|x86.ActiveCfg = Release|x86
-		{5BEAF9E9-63D5-409B-9B05-56424BC00974}.Release|x86.Build.0 = Release|x86
 		{1D79D94D-7EFE-46B8-AF04-A0C4E5EDC472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1D79D94D-7EFE-46B8-AF04-A0C4E5EDC472}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D79D94D-7EFE-46B8-AF04-A0C4E5EDC472}.Debug|x64.ActiveCfg = Debug|x64
