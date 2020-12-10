@@ -13,6 +13,7 @@ using System.Globalization;
 using SkyBot;
 using LogLevel = SkyBot.LogLevel;
 using SkyBot.Discord;
+using AutoRefTypes;
 
 public sealed class DiscordHandler : IDisposable
 {
@@ -547,6 +548,5 @@ public sealed class DiscordHandler : IDisposable
     {
         return await RunFuncWithTryCatch(async () => await Client.CreateDmAsync(user).ConfigureAwait(false)).ConfigureAwait(false);
     }
-
 #pragma warning restore CA1822 // Mark members as static
 }

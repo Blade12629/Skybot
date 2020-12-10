@@ -314,7 +314,7 @@ namespace SkyBot.Osu.AutoRef.Chat
                             mods.AddRange(split);
                         }
 
-                        Slot slot = _lc.DataHandler.GetSlot(slotId);
+                        Slot slot = (Slot)_lc.DataHandler.GetSlot(slotId);
                         slot.Reset();
 
                         slot.IsReady = isReady;

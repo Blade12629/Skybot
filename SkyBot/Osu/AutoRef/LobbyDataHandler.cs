@@ -9,7 +9,7 @@ using System.Text;
 
 namespace SkyBot.Osu.AutoRef
 {
-    public class LobbyDataHandler
+    public class LobbyDataHandler : ILobbyDataHandler
     {
         public DateTimeOffset CreationDate { get; private set; }
         public string LobbyName { get; private set; }
@@ -17,10 +17,10 @@ namespace SkyBot.Osu.AutoRef
 
         public LobbyStatus Status { get; private set; }
 
-        public int WinsBlue { get; private set; }
-        public int WinsRed { get; private set; }
-
         public ulong LastMap { get; private set; }
+
+        public IReadOnlyList<IMatchRound> MatchRounds { get => _matchRounds; }
+        public IReadOnlyList<IScore> Scores { get => _currentScores; }
 
         List<IMatchRound> _matchRounds;
         List<Score> _currentScores;
@@ -67,50 +67,10 @@ namespace SkyBot.Osu.AutoRef
         {
             _slotsUsedOnMapStart = -1;
 
-            Score[] currentScores = _currentScores.ToArray();
-            _currentScores.Clear();
-
-            long bluePoints = 0, redPoints = 0;
-
-            for (int i = 0; i < currentScores.Length; i++)
-            {
-                if (!currentScores[i].Passed)
-                    continue;
-
-                Slot s = GetSlot(currentScores[i].Username);
-
-                if (s == null)
-                {
-                    Logger.Log("Unable to find slot for player", LogLevel.Warning);
-                    continue;
-                }
-
-                switch (s.Color)
-                {
-                    case SlotColor.Blue:
-                        bluePoints += currentScores[i].UserScore;
-                        break;
-
-                    case SlotColor.Red:
-                        redPoints += currentScores[i].UserScore;
-                        break;
-                }
-            }
-
-            _matchRounds.Add(new MatchRound(_matchRounds.Count + 1, LastMap, currentScores.ToList()));
-
-            if (bluePoints > redPoints)
-                WinsBlue++;
-            else if (redPoints > bluePoints)
-                WinsRed++;
-            else
-            {
-                WinsBlue++;
-                WinsRed++;
-            }
+            IReadOnlyList<IScore> scores = _currentScores.Select(s => (IScore)s).ToList();
+            _matchRounds.Add(new MatchRound(_matchRounds.Count + 1, LastMap, scores));
 
             Status = LobbyStatus.Created;
-
             _evRunner.EnqueueEvent(EventHelper.CreateMapEndEvent());
         }
 
@@ -122,8 +82,8 @@ namespace SkyBot.Osu.AutoRef
 
         public void OnUserSwitchSlot(string user, int slot)
         {
-            Slot o = GetSlot(user);
-            Slot n = GetSlot(slot);
+            Slot o = (Slot)GetSlot(user);
+            Slot n = (Slot)GetSlot(slot);
 
             o.Swap(n);
 
@@ -132,7 +92,7 @@ namespace SkyBot.Osu.AutoRef
 
         public void OnUserJoinLobby(string user, int slot, SlotColor team)
         {
-            Slot s = GetSlot(slot);
+            Slot s = (Slot)GetSlot(slot);
 
             s.Nickname = user;
             s.Color = team;
@@ -142,7 +102,7 @@ namespace SkyBot.Osu.AutoRef
 
         public void OnUserLeaveLobby(string user)
         {
-            Slot s = GetSlot(user);
+            Slot s = (Slot)GetSlot(user);
             s.Reset();
 
             _evRunner.EnqueueEvent(EventHelper.CreateLeaveEvent(user));
@@ -197,12 +157,12 @@ namespace SkyBot.Osu.AutoRef
             _evRunner.EnqueueEvent(EventHelper.CreateAbortMatchEvent());
         }
 
-        public Slot GetSlot(string nickname, StringComparison comparer = StringComparison.CurrentCultureIgnoreCase)
+        public ISlot GetSlot(string nickname, StringComparison comparer = StringComparison.CurrentCultureIgnoreCase)
         {
             return _slots.Values.FirstOrDefault(s => s.IsUsed && s.Nickname != null && s.Nickname.Equals(nickname, comparer));
         }
 
-        public Slot GetSlot(int slot)
+        public ISlot GetSlot(int slot)
         {
             if (_slots.TryGetValue(slot, out Slot s))
                 return s;
@@ -210,19 +170,46 @@ namespace SkyBot.Osu.AutoRef
             return null;
         }
 
-        public List<Slot> GetSlots()
+        public ISlot GetFirstUnusedSlot()
         {
-            return _slots.Values.ToList();
+            return _slots.Values.FirstOrDefault(s => !s.IsUsed) as ISlot;
         }
 
-        public List<Slot> GetUsedSlots()
+        public ISlot GetFirstUsedSlot()
         {
-            return _slots.Values.Where(s => s.IsUsed).ToList();
+            return _slots.Values.FirstOrDefault(s => s.IsUsed) as ISlot;
         }
 
-        public List<Slot> GetUnusedSlots()
+        public ISlot GetSlot(Func<ISlot, bool> predicate)
         {
-            return _slots.Values.Where(s => !s.IsUsed).ToList();
+            return _slots.Values.FirstOrDefault(s => predicate(s));
+        }
+
+        public List<ISlot> GetSlots(Func<ISlot, bool> predicate)
+        {
+            return _slots.Values.Where(s => predicate(s))
+                                .Select(s => (ISlot)s)
+                                .ToList();
+        }
+
+        public List<ISlot> GetSlots()
+        {
+            return _slots.Values.Select(s => (ISlot)s)
+                                .ToList();
+        }
+
+        public List<ISlot> GetUsedSlots()
+        {
+            return _slots.Values.Where(s => s.IsUsed)
+                                .Select(s => (ISlot)s)
+                                .ToList();
+        }
+
+        public List<ISlot> GetUnusedSlots()
+        {
+            return _slots.Values.Where(s => !s.IsUsed)
+                                .Select(s => (ISlot)s)
+                                .ToList();
         }
     }
 

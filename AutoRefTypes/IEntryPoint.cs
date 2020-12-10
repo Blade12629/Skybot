@@ -13,6 +13,6 @@ namespace AutoRefTypes
         /// <summary>
         /// The first thing to be called
         /// </summary>
-        public void OnLoad(ILobby lobby, IEventRunner eventRunner);
+        public void OnLoad(ILobby lobby, IEventRunner eventRunner, IDiscordHandler discord);
     }
 }

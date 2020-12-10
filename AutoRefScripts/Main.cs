@@ -13,12 +13,12 @@ namespace AutoRefScripts
 
         RefController _refController;
 
-        public void OnLoad(ILobby lobby, IEventRunner eventRunner)
+        public void OnLoad(ILobby lobby, IEventRunner eventRunner, IDiscordHandler discord)
         {
             lobby.DebugLog("Loading...");
 
             MainInstance = this;
-            _refController = new RefController(lobby, eventRunner);
+            _refController = new RefController(lobby, eventRunner, discord);
         }
     }
 
@@ -29,12 +29,13 @@ namespace AutoRefScripts
     {
         ILobby _lobby;
         IEventRunner _eventRunner;
+        IDiscordHandler _discord;
 
-
-        public RefController(ILobby lobby, IEventRunner er) : base(er)
+        public RefController(ILobby lobby, IEventRunner er, IDiscordHandler discord) : base(er)
         {
             _lobby = lobby;
             _eventRunner = er;
+            _discord = discord;
         }
 
         public void OnAbortMatch()

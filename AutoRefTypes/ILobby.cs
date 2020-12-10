@@ -8,10 +8,14 @@ namespace AutoRefTypes
     public interface ILobby
     {
         /// <summary>
-        /// Returns the current lobby settings
+        /// Contains the current lobby settings
         /// </summary>
-        /// <returns></returns>
-        public ILobbySettings GetSettings();
+        public ILobbySettings Settings { get; }
+
+        /// <summary>
+        /// Contains the current lobby data like slots
+        /// </summary>
+        public ILobbyDataHandler LobbyData { get; }
 
         /// <summary>
         /// Registers a <see cref="ChatRequest"/>, use <see cref="ChatRequest.Request"/>

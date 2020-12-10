@@ -45,6 +45,9 @@ namespace AutoRefTypes.Extended.Requests
             Max = 100;
         }
 
+        /// <summary>
+        /// Checks for !roll
+        /// </summary>
         public override bool CheckStringCondition(IChatMessage msg)
         {
             if (msg.From.Equals("banchobot", StringComparison.CurrentCultureIgnoreCase) &&

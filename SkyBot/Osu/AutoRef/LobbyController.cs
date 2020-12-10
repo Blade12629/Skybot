@@ -22,6 +22,10 @@ namespace SkyBot.Osu.AutoRef
     {
         public ILobbySettings Settings { get => _settings; }
         public LobbyDataHandler DataHandler { get => _data; }
+        /// <summary>
+        /// Same as <see cref="DataHandler"/> but in this case used for <see cref="ILobby"/>
+        /// </summary>
+        public ILobbyDataHandler LobbyData { get => _data; }
 
         List<ChatMessageAction> _chatMessageActions;
         List<ChatRequest> _requests;
@@ -67,7 +71,7 @@ namespace SkyBot.Osu.AutoRef
         public string ToIrcNick(string user)
         {
             if (string.IsNullOrEmpty(user))
-                return null;
+                throw new ArgumentNullException(nameof(user));
 
             return user.Replace(' ', '_');
         }
@@ -79,7 +83,7 @@ namespace SkyBot.Osu.AutoRef
         public string FromIrcNick(string user)
         {
             if (string.IsNullOrEmpty(user))
-                return null;
+                throw new ArgumentNullException(nameof(user));
 
             return user.Replace('_', ' ');
         }
