@@ -9,5 +9,6 @@ namespace AutoRefTypes
         public void SendMessage(ulong channel, string message);
         public void SendEmbed(ulong channel, string title, string description);
         public void SendEmbed(ulong channel, string title, string description, params (string, string, bool)[] fields);
+        public void SendChannelLogMesage(string message);
     }
 }

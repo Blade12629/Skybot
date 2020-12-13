@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SkyBot.GoogleAPI.SpreadSheets
 {
-    public class SpreadSheet : IDisposable
+    public class SpreadSheet : IDisposable, AutoRefTypes.Google.SpreadSheets.ISpreadsheet
     {
         public bool IsDisposed { get; private set; }
 

@@ -40,7 +40,7 @@ namespace AutoRefTypes.Extended
         public SlotSorter(ILobby lobby, string[] slotOrder)
         {
             if (slotOrder == null)
-                throw new ArgumentNullException(nameof(slotOrder));
+                throw new ArgumentNullException(nameof(slotOrder), "slotOrder cannot be null");
             else if (slotOrder.Length == 0)
                 throw new ArgumentOutOfRangeException(nameof(slotOrder), "slotOrder cannot be empty");
 
@@ -51,6 +51,9 @@ namespace AutoRefTypes.Extended
 
         void InternalSort()
         {
+            if (_sortActions == null)
+                _sortActions = new List<Action>();
+
             _sortActions.Clear();
             _sortIndex = 0;
 

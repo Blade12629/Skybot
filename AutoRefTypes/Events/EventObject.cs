@@ -49,6 +49,11 @@ namespace AutoRefTypes.Events
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
+        public void Deregister(IEventRunner eventRunner)
+        {
+            _evRunner.Delete(this);
+        }
+
         public override bool Equals(object obj)
         {
             return Equals(obj as EventObject);

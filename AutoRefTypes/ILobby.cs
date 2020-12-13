@@ -92,7 +92,7 @@ namespace AutoRefTypes
         /// Sets a specific map
         /// </summary>
         /// <param name="mode">0: osu!, 1: Taiko, 2: Catch The Beat, 3: osu!Mania</param>
-        public void SetMap(long map, int? mode = null);
+        public void SetMap(ulong map, int? mode = null);
 
         /// <summary>
         /// Starts a timer
@@ -162,5 +162,7 @@ namespace AutoRefTypes
         public void SendChannelMessage(string message);
 
         public void DebugLog(string msg);
+
+        public void Close();
     }
 }

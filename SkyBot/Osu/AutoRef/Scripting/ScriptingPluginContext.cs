@@ -52,12 +52,9 @@ namespace SkyBot.Osu.AutoRef.Scripting
             OnBeforeUnload?.Invoke();
 
             GC.Collect();
-            base.Unload();
-            GC.Collect();
+            GC.WaitForPendingFinalizers();
 
-            System.Threading.Tasks.Task.Delay(50).ConfigureAwait(false);
-            if (_reference.IsAlive)
-                throw new AppDomainUnloadedException("Tried to unload ScriptingPluginContext but reference still alive");
+            base.Unload();
 
             OnAfterUnload?.Invoke();
         }

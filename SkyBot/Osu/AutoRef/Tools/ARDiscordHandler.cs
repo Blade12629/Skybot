@@ -10,11 +10,18 @@ namespace SkyBot.Osu.AutoRef.Tools
     {
         DiscordHandler _discord;
         ulong _guildId;
+        ulong _logChannelId;
 
-        public ARDiscordHandler(DiscordHandler discord, ulong guildId)
+        public ARDiscordHandler(DiscordHandler discord, ulong guildId, ulong logChannelId)
         {
             _discord = discord;
             _guildId = guildId;
+            _logChannelId = logChannelId;
+        }
+
+        public void SendChannelLogMesage(string message)
+        {
+            SendMessage(_logChannelId, message);
         }
 
         public void SendEmbed(ulong channel, string title, string description)

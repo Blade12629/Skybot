@@ -28,7 +28,7 @@ namespace SkyBot.Osu.AutoRef.Management
             _syncRoot = new object();
         }
 
-        public static AutoRefEngine CreateInstance(bool autoCreate = false, DateTime autoCreationDate = default)
+        public static AutoRefEngine CreateInstance(AutoRefSettings settings, bool autoStartCreationTimer = true)
         {
             lock(_syncRoot)
             {
@@ -38,8 +38,10 @@ namespace SkyBot.Osu.AutoRef.Management
                 AutoRefEngine engine = new AutoRefEngine();
                 _instances.Add(engine);
 
-                if (autoCreate && !autoCreationDate.Equals(default))
-                    engine.StartCreationTimer(autoCreationDate);
+                engine.Setup(settings);
+
+                if (autoStartCreationTimer)
+                    engine.StartCreationTimer();
 
                 return engine;
             }

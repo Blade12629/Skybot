@@ -52,8 +52,8 @@ namespace AutoRefTypes.Extended.Requests
             if (!msg.From.Equals(User, StringComparison.CurrentCultureIgnoreCase))
                 return false;
 
-            if ((IsBanRequest && msg.From.StartsWith("!ban", StringComparison.CurrentCultureIgnoreCase)) ||
-                (!IsBanRequest && msg.From.StartsWith("!pick", StringComparison.CurrentCultureIgnoreCase)))
+            if ((IsBanRequest && msg.Message.StartsWith("!ban", StringComparison.CurrentCultureIgnoreCase)) ||
+                (!IsBanRequest && msg.Message.StartsWith("!pick", StringComparison.CurrentCultureIgnoreCase)))
                 return true;
 
             return false;

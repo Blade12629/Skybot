@@ -1,5 +1,6 @@
 ﻿using SkyBot;
 using SkyBot.Osu.AutoRef;
+using SkyBot.Osu.AutoRef.Management;
 using SkyBot.Discord.CommandSystem;
 using System;
 using System.Collections.Generic;
@@ -68,21 +69,23 @@ namespace DiscordCommands
 
                 case "-create":
                     {
-                        string lobbyName = "XYZ: (a) vs (b)";
+                        AutoRefSettings settings = new AutoRefSettings("AutoRefScripts.dll", true, DateTime.UtcNow, 
+                                                                       args.Guild.Id, args.Channel.Id, "XYZ: (a) vs (b)", 
+                                                                       "{\n\t\"CaptainA\": \"Skyfly\",\n\t\"CaptainB\": \"Skyfly\"\n}", "11VadbJfcn93VvRwcTTIYWQRmm9TpGd_AnXdhwzEppFg", "Table 1");
+                        _are = AutoRefManager.CreateInstance(settings);
 
-                        _are = new AutoRefEngine();
-                        _are.Setup("AutoRefScripts.dll", true, true);
-                        _are.Run(lobbyName);
+                        if (_are == null)
+                        {
+                            args.Channel.SendMessageAsync("Failed to create lobby, max instances reached").ConfigureAwait(false);
+                            return;
+                        }
 
                         args.Channel.SendMessageAsync("Created match").ConfigureAwait(false);
                     }
                     return;
 
                 case "-stop":
-                    {
-                        _are.LC.CloseLobby();
-                    }
-                    args.Channel.SendMessageAsync("Stopped match").ConfigureAwait(false);
+                    _are.LC.Close();
                     return;
 
                 case "-close":

@@ -100,6 +100,13 @@ namespace SkyBot.Osu.AutoRef.Events
             }
         }
 
+        public void Clear()
+        {
+            _registers?.Clear();
+            _eventQueue?.Clear();
+            _lastTick = false;
+        }
+
         /// <summary>
         /// Run one event cycle
         /// </summary>
@@ -107,7 +114,7 @@ namespace SkyBot.Osu.AutoRef.Events
         {
             lock (_syncRoot)
             {
-                if (_lastTick)
+              if (_lastTick)
                 {
                     _lastTick = !_lastTick;
                     return;

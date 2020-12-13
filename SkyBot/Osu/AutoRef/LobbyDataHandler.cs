@@ -59,6 +59,9 @@ namespace SkyBot.Osu.AutoRef
             Status = LobbyStatus.Playing;
             _currentScores.Clear();
 
+            foreach (Slot slot in _slots.Values)
+                slot.IsReady = false;
+
             _evRunner.EnqueueEvent(EventHelper.CreateMapStartEvent());
             _slotsUsedOnMapStart = GetUsedSlots().Count;
         }

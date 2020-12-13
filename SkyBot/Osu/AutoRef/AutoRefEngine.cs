@@ -5,8 +5,10 @@ using SkyBot.Osu.AutoRef.Tools;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,15 +23,17 @@ namespace SkyBot.Osu.AutoRef
         public bool ValidSetup { get => _lc != null && _eventRunner != null && _pluginContext != null && !IsDisposed; }
         public LobbyController LC { get => _lc; }
 
+        GoogleAPI.SpreadSheets.SpreadSheet _sheet;
+        AutoRefSettings _refSettings;
         ARDiscordHandler _discord;
         LobbyController _lc;
         EventRunner _eventRunner;
         ScriptingPluginContext _pluginContext;
         CancellationTokenSource _tickToken;
-        string _lobbyName;
         Task _tickTask;
 
         System.Timers.Timer _creationTimer;
+        bool _wasClosed;
 
         public AutoRefEngine()
         {
@@ -41,9 +45,16 @@ namespace SkyBot.Osu.AutoRef
             Dispose(false);
         }
 
-        public void StartCreationTimer(DateTime creationDate)
+        public void StartCreationTimer()
         {
-            double delay = (creationDate - DateTime.UtcNow).TotalMilliseconds;
+            double delay = (_refSettings.CreationDate - DateTime.UtcNow).TotalMilliseconds;
+
+            if (delay <= 0)
+            {
+                CreationTimerElapsed(this, null);
+                return;
+            }
+
             _creationTimer = new System.Timers.Timer(delay);
 
             _creationTimer.Elapsed += CreationTimerElapsed;
@@ -58,18 +69,35 @@ namespace SkyBot.Osu.AutoRef
             _creationTimer.Stop();
         }
 
-        private void CreationTimerElapsed(object sender, ElapsedEventArgs e)
+        public bool Setup(AutoRefSettings settings)
         {
-            Run(_lobbyName);
+            _refSettings = settings;
+            return Setup(settings.ScriptFileName, true, settings.IsLibrary, settings.DiscordGuildId, settings.DiscordLogChannelId);
         }
 
-        public bool LoadScriptsFromLibrary(string dll)
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+
+        void OnLobbyClose()
+        {
+            Task.Delay(3000).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            _wasClosed = true;
+            Dispose();
+            Management.AutoRefManager.DeregisterInstance(this);
+        }
+
+        bool LoadScriptsFromLibrary(string dll)
         {
             _pluginContext = new ScriptingPluginContext();
             return _pluginContext.LoadFromFile(dll);
         }
 
-        public bool LoadScriptFromFile(string file)
+        bool LoadScriptFromFile(string file)
         {
             if (!File.Exists(file))
                 return false;
@@ -82,7 +110,7 @@ namespace SkyBot.Osu.AutoRef
             return LoadScript(script);
         }
 
-        public bool LoadScript(string script)
+        bool LoadScript(string script)
         {
             if (_pluginContext != null && _pluginContext.IsAlive)
                 throw new Exception("Cannot load new plugin when old plugin context is still alive");
@@ -108,12 +136,20 @@ namespace SkyBot.Osu.AutoRef
             return true;
         }
 
-        public bool Setup(string script, bool isFile, bool isDll, ulong discordGuildId)
+        void CreationTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(_refSettings.SpreadsheetId) && !string.IsNullOrEmpty(_refSettings.SpreadsheetTable))
+                _sheet = new GoogleAPI.SpreadSheets.SpreadSheet(_refSettings.SpreadsheetId, _refSettings.SpreadsheetTable);
+
+            Run();
+        }
+
+        bool Setup(string script, bool isFile, bool isDll, ulong discordGuildId, ulong logChannelId)
         {
             _tickToken = new CancellationTokenSource();
             _tickTask = new Task(async () =>
             {
-                while(!_tickToken.IsCancellationRequested)
+                while (_tickToken != null && !_tickToken.IsCancellationRequested)
                 {
                     RefTick();
                     await Task.Delay(50).ConfigureAwait(false);
@@ -122,7 +158,9 @@ namespace SkyBot.Osu.AutoRef
 
             _eventRunner = new EventRunner();
             _lc = new LobbyController(Program.IRC, _eventRunner);
-            _discord = new ARDiscordHandler(Program.DiscordHandler, discordGuildId);
+            _discord = new ARDiscordHandler(Program.DiscordHandler, discordGuildId, logChannelId);
+
+            _lc.OnLobbyClose += OnLobbyClose;
 
             if (isDll)
             {
@@ -137,7 +175,8 @@ namespace SkyBot.Osu.AutoRef
             }
         }
 
-        public void Run(string lobbyName)
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        void Run()
         {
             if (!ValidSetup)
                 throw new Exception("Invalid Setup");
@@ -146,18 +185,21 @@ namespace SkyBot.Osu.AutoRef
             Type entryType = types.First(t => t.GetInterfaces().Any(i => i.Equals(typeof(IEntryPoint))));
 
             IEntryPoint entryPoint = Activator.CreateInstance(entryType) as IEntryPoint;
-            entryPoint.OnLoad(_lc, _eventRunner, _discord);
+            entryPoint.OnLoad(_lc, _eventRunner, _discord, _sheet, _refSettings.ScriptInput);
 
-            _tickTask.Start();
-            _lc.CreateLobby(lobbyName);
+            Task.Run(() =>
+            {
+
+                while (_lc.DataHandler.Status != LobbyStatus.Created ||
+                    DateTime.UtcNow - _lc.DataHandler.CreationDate < TimeSpan.FromSeconds(3))
+                    Task.Delay(20).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                _tickTask.Start();
+            });
+            _lc.CreateLobby(_refSettings.LobbyName);
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
+        [MethodImpl(MethodImplOptions.NoInlining)]
         void Dispose(bool disposing)
         {
             if (IsDisposed)
@@ -167,30 +209,63 @@ namespace SkyBot.Osu.AutoRef
             {
                 IsDisposed = true;
 
-                if (_lc != null && (_lc.DataHandler.Status != LobbyStatus.Closed ||_lc.DataHandler.Status != LobbyStatus.None))
-                    _lc.CloseLobby();
+                if (!_wasClosed && _lc != null && (_lc.DataHandler.Status != LobbyStatus.Closed ||_lc.DataHandler.Status != LobbyStatus.None))
+                    _lc.Close();
 
                 _lc = null;
 
-                _pluginContext?.Unload();
+                if (_creationTimer?.Enabled ?? false)
+                    _creationTimer?.Stop();
+
+                _creationTimer = null;
+
 
                 _tickToken?.Cancel();
+                _tickTask?.Wait();
+                _tickTask = null;
+                _tickToken = null;
+
+                _eventRunner?.Clear();
+                _eventRunner = null;
+
+                _discord = null;
+
+                _sheet?.Dispose();
+                _sheet = null;
+
+                _refSettings = null;
+
+                _pluginContext?.Unload();
+                _pluginContext = null;
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
         }
     
         void RefTick()
         {
-            _lc.ProcessIncomingMessages();
-
-            switch (_lc.DataHandler.Status)
+            try
             {
-                case LobbyStatus.Created:
-                case LobbyStatus.Playing:
-                    _eventRunner.OnTick();
-                    break;
+                if (_lc.DataHandler.Status == LobbyStatus.Closed)
+                    return;
 
-                default:
-                    break;
+                _lc.ProcessIncomingMessages();
+
+                switch (_lc.DataHandler.Status)
+                {
+                    case LobbyStatus.Created:
+                    case LobbyStatus.Playing:
+                        _eventRunner.OnTick();
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"AutoRefEngine tick error, error:\n" + ex, LogLevel.Error);
             }
         }
 

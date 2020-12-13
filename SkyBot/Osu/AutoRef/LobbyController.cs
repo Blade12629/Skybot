@@ -26,6 +26,7 @@ namespace SkyBot.Osu.AutoRef
         /// Same as <see cref="DataHandler"/> but in this case used for <see cref="ILobby"/>
         /// </summary>
         public ILobbyDataHandler LobbyData { get => _data; }
+        public event Action OnLobbyClose;
 
         List<ChatMessageAction> _chatMessageActions;
         List<ChatRequest> _requests;
@@ -108,7 +109,7 @@ namespace SkyBot.Osu.AutoRef
                 _data.Status == LobbyStatus.Closed)
                 throw new Exception("MP Lobby doesn't exist, cannot send mp command");
 
-            _irc.SendMessageAsync(Settings.ChannelName, message).ConfigureAwait(false);
+            _irc.SendMessageAsync(Settings.ChannelName, message).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         void MessageReceived(object sender, IrcChannelMessageEventArgs e)
@@ -196,6 +197,12 @@ namespace SkyBot.Osu.AutoRef
 
             CreatedLobby(matchId);
         }
+
+        public void Close()
+        {
+            CloseLobby();
+            OnLobbyClose?.Invoke();
+        }
     }
 
     //MP Commands
@@ -221,7 +228,7 @@ namespace SkyBot.Osu.AutoRef
         /// </summary>
         /// <param name="map">Map id to set</param>
         /// <param name="mode">Gamemode</param>
-        public void SetMap(long map, int? mode = null)
+        public void SetMap(ulong map, int? mode = null)
         {
             if (map <= 0)
                 throw new ArgumentOutOfRangeException(nameof(map));
@@ -294,7 +301,7 @@ namespace SkyBot.Osu.AutoRef
         /// <param name="slots">Amount of slots</param>
         public void SetLobby(TeamMode teamMode, WinCondition? condition, int? slots)
         {
-            StringBuilder builder = new StringBuilder($"!mp set {(int)teamMode}");
+            StringBuilder builder = new StringBuilder($"{(int)teamMode}");
 
             if (condition.HasValue)
                 builder.Append($" {(int)condition}");
@@ -508,7 +515,7 @@ namespace SkyBot.Osu.AutoRef
             SendCommand(MPCommand.Abort);
         }
 
-        public void CloseLobby()
+        void CloseLobby()
         {
             SendCommand(MPCommand.Close);
         }
